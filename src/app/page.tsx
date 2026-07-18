@@ -7,9 +7,7 @@ export default function HomePage() {
         <p className="mt-4 max-w-prose text-base text-muted">
           项目脚手架已完成。访问本页看到占位页，即可验证基础工具链。
         </p>
-        <p className="mt-2 max-w-prose text-sm text-muted">
-          Hello world · scaffold ready
-        </p>
+        <p className="mt-2 max-w-prose text-sm text-muted">Hello world · scaffold ready</p>
       </div>
     </main>
   );

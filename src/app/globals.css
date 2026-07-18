@@ -23,7 +23,8 @@
 
   body {
     @apply bg-bg text-ink;
-    font-family: var(--font-sans), "Inter", "Noto Sans SC", "Source Han Sans SC", system-ui, sans-serif;
+    font-family:
+      var(--font-sans), "Inter", "Noto Sans SC", "Source Han Sans SC", system-ui, sans-serif;
   }
 
   ::selection {

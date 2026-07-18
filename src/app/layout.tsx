@@ -34,9 +34,7 @@ export const metadata: Metadata = {
     template: "%s | 小川记事",
   },
   description: "一个独立创作者的日常与记录。",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
-  ),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
 };
 
 export default function RootLayout({
@@ -45,10 +43,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" className={`${inter.variable} ${serif.variable} ${notoSans.variable} ${mono.variable}`}>
-      <body className="min-h-screen bg-bg font-sans text-ink antialiased">
-        {children}
-      </body>
+    <html
+      lang="zh-CN"
+      className={`${inter.variable} ${serif.variable} ${notoSans.variable} ${mono.variable}`}
+    >
+      <body className="min-h-screen bg-bg font-sans text-ink antialiased">{children}</body>
     </html>
   );
 }

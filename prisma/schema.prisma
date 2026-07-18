@@ -1,5 +1,13 @@
-// Database schema for My-Blog.
-// See docs/technology-baseline.md and REQUIREMENTS.md section 7.
+// My-Blog Prisma schema.
+//
+// Design references:
+//   - REQUIREMENTS.md section 7 (data model: 13 tables + Visibility/Status enums)
+//   - DEVELOPMENT.md section 2.4 (locked versions via docs/technology-baseline.md)
+//
+// Provider note: Phase 0-9 use SQLite (zero-config local dev). Phase 10 swaps to
+// PostgreSQL 17 without altering the model shape. JSON-like columns are stored
+// as text on SQLite and parsed at the application layer.
+//
 
 generator client {
   provider = "prisma-client-js"
@@ -10,7 +18,304 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Phase 0 placeholder. Real fields are introduced in Phase 1 (database & auth).
+// ---------- Enums ----------
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum Visibility {
+  PUBLIC
+  PRIVATE
+  PASSWORD
+}
+
+enum Status {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CategoryType {
+  ARTICLE
+  PROJECT
+}
+
+enum PageType {
+  ABOUT
+  NOW
+}
+
+// ---------- System: User ----------
+
 model User {
-  id Int @id @default(autoincrement())
+  id           String    @id @default(cuid())
+  email        String    @unique
+  username     String    @unique
+  displayName  String?
+  avatarUrl    String?
+  passwordHash String
+  role         Role      @default(USER)
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  articles Article[]
+  notes    Note[]
+  projects Project[]
+  albums   Album[]
+  photos   Photo[]
+
+  @@index([role])
+  @@index([isActive])
+}
+
+// ---------- Content: Article ----------
+
+model Article {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  title       String
+  excerpt     String?
+  content     String
+  coverImage  String?
+  categoryId  String?
+  visibility  Visibility @default(PUBLIC)
+  password    String?
+  status      Status     @default(DRAFT)
+  featured    Boolean    @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+  viewCount   Int        @default(0)
+
+  authorId  String
+  author    User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  category  Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tags      ArticleTag[]
+
+  @@index([slug])
+  @@index([status, publishedAt])
+  @@index([visibility])
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([deletedAt])
+}
+
+// ---------- Content: Note ----------
+
+model Note {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  title       String
+  excerpt     String?
+  content     String
+  visibility  Visibility @default(PUBLIC)
+  password    String?
+  status      Status     @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+  viewCount   Int        @default(0)
+
+  authorId String
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  tags     NoteTag[]
+
+  @@index([slug])
+  @@index([status, publishedAt])
+  @@index([visibility])
+  @@index([authorId])
+  @@index([deletedAt])
+}
+
+// ---------- Content: Project + ProjectImage ----------
+
+model Project {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  title       String
+  description String
+  coverImage  String?
+  categoryId  String?
+  visibility  Visibility @default(PUBLIC)
+  password    String?
+  status      Status     @default(DRAFT)
+  featured    Boolean    @default(false)
+  order       Int        @default(999)
+  publishedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+  viewCount   Int        @default(0)
+
+  authorId String
+  author   User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  category Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  images   ProjectImage[]
+  tags     ProjectTag[]
+
+  @@index([slug])
+  @@index([status, publishedAt, order])
+  @@index([visibility])
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([deletedAt])
+}
+
+model ProjectImage {
+  id        String   @id @default(cuid())
+  projectId String
+  imageUrl  String
+  caption   String?
+  order     Int      @default(0)
+  width     Int?
+  height    Int?
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, order])
+}
+
+// ---------- Content: Album + Photo ----------
+
+model Album {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  title       String
+  description String?
+  coverImage  String?
+  visibility  Visibility @default(PUBLIC)
+  status      Status     @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+
+  authorId String
+  author   User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  photos   Photo[]
+
+  @@index([slug])
+  @@index([status, publishedAt])
+  @@index([visibility])
+  @@index([authorId])
+  @@index([deletedAt])
+}
+
+model Photo {
+  id           String     @id @default(cuid())
+  title        String?
+  description  String?
+  imageUrl     String
+  thumbnailUrl String?
+  location     String?
+  takenAt      DateTime?
+  albumId      String?
+  visibility   Visibility @default(PUBLIC)
+  status       Status     @default(DRAFT)
+  width        Int?
+  height       Int?
+  order        Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+  viewCount    Int        @default(0)
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  album    Album? @relation(fields: [albumId], references: [id], onDelete: SetNull)
+
+  @@index([albumId, order])
+  @@index([status, takenAt])
+  @@index([visibility])
+  @@index([authorId])
+  @@index([deletedAt])
+}
+
+// ---------- Organization: Category + Tag + joins ----------
+
+model Category {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  description String?
+  type        CategoryType
+  order       Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  articles Article[]
+  projects Project[]
+
+  @@index([type, order])
+}
+
+model Tag {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  color       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  articles ArticleTag[]
+  notes    NoteTag[]
+  projects ProjectTag[]
+}
+
+model ArticleTag {
+  articleId String
+  tagId     String
+  createdAt DateTime @default(now())
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+  @@index([tagId])
+}
+
+model NoteTag {
+  noteId    String
+  tagId     String
+  createdAt DateTime @default(now())
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([noteId, tagId])
+  @@index([tagId])
+}
+
+model ProjectTag {
+  projectId String
+  tagId     String
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, tagId])
+  @@index([tagId])
+}
+
+// ---------- Content: Page (About / Now single-page entries) ----------
+
+model Page {
+  id        String   @id @default(cuid())
+  type      PageType @unique
+  content   String
+  // Meta is persisted as a JSON-encoded string. SQLite stores it as TEXT;
+  // application code parses/parses-on-write so the field works for both
+  // SQLite (Phase 0-9) and Postgres JSONB (Phase 10).
+  meta      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

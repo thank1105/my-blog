@@ -4,7 +4,6 @@
 > 最后更新：2026-07-18（待启动 Phase 0；稳定技术栈与视觉 Token 已统一）
 > 配套文档：[REQUIREMENTS.md](./REQUIREMENTS.md) · [docs/technology-baseline.md](./docs/technology-baseline.md)（技术版本唯一事实来源）
 
-
 > **配套设计文档**：[docs/design-decisions.md](./docs/design-decisions.md)（设计 Token）· [docs/visual-anchor.png](./docs/visual-anchor.png)（视觉锚）
 
 ---
@@ -38,13 +37,13 @@
 
 ### 1.2 排序决策表
 
-| 顺序 | 决策 | 理由 |
-|------|------|------|
-| 脚手架 → 认证 → 设计系统 → 内容 | 而非内容先行 | 内容和认证耦合（私密权限），认证需要脚手架 |
-| 文章 → 笔记 → 作品 → 相册 | 而非按字母或时间 | 文章功能最全，是其他模块的"母版" |
-| 后台 CRUD → 前台展示 | 同步推进 | 同一个模块内先跑通后台，再做前台 |
-| 公开功能 → 私密功能 | 先公开后私密 | 公开无权限复杂度，先打通主流程 |
-| 本地 SQLite → 部署 PostgreSQL 17 | 分阶段切换 | 本地零配置，部署时再换高性能方案 |
+| 顺序                             | 决策             | 理由                                       |
+| -------------------------------- | ---------------- | ------------------------------------------ |
+| 脚手架 → 认证 → 设计系统 → 内容  | 而非内容先行     | 内容和认证耦合（私密权限），认证需要脚手架 |
+| 文章 → 笔记 → 作品 → 相册        | 而非按字母或时间 | 文章功能最全，是其他模块的"母版"           |
+| 后台 CRUD → 前台展示             | 同步推进         | 同一个模块内先跑通后台，再做前台           |
+| 公开功能 → 私密功能              | 先公开后私密     | 公开无权限复杂度，先打通主流程             |
+| 本地 SQLite → 部署 PostgreSQL 17 | 分阶段切换       | 本地零配置，部署时再换高性能方案           |
 
 ### 1.3 拒绝的做法
 
@@ -60,13 +59,13 @@
 
 ### 2.1 节奏控制
 
-| 维度 | 数值 |
-|------|------|
-| 每阶段 | 3-5 天 |
-| 每任务 | 1-4 小时 |
-| 每天结束 | 提交代码到 Git |
+| 维度       | 数值                                 |
+| ---------- | ------------------------------------ |
+| 每阶段     | 3-5 天                               |
+| 每任务     | 1-4 小时                             |
+| 每天结束   | 提交代码到 Git                       |
 | 每阶段结束 | 阶段验收 + Git Tag + 更新 ROADMAP.md |
-| 每天开工 | 拉最新代码 + 看 ROADMAP.md 当日任务 |
+| 每天开工   | 拉最新代码 + 看 ROADMAP.md 当日任务  |
 
 ### 2.2 提交规范（Conventional Commits）
 
@@ -82,6 +81,7 @@ perf:     性能优化
 ```
 
 **示例**：
+
 ```bash
 git commit -m "feat(articles): 添加文章列表分页"
 git commit -m "fix(upload): 修复大文件上传失败"
@@ -100,15 +100,15 @@ main                 ← 主分支，始终可运行
 
 完整版本矩阵统一维护在 [docs/technology-baseline.md](./docs/technology-baseline.md)，本开发文档不得另行选择不同主版本。
 
-| 阶段 | 新增依赖范围 |
-|---|---|
-| Phase 0 | Next.js/React/TypeScript、Tailwind CSS、Prisma、shadcn/ui CLI、ESLint、Prettier |
-| Phase 1 | NextAuth.js、bcryptjs、react-hook-form、Zod、Vitest（首次测试时） |
-| Phase 2 | lucide-react 和具体 shadcn/ui 组件依赖 |
-| Phase 3 | next-mdx-remote、remark/rehype、rehype-pretty-code、Shiki |
-| Phase 5–6 | sharp（若此前尚未安装） |
-| 按需 | Husky、lint-staged，仅在启用 Git Hooks 时安装 |
-| Phase 10 | PostgreSQL 17 或兼容该版本的托管服务 |
+| 阶段      | 新增依赖范围                                                                    |
+| --------- | ------------------------------------------------------------------------------- |
+| Phase 0   | Next.js/React/TypeScript、Tailwind CSS、Prisma、shadcn/ui CLI、ESLint、Prettier |
+| Phase 1   | NextAuth.js、bcryptjs、react-hook-form、Zod、Vitest（首次测试时）               |
+| Phase 2   | lucide-react 和具体 shadcn/ui 组件依赖                                          |
+| Phase 3   | next-mdx-remote、remark/rehype、rehype-pretty-code、Shiki                       |
+| Phase 5–6 | sharp（若此前尚未安装）                                                         |
+| 按需      | Husky、lint-staged，仅在启用 Git Hooks 时安装                                   |
+| Phase 10  | PostgreSQL 17 或兼容该版本的托管服务                                            |
 
 **锁定规则**：不得使用 `latest` 或预发布标签；React/React DOM、Prisma CLI/Client 必须严格同版，Next.js/`eslint-config-next` 必须保持同一版本线，最终解析结果提交到 `pnpm-lock.yaml`。
 
@@ -116,19 +116,19 @@ main                 ← 主分支，始终可运行
 
 ## 3. 阶段总览
 
-| 阶段 | 名称 | 目标 | 预计天数 | 累计 | Git Tag |
-|------|------|------|----------|------|---------|
-| **0** | 项目脚手架 | 能跑起来的空 Next.js | 1 | 1 | `v0.1.0-foundation` |
-| **1** | 数据库 & 认证 | 登录、用户管理可用 | 2 | 3 | `v0.2.0-auth` |
-| **2** | 设计系统 & 布局 | 全站统一样式，页面有壳 | 2 | 5 | `v0.3.0-design` |
-| **3** | 文章模块 ⭐ | 完整写、读、看流程 | 4 | 9 | `v0.4.0-articles` |
-| **4** | 笔记模块 | 数字花园上线 | 2 | 11 | `v0.5.0-notes` |
-| **5** | 作品集 | Behance 风格作品展示 | 3 | 14 | `v0.6.0-projects` |
-| **6** | 相册 | 瀑布流照片墙 | 2 | 16 | `v0.7.0-photos` |
-| **7** | 分类/标签/单页 | 辅助功能完善 | 2 | 18 | `v0.8.0-organization` |
-| **8** | 首页 & 归档 | 全站组装完成 | 2 | 20 | `v0.9.0-homepage` |
-| **9** | SEO & 性能 | 上线准备 | 1 | 21 | `v1.0.0-rc1` |
-| **10** | 部署 | 真正可访问 | 2 | 23 | `v1.0.0` |
+| 阶段   | 名称            | 目标                   | 预计天数 | 累计 | Git Tag               |
+| ------ | --------------- | ---------------------- | -------- | ---- | --------------------- |
+| **0**  | 项目脚手架      | 能跑起来的空 Next.js   | 1        | 1    | `v0.1.0-foundation`   |
+| **1**  | 数据库 & 认证   | 登录、用户管理可用     | 2        | 3    | `v0.2.0-auth`         |
+| **2**  | 设计系统 & 布局 | 全站统一样式，页面有壳 | 2        | 5    | `v0.3.0-design`       |
+| **3**  | 文章模块 ⭐     | 完整写、读、看流程     | 4        | 9    | `v0.4.0-articles`     |
+| **4**  | 笔记模块        | 数字花园上线           | 2        | 11   | `v0.5.0-notes`        |
+| **5**  | 作品集          | Behance 风格作品展示   | 3        | 14   | `v0.6.0-projects`     |
+| **6**  | 相册            | 瀑布流照片墙           | 2        | 16   | `v0.7.0-photos`       |
+| **7**  | 分类/标签/单页  | 辅助功能完善           | 2        | 18   | `v0.8.0-organization` |
+| **8**  | 首页 & 归档     | 全站组装完成           | 2        | 20   | `v0.9.0-homepage`     |
+| **9**  | SEO & 性能      | 上线准备               | 1        | 21   | `v1.0.0-rc1`          |
+| **10** | 部署            | 真正可访问             | 2        | 23   | `v1.0.0`              |
 
 **总计**：约 23 个工作日（≈ 1 个月专注开发）
 
@@ -191,6 +191,7 @@ graph LR
 **版本基线**：[docs/technology-baseline.md](./docs/technology-baseline.md)；Phase 0 不提前安装认证、Markdown、图片处理等后续依赖。
 
 **任务清单**：
+
 - [x] 确认 Node.js 24 LTS 与 pnpm 10 环境
 - [x] 创建 Next.js 15.5 项目（App Router + React 19.1 + TypeScript 5.9）
 - [x] 安装并配置 Tailwind CSS 3.4 + PostCSS 8 + Autoprefixer 10
@@ -206,6 +207,7 @@ graph LR
 - [x] 提交 Phase 0 脚手架
 
 **关键文件**：
+
 ```text
 package.json
 pnpm-lock.yaml
@@ -225,6 +227,7 @@ src/app/page.tsx
 ```
 
 **验收标准**：
+
 - [x] `node --version` 为 24.x LTS，`pnpm --version` 为 10.x
 - [x] `pnpm install --frozen-lockfile` 能成功复现依赖
 - [x] `pnpm dev` 能跑起来，访问 `http://localhost:3000` 看到占位页
@@ -251,15 +254,17 @@ src/app/page.tsx
 **任务清单**：
 
 **Day 1 - 认证核心**：
-- [ ] 安装 NextAuth.js 4.24、bcryptjs 3、react-hook-form 7、Zod 3.25
-- [ ] 配置 NextAuth.js v4（Credentials Provider）
-- [ ] 实现登录页 UI
-- [ ] 实现 JWT Session，由 HTTP-only Cookie 持有会话令牌
-- [ ] 密码使用 bcryptjs 加密（cost 12）
-- [ ] 登录限流（5 次/15 分钟）
-- [ ] 创建 seed 脚本（生成 admin 账号 + 测试朋友账号）
+
+- [x] 安装 NextAuth.js 4.24、bcryptjs 3、react-hook-form 7、Zod 3.25
+- [x] 配置 NextAuth.js v4（Credentials Provider）
+- [x] 实现登录页 UI
+- [x] 实现 JWT Session，由 HTTP-only Cookie 持有会话令牌
+- [x] 密码使用 bcryptjs 加密（cost 12）
+- [x] 登录限流（5 次/15 分钟）
+- [x] 创建 seed 脚本（生成 admin 账号 + 测试朋友账号）
 
 **Day 2 - 用户管理 + 权限中间件**：
+
 - [ ] 实现可见性校验工具函数 `lib/visibility.ts`
 - [ ] 实现 `middleware.ts`：保护 `/admin/*` 路由
 - [ ] 实现 `middleware.ts`：过滤私密内容
@@ -269,6 +274,7 @@ src/app/page.tsx
 - [ ] 单元测试：权限中间件
 
 **关键文件**：
+
 ```
 prisma/seed.ts
 src/lib/auth.ts
@@ -283,6 +289,7 @@ src/app/(admin)/admin/users/[id]/edit/page.tsx
 ```
 
 **验收标准**：
+
 - [ ] 访问 `/login` 输入 admin 账号能登录
 - [ ] 未登录访问 `/admin/*` 跳转到 `/login`
 - [ ] 登录后访问 `/admin` 能看到用户管理页
@@ -292,6 +299,7 @@ src/app/(admin)/admin/users/[id]/edit/page.tsx
 - [ ] 关闭浏览器再打开，session 保持（如果选了"记住我"）
 
 **演示能力**：
+
 - 登录/退出
 - 创建/管理用户
 - 朋友登录后能看到私密内容
@@ -306,7 +314,6 @@ src/app/(admin)/admin/users/[id]/edit/page.tsx
 
 > 📐 **参考视觉稿**：[docs/visual-anchor.png](./docs/visual-anchor.png)（全站标尺） · [docs/design-explorations/p1-style/01.png](./docs/design-explorations/p1-style/01.png)（基线风格）
 
-
 **预计耗时**：2 天
 
 **前置依赖**：Phase 1
@@ -314,6 +321,7 @@ src/app/(admin)/admin/users/[id]/edit/page.tsx
 **任务清单**：
 
 **Day 1 - 主题 & 字体 & 公共组件**：
+
 - [ ] 使用 Tailwind CSS 3.4 配置主题色（**主色 `#E85A2C`**，详见 [docs/design-decisions.md](./docs/design-decisions.md) —— 2026-07-18 由 #FF6B35 微调）
 - [ ] 引入字体（思源黑体、思源宋体、Inter、JetBrains Mono）
 - [ ] 使用 `next/font` 子集化 + 预加载
@@ -322,6 +330,7 @@ src/app/(admin)/admin/users/[id]/edit/page.tsx
 - [ ] 创建 `Footer` 组件
 
 **Day 2 - 布局 & 错误页**：
+
 - [ ] 前台根布局（`Header + main + Footer`）
 - [ ] 后台布局（`Sidebar + TopBar + Main`）
 - [ ] `Sidebar` 组件（含所有后台导航项）
@@ -331,6 +340,7 @@ src/app/(admin)/admin/users/[id]/edit/page.tsx
 - [ ] 移动端响应式（汉堡菜单、抽屉）
 
 **关键文件**：
+
 ```
 src/app/globals.css
 tailwind.config.ts
@@ -347,6 +357,7 @@ src/app/loading.tsx
 ```
 
 **验收标准**：
+
 - [ ] 全站文字、按钮、链接颜色符合设计系统
 - [ ] 前台有 Header（含导航）和 Footer
 - [ ] 后台有侧边栏和顶栏
@@ -366,7 +377,6 @@ src/app/loading.tsx
 
 > 📐 **参考视觉稿**：[docs/visual-anchor.png](./docs/visual-anchor.png)（阅读体验标尺） · [docs/design-explorations/p3-articles/01.png](./docs/design-explorations/p3-articles/01.png)（文章列表） · [docs/design-explorations/p4-article-detail/04.png](./docs/design-explorations/p4-article-detail/04.png)（文章详情）
 
-
 **预计耗时**：4 天（最重要的阶段）
 
 **前置依赖**：Phase 2
@@ -374,6 +384,7 @@ src/app/loading.tsx
 **任务清单**：
 
 **Day 1 - 后台 CRUD**：
+
 - [ ] 文章列表页（表格 + 分页 + 状态筛选 + 搜索）
 - [ ] 文章新建/编辑页表单
 - [ ] Markdown 编辑器组件（左右分屏：编辑 + 实时预览）
@@ -387,6 +398,7 @@ src/app/loading.tsx
 - [ ] 软删除（移入回收站）
 
 **Day 2 - Markdown 渲染 & 公共组件**：
+
 - [ ] Markdown 渲染组件（含 GFM、代码高亮、表格、任务列表）
 - [ ] 代码块复制按钮
 - [ ] 图片懒加载
@@ -398,6 +410,7 @@ src/app/loading.tsx
 - [ ] 阅读时间计算工具
 
 **Day 3 - 前台列表 + 详情**：
+
 - [ ] `/articles` 列表页（杂志卡片网格，3 列 → 2 列 → 1 列）
 - [ ] 分类筛选、标签筛选
 - [ ] 分页或无限滚动（先做分页，简单）
@@ -411,6 +424,7 @@ src/app/loading.tsx
 - [ ] 相关文章推荐（同分类 / 同标签，取 3 篇）
 
 **Day 4 - 测试 & 完善**：
+
 - [ ] Markdown XSS 防护测试
 - [ ] 单元测试：`slug.ts`、`visibility.ts`
 - [ ] E2E 测试（手动）：写一篇文章 → 发布 → 前台能看到
@@ -419,6 +433,7 @@ src/app/loading.tsx
 - [ ] 写一份 README 给"未来的自己"用
 
 **关键文件**：
+
 ```
 src/components/admin/Editor/MarkdownEditor.tsx
 src/components/admin/Editor/ImageUploader.tsx
@@ -441,6 +456,7 @@ src/app/(frontend)/articles/[slug]/page.tsx
 ```
 
 **验收标准**：
+
 - [ ] 后台能创建、编辑、删除、置顶文章
 - [ ] 代码块有语法高亮 + 一键复制按钮
 - [ ] 公开文章前台能看到，私密文章游客看不到
@@ -452,6 +468,7 @@ src/app/(frontend)/articles/[slug]/page.tsx
 - [ ] OG 标签在 Facebook/Twitter 分享测试工具中正确显示
 
 **演示能力**：
+
 - 写一篇文章（带代码） → 发布 → 前台看到 → 朋友登录后看私密文章 → 输入密码看密码文章
 
 **Git Tag**：`v0.4.0-articles`
@@ -464,7 +481,6 @@ src/app/(frontend)/articles/[slug]/page.tsx
 
 > 📐 **参考视觉稿**：[docs/visual-anchor.png](./docs/visual-anchor.png)（阅读体验） · 笔记列表样式可参考 [docs/design-explorations/p2-homepage/homepage.png](./docs/design-explorations/p2-homepage/homepage.png) 中"最新笔记"段落；详情页样式与文章详情共享标尺
 
-
 **预计耗时**：2 天
 
 **前置依赖**：Phase 3（复用 Markdown 编辑器）
@@ -472,6 +488,7 @@ src/app/(frontend)/articles/[slug]/page.tsx
 **任务清单**：
 
 **Day 1 - 后台**：
+
 - [ ] 笔记列表页（紧凑列表：标题 + 摘要 + 时间 + 可见性图标）
 - [ ] 笔记新建/编辑页（复用 `MarkdownEditor`，去掉封面、分类字段）
 - [ ] 可见性支持（与文章一致）
@@ -479,6 +496,7 @@ src/app/(frontend)/articles/[slug]/page.tsx
 - [ ] 笔记导出（Markdown 文件下载）
 
 **Day 2 - 前台**：
+
 - [ ] `/notes` 列表页（一行一条，密集布局）
 - [ ] `/notes/[slug]` 详情页（极简单栏，无封面）
 - [ ] 笔记相关推荐（同标签）
@@ -486,6 +504,7 @@ src/app/(frontend)/articles/[slug]/page.tsx
 - [ ] `/notes` 按月分组
 
 **关键文件**：
+
 ```
 src/server/notes.ts
 src/components/admin/Editor/NoteEditor.tsx
@@ -498,6 +517,7 @@ src/app/(frontend)/notes/[slug]/page.tsx
 ```
 
 **验收标准**：
+
 - [ ] 后台能管理笔记（增删改查）
 - [ ] 前台 `/notes` 显示紧凑列表（一行一条）
 - [ ] 笔记详情页极简，无封面图
@@ -514,7 +534,6 @@ src/app/(frontend)/notes/[slug]/page.tsx
 
 > 📐 **参考视觉稿**：[docs/visual-anchor.png](./docs/visual-anchor.png) · [docs/design-explorations/p5-project/04.png](./docs/design-explorations/p5-project/04.png)（作品详情 Behance 风）
 
-
 **预计耗时**：3 天
 
 **前置依赖**：Phase 3（复用上传、可见性逻辑）
@@ -522,6 +541,7 @@ src/app/(frontend)/notes/[slug]/page.tsx
 **任务清单**：
 
 **Day 1 - 后台 & 多图上传**：
+
 - [ ] 作品列表页（大图卡片）
 - [ ] 作品新建/编辑页
 - [ ] 多图上传组件 `MultiImageUploader`（拖拽 + 排序 + 删除）
@@ -533,6 +553,7 @@ src/app/(frontend)/notes/[slug]/page.tsx
 - [ ] 作品排序（order 字段）
 
 **Day 2 - 前台展示**：
+
 - [ ] `/projects` 列表页（大图卡片，杂志感更强）
 - [ ] `/projects/[slug]` 详情页
   - 标题区（标题、描述、元信息）
@@ -542,6 +563,7 @@ src/app/(frontend)/notes/[slug]/page.tsx
 - [ ] 上下作品推荐
 
 **Day 3 - 灯箱 & 完善**：
+
 - [ ] 图片灯箱组件 `Lightbox`（点击放大）
 - [ ] 灯箱内：上一张/下一张导航
 - [ ] 灯箱内：图片说明文字
@@ -550,6 +572,7 @@ src/app/(frontend)/notes/[slug]/page.tsx
 - [ ] 移动端灯箱适配（左右滑动切换）
 
 **关键文件**：
+
 ```
 src/components/admin/MultiImageUploader.tsx
 src/components/frontend/ProjectCard.tsx
@@ -565,6 +588,7 @@ src/app/(frontend)/projects/[slug]/page.tsx
 ```
 
 **验收标准**：
+
 - [ ] 后台上传多图、拖拽排序正常
 - [ ] 前台作品详情页大图沉浸
 - [ ] 点击图片能放大查看（灯箱）
@@ -582,7 +606,6 @@ src/app/(frontend)/projects/[slug]/page.tsx
 
 > 📐 **参考视觉稿**：[docs/visual-anchor.png](./docs/visual-anchor.png) · [docs/design-explorations/p6-photos/01.png](./docs/design-explorations/p6-photos/01.png)（瀑布流 + 加载更多）
 
-
 **预计耗时**：2 天
 
 **前置依赖**：Phase 5（复用图片组件）
@@ -590,6 +613,7 @@ src/app/(frontend)/projects/[slug]/page.tsx
 **任务清单**：
 
 **Day 1 - 后台 & EXIF**：
+
 - [ ] 相册管理（CRUD）
 - [ ] 照片批量上传（拖拽多文件）
 - [ ] 照片编辑（标题、地点、拍摄时间、所属相册）
@@ -599,6 +623,7 @@ src/app/(frontend)/projects/[slug]/page.tsx
 - [ ] 照片批量删除
 
 **Day 2 - 前台瀑布流**：
+
 - [ ] `/photos` 瀑布流总览（CSS columns（避免额外瀑布流依赖））
 - [ ] `/photos/albums/[slug]` 相册详情瀑布流
 - [ ] 照片灯箱（复用 Phase 5 的 `Lightbox`）
@@ -607,6 +632,7 @@ src/app/(frontend)/projects/[slug]/page.tsx
 - [ ] EXIF 显示（拍摄时间、地点、相机）
 
 **关键文件**：
+
 ```
 src/components/frontend/PhotoMasonry.tsx
 src/components/admin/PhotoUploader.tsx
@@ -621,6 +647,7 @@ src/app/(frontend)/photos/albums/[slug]/page.tsx
 ```
 
 **验收标准**：
+
 - [ ] 照片上传后 EXIF 自动解析（拍摄时间）
 - [ ] 瀑布流布局美观（不同高度照片自然排列）
 - [ ] 点击照片进入灯箱
@@ -637,7 +664,6 @@ src/app/(frontend)/photos/albums/[slug]/page.tsx
 
 > 📐 **参考视觉稿**：[docs/visual-anchor.png](./docs/visual-anchor.png)（通用标尺） · 内容详情页样式复用对应类型的视觉稿：文章→p3/p4，作品→p5，笔记→p2 的笔记段落
 
-
 **预计耗时**：2 天
 
 **前置依赖**：Phase 3, 4, 5
@@ -645,6 +671,7 @@ src/app/(frontend)/photos/albums/[slug]/page.tsx
 **任务清单**：
 
 **Day 1 - 分类 & 标签**：
+
 - [ ] 分类管理（CRUD + 排序 + type 区分）
 - [ ] 标签管理（CRUD + 合并功能）
 - [ ] 关联管理（给文章/笔记/作品打标签）
@@ -653,6 +680,7 @@ src/app/(frontend)/photos/albums/[slug]/page.tsx
 - [ ] `/categories/[slug]` 分类详情页
 
 **Day 2 - 单页内容**：
+
 - [ ] 关于我页面编辑器（特殊布局：头像 + 简介 + 社交链接 + 技能 + 时间线）
 - [ ] Now 页面编辑器（最后更新时间醒目显示）
 - [ ] Now 页面历史版本（每次更新保存一份）
@@ -660,6 +688,7 @@ src/app/(frontend)/photos/albums/[slug]/page.tsx
 - [ ] 单页前台展示
 
 **关键文件**：
+
 ```
 src/server/categories.ts
 src/server/tags.ts
@@ -677,6 +706,7 @@ src/app/(frontend)/now/page.tsx
 ```
 
 **验收标准**：
+
 - [ ] 后台能管理分类和标签（CRUD）
 - [ ] 标签云页面美观
 - [ ] 关于我和 Now 页面可编辑
@@ -693,7 +723,6 @@ src/app/(frontend)/now/page.tsx
 
 > 📐 **参考视觉稿**：[docs/visual-anchor.png](./docs/visual-anchor.png) · [docs/design-explorations/p1-style/01.png](./docs/design-explorations/p1-style/01.png)（首页基线） · [docs/design-explorations/p2-homepage/homepage.png](./docs/design-explorations/p2-homepage/homepage.png)（首页最终版）
 
-
 **预计耗时**：2 天
 
 **前置依赖**：Phase 3-7
@@ -701,6 +730,7 @@ src/app/(frontend)/now/page.tsx
 **任务清单**：
 
 **Day 1 - 首页组装**：
+
 - [ ] 顶部置顶大图 `FeaturedHero`
   - 逻辑：优先取 `featured=true` 的文章，没有则取最新一篇
   - 16:9 大图 + 大字标题
@@ -711,6 +741,7 @@ src/app/(frontend)/now/page.tsx
 - [ ] 首页完整响应式
 
 **Day 2 - 归档 + 收尾**：
+
 - [ ] `/archive` 归档页（按月分组，年度时间线）
 - [ ] 完善 404 页面（带搜索框 + 推荐文章）
 - [ ] 错误边界
@@ -719,6 +750,7 @@ src/app/(frontend)/now/page.tsx
 - [ ] 全站链接检查（无 404 链接）
 
 **关键文件**：
+
 ```
 src/app/(frontend)/page.tsx       ← 重写
 src/app/(frontend)/archive/page.tsx
@@ -727,6 +759,7 @@ src/components/frontend/SiteFooter.tsx
 ```
 
 **验收标准**：
+
 - [ ] 首页布局符合设计稿（杂志感 + 大图沉浸）
 - [ ] 归档页按时间线展示
 - [ ] 全站所有页面均可访问
@@ -745,6 +778,7 @@ src/components/frontend/SiteFooter.tsx
 **前置依赖**：Phase 8
 
 **任务清单**：
+
 - [ ] `sitemap.xml` 动态生成（包含所有公开内容）
 - [ ] `robots.txt`
 - [ ] RSS / Atom feed（`/feed.xml`）
@@ -757,6 +791,7 @@ src/components/frontend/SiteFooter.tsx
 - [ ] 全站 cookie 提示（如需要）
 
 **关键文件**：
+
 ```
 src/app/sitemap.ts                  ← Next.js 内置
 src/app/robots.ts                   ← Next.js 内置
@@ -765,6 +800,7 @@ src/lib/structured-data.ts
 ```
 
 **验收标准**：
+
 - [ ] `/sitemap.xml` 可访问，内容正确
 - [ ] `/robots.txt` 正常
 - [ ] `/feed.xml` RSS 订阅可用（用 Feedly 验证）
@@ -788,6 +824,7 @@ src/lib/structured-data.ts
 **任务清单**：
 
 **Day 1 - 部署准备**：
+
 - [ ] 切换数据库到 PostgreSQL 17（Neon 或兼容托管服务）
 - [ ] 数据迁移（SQLite → PostgreSQL 17，用 prisma migrate）
 - [ ] 切换文件存储到云存储（Cloudflare R2 / 阿里云 OSS）
@@ -798,6 +835,7 @@ src/lib/structured-data.ts
 - [ ] Dockerfile 准备（备用自建方案）
 
 **Day 2 - 部署上线**：
+
 - [ ] Vercel 部署
 - [ ] 域名绑定 + HTTPS（Let's Encrypt 自动）
 - [ ] 数据库自动备份开启
@@ -808,6 +846,7 @@ src/lib/structured-data.ts
 - [ ] 上线冒烟测试（每个核心页面）
 
 **关键文件**：
+
 ```
 Dockerfile                          ← 自建方案
 docker-compose.yml                  ← 自建方案
@@ -816,6 +855,7 @@ DEPLOYMENT.md
 ```
 
 **验收标准**：
+
 - [ ] 通过 `https://yourdomain.com` 可访问
 - [ ] HTTPS 正常（小绿锁）
 - [ ] 后台能正常登录
@@ -830,21 +870,21 @@ DEPLOYMENT.md
 
 ## 6. 任务依赖矩阵
 
-| 任务 | 强依赖 | 弱依赖 |
-|------|--------|--------|
-| 脚手架 | - | - |
-| 数据库 schema | 脚手架 | - |
-| 认证 | 数据库 schema | - |
-| 设计系统 | 认证（用于登录状态显示） | - |
-| 文章模块 | 设计系统、图片上传、Markdown 渲染 | - |
-| 笔记模块 | 文章模块（复用编辑器） | - |
-| 作品集 | 文章模块（复用上传、可见性） | - |
-| 相册 | 作品集（复用图片组件） | - |
-| 分类标签 | 文章、笔记、作品 | - |
-| 单页 | 设计系统 | - |
-| 首页 | 所有内容模块 | - |
-| SEO | 所有页面 | - |
-| 部署 | SEO + 全站 | - |
+| 任务          | 强依赖                            | 弱依赖 |
+| ------------- | --------------------------------- | ------ |
+| 脚手架        | -                                 | -      |
+| 数据库 schema | 脚手架                            | -      |
+| 认证          | 数据库 schema                     | -      |
+| 设计系统      | 认证（用于登录状态显示）          | -      |
+| 文章模块      | 设计系统、图片上传、Markdown 渲染 | -      |
+| 笔记模块      | 文章模块（复用编辑器）            | -      |
+| 作品集        | 文章模块（复用上传、可见性）      | -      |
+| 相册          | 作品集（复用图片组件）            | -      |
+| 分类标签      | 文章、笔记、作品                  | -      |
+| 单页          | 设计系统                          | -      |
+| 首页          | 所有内容模块                      | -      |
+| SEO           | 所有页面                          | -      |
+| 部署          | SEO + 全站                        | -      |
 
 ---
 
@@ -861,20 +901,22 @@ DEPLOYMENT.md
 
 ### 7.2 测试策略
 
-| 阶段 | 测试方式 |
-|------|----------|
-| 第一期（MVP） | 关键流程手测 + 核心逻辑单测 |
-| 第二期 | E2E 测试（Playwright 候选，启用前先纳入技术基线） |
-| 第三期 | 性能测试、压力测试 |
+| 阶段          | 测试方式                                          |
+| ------------- | ------------------------------------------------- |
+| 第一期（MVP） | 关键流程手测 + 核心逻辑单测                       |
+| 第二期        | E2E 测试（Playwright 候选，启用前先纳入技术基线） |
+| 第三期        | 性能测试、压力测试                                |
 
 ### 7.3 核心流程测试清单
 
 **认证**：
+
 - [ ] 注册 → 登录 → 看到私密内容
 - [ ] 错误密码 5 次后被限流
 - [ ] 退出后无法访问后台
 
 **内容发布**：
+
 - [ ] 写文章 → 设为私密 → 游客看不到，登录后能看到
 - [ ] 写文章 → 设为密码 → 输入正确密码能看到
 - [ ] 写笔记 → 笔记列表正确显示
@@ -882,6 +924,7 @@ DEPLOYMENT.md
 - [ ] 上传照片 → EXIF 解析正确
 
 **浏览**：
+
 - [ ] 首页加载 < 2s
 - [ ] 列表 → 详情跳转顺畅
 - [ ] 移动端排版正常
@@ -890,30 +933,30 @@ DEPLOYMENT.md
 
 ### 7.4 推荐测试工具
 
-| 工具 | 用途 |
-|------|------|
-| [Lighthouse](https://developers.google.com/web/tools/lighthouse) | 性能/SEO/可访问性 |
-| [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) | OG 标签 |
-| [Twitter Card Validator](https://cards-dev.twitter.com/validator) | Twitter Card |
-| [Google Rich Results Test](https://search.google.com/test/rich-results) | 结构化数据 |
-| [Playwright](https://playwright.dev) | E2E 测试候选（启用前先纳入技术基线） |
+| 工具                                                                      | 用途                                 |
+| ------------------------------------------------------------------------- | ------------------------------------ |
+| [Lighthouse](https://developers.google.com/web/tools/lighthouse)          | 性能/SEO/可访问性                    |
+| [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) | OG 标签                              |
+| [Twitter Card Validator](https://cards-dev.twitter.com/validator)         | Twitter Card                         |
+| [Google Rich Results Test](https://search.google.com/test/rich-results)   | 结构化数据                           |
+| [Playwright](https://playwright.dev)                                      | E2E 测试候选（启用前先纳入技术基线） |
 
 ---
 
 ## 8. 风险与应对
 
-| 风险 | 影响阶段 | 应对措施 |
-|------|----------|----------|
-| Prisma 迁移出错 | Phase 1, 10 | 备份 + 分步迁移 + 准备降级脚本 |
-| NextAuth.js v4 配置复杂 | Phase 1 | 固定 Credentials + JWT Session 方案，参照官方示例并补测试 |
-| Markdown 渲染 XSS | Phase 3 | 严格白名单净化 + 禁用不受信任原始 HTML + 代码审计 |
-| 图片上传 OOM | Phase 3, 5, 6 | 客户端预压缩到 2400px + 服务端限制 10MB |
-| SQLite 性能瓶颈 | Phase 8+ | 准备迁移到 PostgreSQL 17 方案 |
-| Next.js 升级破坏 | 全程 | 固定 15.5.x；主版本升级单独决策并完整回归 |
-| 灵感中断 | 全程 | 保持小步快跑，每天有可见进展 |
-| 个人项目拖延 | 全程 | 严格按阶段打 Tag，阶段间允许休息 |
-| 第三方服务故障 | Phase 10 | 准备自建备份方案 + 数据本地保留 |
-| 域名/服务器续费 | Phase 10 | 设置自动续费提醒 |
+| 风险                    | 影响阶段      | 应对措施                                                  |
+| ----------------------- | ------------- | --------------------------------------------------------- |
+| Prisma 迁移出错         | Phase 1, 10   | 备份 + 分步迁移 + 准备降级脚本                            |
+| NextAuth.js v4 配置复杂 | Phase 1       | 固定 Credentials + JWT Session 方案，参照官方示例并补测试 |
+| Markdown 渲染 XSS       | Phase 3       | 严格白名单净化 + 禁用不受信任原始 HTML + 代码审计         |
+| 图片上传 OOM            | Phase 3, 5, 6 | 客户端预压缩到 2400px + 服务端限制 10MB                   |
+| SQLite 性能瓶颈         | Phase 8+      | 准备迁移到 PostgreSQL 17 方案                             |
+| Next.js 升级破坏        | 全程          | 固定 15.5.x；主版本升级单独决策并完整回归                 |
+| 灵感中断                | 全程          | 保持小步快跑，每天有可见进展                              |
+| 个人项目拖延            | 全程          | 严格按阶段打 Tag，阶段间允许休息                          |
+| 第三方服务故障          | Phase 10      | 准备自建备份方案 + 数据本地保留                           |
+| 域名/服务器续费         | Phase 10      | 设置自动续费提醒                                          |
 
 ---
 
@@ -1000,34 +1043,37 @@ docker run -p 3000:3000 my-blog
 
 ## 10. 里程碑总表
 
-| 里程碑 | Tag | 主要交付物 | 验收演示 |
-|--------|-----|-----------|----------|
-| 脚手架完成 | `v0.1.0-foundation` | 可运行的项目 | 访问首页看到 Hello World |
-| 认证完成 | `v0.2.0-auth` | 可登录的后台 | 登录后看到后台界面 |
-| 设计完成 | `v0.3.0-design` | 全站视觉统一 | 看到完整的页面骨架 |
-| 文章上线 | `v0.4.0-articles` | 博客核心功能 | 写一篇文章并在前台看到 |
-| 笔记上线 | `v0.5.0-notes` | 数字花园 | 发一条笔记 |
-| 作品集上线 | `v0.6.0-projects` | 作品展示 | 上传一个 Behance 风格作品 |
-| 相册上线 | `v0.7.0-photos` | 照片墙 | 上传照片看到瀑布流 |
-| 组织功能 | `v0.8.0-organization` | 分类/标签/单页 | 看到标签云、About、Now |
-| 首页完成 | `v0.9.0-homepage` | 全站组装 | 看到完整的首页 |
-| SEO 完成 | `v1.0.0-rc1` | 上线准备 | Lighthouse 分数达标 |
-| 正式上线 | `v1.0.0` | 可访问的网站 | 通过域名访问真实网站 |
+| 里程碑     | Tag                   | 主要交付物     | 验收演示                  |
+| ---------- | --------------------- | -------------- | ------------------------- |
+| 脚手架完成 | `v0.1.0-foundation`   | 可运行的项目   | 访问首页看到 Hello World  |
+| 认证完成   | `v0.2.0-auth`         | 可登录的后台   | 登录后看到后台界面        |
+| 设计完成   | `v0.3.0-design`       | 全站视觉统一   | 看到完整的页面骨架        |
+| 文章上线   | `v0.4.0-articles`     | 博客核心功能   | 写一篇文章并在前台看到    |
+| 笔记上线   | `v0.5.0-notes`        | 数字花园       | 发一条笔记                |
+| 作品集上线 | `v0.6.0-projects`     | 作品展示       | 上传一个 Behance 风格作品 |
+| 相册上线   | `v0.7.0-photos`       | 照片墙         | 上传照片看到瀑布流        |
+| 组织功能   | `v0.8.0-organization` | 分类/标签/单页 | 看到标签云、About、Now    |
+| 首页完成   | `v0.9.0-homepage`     | 全站组装       | 看到完整的首页            |
+| SEO 完成   | `v1.0.0-rc1`          | 上线准备       | Lighthouse 分数达标       |
+| 正式上线   | `v1.0.0`              | 可访问的网站   | 通过域名访问真实网站      |
 
 ---
 
 ## 附录 A：每日开发节奏模板
 
 **开始一天**（5 分钟）：
+
 1. `git pull`
 2. 看 ROADMAP.md 当前阶段、当前任务
 3. 启动 `pnpm dev`
 
 **开发中**（4-6 小时）：
+
 - 每完成一个小功能就 commit
 - 遇到 > 30 分钟解决不了的问题，记录到 `docs/ISSUES.md`
 
 **结束一天**（15 分钟）：
+
 1. commit 所有改动
 2. 更新 ROADMAP.md（勾掉完成的项）
 3. 简单记录明日计划
@@ -1038,15 +1084,15 @@ docker run -p 3000:3000 my-blog
 
 > 在开发过程中遇到的、需要"拍板"的决策，记录在这里。
 
-| 日期 | 决策 | 原因 | 替代方案 |
-|------|------|------|----------|
-| 2026-07-17 | 文章 → 笔记 → 作品 → 相册 的开发顺序 | 文章功能最全，是其他模块的模板 | 按字母序、按复杂度 |
-| 2026-07-17 | 后台 → 前台 的开发节奏 | 同一个模块内先跑通后台 | 并行开发 |
-| 2026-07-17 | 本地 SQLite，生产 PostgreSQL 17 | 本地零配置，部署时再切 | 一步到位 PostgreSQL 17 |
-| 2026-07-17 | 阶段不超过 5 天 | 防止单阶段拖延 | 不限时间 |
-| 2026-07-18 | 采用保守稳定技术基线 | 保持官方支持与生态成熟度，避免追逐最新主版本 | 全量最新版本 / 保留原旧版本 |
-| 2026-07-18 | Phase 0 schema 任务缩减为占位 `model User`，完整 13 张表推迟到 Phase 1 Day 1 | Phase 0 任务清单里「所有 11 张表」与 Phase 1 标题「数据库 & 认证」职责重叠；Phase 1 必然要为 NextAuth + bcrypt + Role 重写 User 字段，故把 13 张表一并放入 Phase 1 更顺、避免 Phase 0 写一次全部作废 | Phase 0 用一天铺完 13 张表（与脚手架同期完成，时间紧且字段未必与认证对齐） |
-| 2026-07-18 | `shadcn/ui` `components.json` 用手工方式按 baseline 写入，未强制 `pnpm dlx shadcn@3.8.5 init` 重建 | `shadcn init` 检测到已存在 config 时按设计不会覆盖（行为正确）；手工内容已与 baseline § 2.2 等价，CLI 3.8.5 验证通过；Phase 2 增组件时 `pnpm dlx shadcn@3.8.5 add <x>` 会读取此 config | 删除手工 components.json 让 shadcn init 重建（可能换 baseColor 等默认值，需手动 diff 对齐 baseline） |
+| 日期       | 决策                                                                                               | 原因                                                                                                                                                                                                 | 替代方案                                                                                             |
+| ---------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 2026-07-17 | 文章 → 笔记 → 作品 → 相册 的开发顺序                                                               | 文章功能最全，是其他模块的模板                                                                                                                                                                       | 按字母序、按复杂度                                                                                   |
+| 2026-07-17 | 后台 → 前台 的开发节奏                                                                             | 同一个模块内先跑通后台                                                                                                                                                                               | 并行开发                                                                                             |
+| 2026-07-17 | 本地 SQLite，生产 PostgreSQL 17                                                                    | 本地零配置，部署时再切                                                                                                                                                                               | 一步到位 PostgreSQL 17                                                                               |
+| 2026-07-17 | 阶段不超过 5 天                                                                                    | 防止单阶段拖延                                                                                                                                                                                       | 不限时间                                                                                             |
+| 2026-07-18 | 采用保守稳定技术基线                                                                               | 保持官方支持与生态成熟度，避免追逐最新主版本                                                                                                                                                         | 全量最新版本 / 保留原旧版本                                                                          |
+| 2026-07-18 | Phase 0 schema 任务缩减为占位 `model User`，完整 13 张表推迟到 Phase 1 Day 1                       | Phase 0 任务清单里「所有 11 张表」与 Phase 1 标题「数据库 & 认证」职责重叠；Phase 1 必然要为 NextAuth + bcrypt + Role 重写 User 字段，故把 13 张表一并放入 Phase 1 更顺、避免 Phase 0 写一次全部作废 | Phase 0 用一天铺完 13 张表（与脚手架同期完成，时间紧且字段未必与认证对齐）                           |
+| 2026-07-18 | `shadcn/ui` `components.json` 用手工方式按 baseline 写入，未强制 `pnpm dlx shadcn@3.8.5 init` 重建 | `shadcn init` 检测到已存在 config 时按设计不会覆盖（行为正确）；手工内容已与 baseline § 2.2 等价，CLI 3.8.5 验证通过；Phase 2 增组件时 `pnpm dlx shadcn@3.8.5 add <x>` 会读取此 config               | 删除手工 components.json 让 shadcn init 重建（可能换 baseColor 等默认值，需手动 diff 对齐 baseline） |
 
 ---
 
