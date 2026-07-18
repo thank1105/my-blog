@@ -55,3 +55,8 @@ Thumbs.db
 /dev.db
 /dev.db-journal
 
+
+# Dev server smoke test artifacts (created by pnpm dev smoke tests)
+/dev-server.log
+/dev-server.err
+
