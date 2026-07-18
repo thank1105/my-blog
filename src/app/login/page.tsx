@@ -1,4 +1,4 @@
-// Phase 1 Day 1 login page (per DEVELOPMENT.md).
+﻿// Phase 1 Day 1 login page (per DEVELOPMENT.md).
 //
 // Visual references:
 //   - docs/visual-anchor.png (paper-like minimal cards, source-han-serif title)
