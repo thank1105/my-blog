@@ -10,7 +10,9 @@
 ```text
 docs/
 ├── README.md                   ← 你在这里
+├── roadmap.md                  ← 实时进度（ROADMAP），每个阶段勾选
 ├── technology-baseline.md      ← 技术版本唯一事实来源
+├── prisma-known-issues.md      ← Prisma 6.19.3 Windows 已知问题与绕过
 ├── visual-anchor.png           ← 视觉锚（文章详情页 P4）
 ├── design-decisions.md         ← 设计决策与 Token 表
 ├── design-prompts.md           ← 视觉稿生成 Prompt 包
@@ -31,8 +33,9 @@ docs/
 1. **[visual-anchor.png](./visual-anchor.png)** —— 一张图看完全部气质
 2. **[technology-baseline.md](./technology-baseline.md)** —— 完整技术版本、安装边界与升级规则
 3. **[design-decisions.md](./design-decisions.md)** —— 3 项视觉决策 + 锁定元素表 + Phase 0/2 传递清单
-4. **[design-prompts.md](./design-prompts.md)** —— 有需要复盘或重新出图时再看
-5. **[design-explorations/](./design-explorations/)** —— P1-P6 原图，作参考对比
+4. **[roadmap.md](./roadmap.md)** —— 当前阶段进度 + 下一步动作
+5. **[design-prompts.md](./design-prompts.md)** —— 有需要复盘或重新出图时再看
+6. **[design-explorations/](./design-explorations/)** —— P1-P6 原图，作参考对比
 
 ## 约束规则
 
@@ -41,6 +44,7 @@ docs/
 - ✅ 视觉新决策先记入 `design-decisions.md`，再决定是否同步到 `REQUIREMENTS.md`
 - ✅ 不直接修改 `REQUIREMENTS.md` 的 § 6 设计章节，除非有新的设计决策
 - ✅ `visual-anchor.png` 是开发期的视觉标尺，每个组件完成后都要校对
+- ✅ 进度、勾选项、已知问题统一收录进 `docs/` 根目录
 
 ## 重新出图
 

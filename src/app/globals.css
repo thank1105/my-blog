@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Design tokens (RGB triplets for usage in tailwind.config.ts cssVariables mode). */
+    --color-bg: 250 250 250;
+    --color-surface: 255 255 255;
+    --color-ink: 26 26 26;
+    --color-muted: 107 114 128;
+    --color-hair: 229 231 235;
+    --color-accent: 232 90 44;
+    --color-accent-soft: 251 230 220;
+    --color-success: 16 185 129;
+    --color-danger: 239 68 68;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-bg text-ink;
+    font-family: var(--font-sans), "Inter", "Noto Sans SC", "Source Han Sans SC", system-ui, sans-serif;
+  }
+
+  ::selection {
+    background: rgb(var(--color-accent) / 0.18);
+    color: rgb(var(--color-ink));
+  }
+}

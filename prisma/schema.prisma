@@ -1,0 +1,16 @@
+// Database schema for My-Blog.
+// See docs/technology-baseline.md and REQUIREMENTS.md section 7.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Phase 0 placeholder. Real fields are introduced in Phase 1 (database & auth).
+model User {
+  id Int @id @default(autoincrement())
+}
