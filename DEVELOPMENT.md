@@ -1106,5 +1106,9 @@ docker run -p 3000:3000 my-blog
 - `docs/screenshots/` - 阶段截图目录（按阶段创建）
 
 ---
+| 2026-07-18 | Phase 2 Day 1 字体策略：**`next/font/local` 自托管，零外部链接**——从 GitHub 下载 Inter / JetBrains Mono 的 `.woff2` 和 Adobe 官方 Source Han Sans / Serif CN 的 SubsetOTF（GB2312 3500 字子集）放入 `src/fonts/`，由 4 个 `next/font/local` 实例在构建期 self-host 到 `.next/static/media/`（hash 命名），运行时浏览器从同源加载 | 用户明确要求避免任何外部网络请求；`next/font/google` 构建期会向 Google Fonts 发起请求被排除；纯系统字体栈（苹方 / 雅黑 fallback）让思源黑体 / Inter 在多数用户系统实际未安装时被跳过，违反「引入字体」原任务。SubSetOTF（GB2312）使 Source Han 单字体从 50MB+ 降到 8-11MB | 用 fonttools 在 Phase X 把 OTF 转 woff2，可把 Source Han 进一步压到 ~3MB / 文件 |
+| 2026-07-18 | shadcn Button 暂时去掉 `asChild` / `@radix-ui/react-slot`，避免仅为一个按钮引入 Radix 依赖 | 当前 Day 1 唯一按钮链接用 `<Link className={buttonVariants(...)}>` 实现；Radix Slot 仅在 Phase 3 文章卡片「按钮包链接」场景真正需要 | Phase 3 加 `@radix-ui/react-slot` 恢复 asChild |
+
+---
 
 **文档结束**

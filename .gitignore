@@ -51,7 +51,7 @@ next-env.d.ts
 # OS
 Thumbs.db
 
-# Stray dev.db (defensive ¡ª schema should create prisma/dev.db, but a root file may appear if a wrong CWD is used during an aborted Prisma run)
+# Stray dev.db (defensive â€” schema should create prisma/dev.db, but a root file may appear if a wrong CWD is used during an aborted Prisma run)
 /dev.db
 /dev.db-journal
 
@@ -59,4 +59,14 @@ Thumbs.db
 # Dev server smoke test artifacts (created by pnpm dev smoke tests)
 /dev-server.log
 /dev-server.err
+
+
+# One-off debugging scripts (Phase 2 Day 1 verification only); safe to delete.
+# All ad-hoc probes / inspectors / wip fixes follow the verb- prefix pattern.
+/scripts/probe-*.mjs
+/scripts/inspect-*.mjs
+/scripts/fix-*.mjs
+/scripts/wipe-*.mjs
+/scripts/download-*.mjs
+/scripts/normalize-*.mjs
 

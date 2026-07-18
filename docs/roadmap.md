@@ -97,3 +97,85 @@
 - `lib/visibility.ts` + 单测，`middleware.ts` 守卫 `/admin/*` + 单测
 - 后台 `/admin/users` 列表、新建、编辑、禁用、重置密码
 - Phase 1 完成验收 + `v0.2.0-auth` Tag
+
+## Phase 2 — 设计系统 & 布局（v0.3.0-design）
+
+**当前进度**：Day 1 已完成（2026-07-18）；Day 2 待启动。
+
+### Day 1 — 主题 & 字体 & 公共组件
+
+**交付清单**（按 DEVELOPMENT.md Day 1 原始 6 条任务逐条勾选）
+
+- [x] **使用 Tailwind CSS 3.4 配置主题色（主色 `#E85A2C`）**：`tailwind.config.ts` 中 `accent = #E85A2C`、`accent-soft = #FBE6DC`（与 design-decisions.md 第 2 条一致）；globals.css 同步 `--color-accent: 232 90 44` 等 RGB 三元组
+- [x] **引入字体（思源黑体、思源宋体、Inter、JetBrains Mono）**：4 个字体全部以 `next/font/local` 自托管到 `.next/static/media/`，**零外部链接**。具体文件位于 `src/fonts/`：
+  - `Inter-Regular.woff2` / `Inter-Medium.woff2` / `Inter-Bold.woff2`（Latin UI，~110 KB 各）
+  - `JetBrainsMono-Regular.woff2` / `JetBrainsMono-Medium.woff2`（代码，~90 KB 各）
+  - `SourceHanSansCN-Regular.otf` / `SourceHanSansCN-Bold.otf`（思源黑体，SubsetOTF / GB2312 3500 字，~8 MB 各）
+  - `SourceHanSerifCN-Regular.otf` / `SourceHanSerifCN-Bold.otf`（思源宋体，SubsetOTF / GB2312 3500 字，~11 MB 各）
+  - 全部 SIL OFL 1.1 可商用
+- [x] **使用 `next/font` 子集化 + 预加载**：`src/app/layout.tsx` 中 4 个 `next/font/local` 实例（`inter` / `sourceHanSansCN` / `sourceHanSerifCN` / `jetbrainsMono`），全部 `display: "swap"`、全部输出 CSS 变量（`--font-sans` / `--font-sans-cn` / `--font-serif` / `--font-mono`）；`tailwind.config.ts` 的 `fontFamily.sans/serif/mono` 优先消费这些变量，并在其后追加 OS fallback 链
+- [x] **安装 `lucide-react@0.577.0`**（按 baseline § 2.2 锁定版本）与 **`class-variance-authority@0.7.1`**（shadcn 标准运行时依赖）
+- [x] **新增 4 个 shadcn 基础组件**（new-york 风味）：
+  - [x] `src/components/ui/button.tsx`：cva + 6 variant（default / destructive / outline / secondary / ghost / link）+ 4 size；暂时去掉 `asChild` 以避免引入 `@radix-ui/react-slot`（Phase 3 文章卡片需要时再加）
+  - [x] `src/components/ui/card.tsx`：Card / CardHeader / CardTitle / CardDescription / CardContent / CardFooter
+  - [x] `src/components/ui/input.tsx`：单 input，支持 `aria-invalid` 错误样式
+  - [x] `src/components/ui/badge.tsx`：cva + 6 variant（default / secondary / outline / soft / success / danger）
+- [x] **`src/components/frontend/Header.tsx`**（server component，`getServerSession` 拉登录态）：logo「小川记事」+ 副标题 + 主导航（写作 / 观察 / 项目 / 关于 / 归档）+ 搜索占位按钮（Phase 5 接入）+ 登录态切换（未登录显示「登入」/ 已登录显示「后台」+ 邮箱 + 「退出」）
+- [x] **`src/components/frontend/Footer.tsx`**：归档标签（写作 / 观察 / 项目 / 摄影 / 设计 / 生活 / 思考）+ 标语「生活本身就是最好的素材。」+ 署名「— 小川」+ 社交图标（微博 / 邮件 / RSS，均为 lucide-react）
+- [x] **重写 `src/app/page.tsx`**：作为 Day 1 视觉演示页，串起 Header + Hero 占位 + 4 张归档卡片（最新文章 / 项目记录 / 创作笔记 / 影像记录，全部为占位数据）+ Footer
+- [x] **登录页 `/login`（Phase 1）保持原状**：仍由 root layout 直出，无 Header/Footer；`(frontend)` 路由组目前只有 login 一个页面，尚未创建路由组 layout（留给 Day 2）
+- [x] **`pnpm typecheck` / `pnpm lint` / `pnpm build` / `pnpm test`（23 个用例）全部通过**；`pnpm dev` 实测：`/` 渲染 8/8 关键文本、`/login` 仍为极简登录形态
+- [x] **`.next/` 构建产物 + dev server CSS 扫描**：**13 个** `@font-face` 定义、**9 个** `/_next/static/media/*.{woff2,otf}` 字体 URL、**0 个** `fonts.googleapis.com` / `fonts.gstatic.com` 链接（dev server 实际访问 `http://localhost:3002/` 验证）
+
+**字体策略决策（追加到 DEVELOPMENT.md 附录 B）**
+
+> 2026-07-18 — Phase 2 Day 1 引入字体时**使用 `next/font/local` 自托管，零外部链接**：从 GitHub 下载 Inter / JetBrains Mono 的 `.woff2` 和 Adobe 官方 Source Han Sans / Serif CN 的 SubsetOTF（GB2312 3500 字子集），全部放入 `src/fonts/`，由 `next/font/local` 在构建期 self-host 到 `.next/static/media/`，文件名 hash 化。运行时浏览器只从同源加载字体，无任何外部网络请求。
+> 替代方案：
+> 1. `next/font/google` —— 用户明确拒绝（构建期会向 Google Fonts 发起请求，慢）
+> 2. 纯系统字体栈 —— 被拒绝（思源黑体 / 宋体 / Inter / JetBrains Mono 在多数用户的系统中实际并未安装，回退命中失败）
+> 后续路径：OTF 文件可在 Phase X 进一步用 fonttools 转 woff2，把 Source Han 单字体从 ~10MB 压到 ~3MB
+
+**演示能力**
+
+- 浏览器访问 `/`：Header（小川记事 + 副标题 + 5 项导航 + 搜索图标 + 登入链接）→ Hero 占位（写作 / 观察 / 项目）→ 简介 + 「查看作品」CTA → 4 张归档卡 → Footer（归档标签 + 标语 + 署名 + 社交图标）
+- 字体实际效果：英文走 Inter / JetBrains Mono（self-host）；中文标题走思源宋体（self-host）；中文正文走思源黑体（self-host）；所有 OS fallback 在字体加载失败时兜底
+- `/login` 仍为 Phase 1 极简登录卡，不被 Header/Footer 干扰
+- ADMIN 登录后访问 `/`：Header 右侧切换为「后台 + 邮箱 + 退出」
+
+**关键文件清单**
+
+```
+src/fonts/                                       ← 9 个自托管字体文件（SIL OFL 1.1）
+  Inter-Regular.woff2 / Medium.woff2 / Bold.woff2
+  JetBrainsMono-Regular.woff2 / Medium.woff2
+  SourceHanSansCN-Regular.otf / Bold.otf
+  SourceHanSerifCN-Regular.otf / Bold.otf
+src/app/layout.tsx                              ← 4 个 next/font/local 实例 + CSS 变量输出
+src/app/globals.css                             ← 设计 Token；h1/h2/h3 走 theme("fontFamily.serif")
+src/app/page.tsx                                ← 重写为带 Header / Footer 的视觉演示页
+tailwind.config.ts                              ← fontFamily 优先消费 next/font 变量 + OS fallback 链
+src/components/ui/button.tsx                    ← shadcn new-york button（6 variants × 4 sizes）
+src/components/ui/card.tsx                      ← Card / CardHeader / CardTitle / CardDescription / CardContent / CardFooter
+src/components/ui/input.tsx                     ← shadcn Input，支持 aria-invalid
+src/components/ui/badge.tsx                     ← shadcn Badge（6 variants）
+src/components/frontend/Header.tsx              ← 前台 Header（server component + getServerSession）
+src/components/frontend/Footer.tsx              ← 前台 Footer（归档标签 + 标语 + 社交）
+```
+
+**验收对齐**（DEVELOPMENT.md Phase 2 / Day 1 验收标准——与交付清单 1:1 对应）
+
+- [x] Tailwind 主题色：`accent = #E85A2C`（与 design-decisions.md 第 2 条一致）
+- [x] 引入字体（思源黑体、思源宋体、Inter、JetBrains Mono）：4 个字体全部 self-host，无外部链接
+- [x] 使用 `next/font` 子集化 + 预加载（`display: "swap"`、CSS 变量输出）
+- [x] 安装 lucide-react@0.577.0 + Button / Card / Input / Badge 4 个 shadcn 基础组件齐备
+- [x] Header：logo + 5 项主导航 + 搜索占位 + 登录态切换
+- [x] Footer：归档标签 + 标语 + 署名 + 社交
+- [x] 首页可视地展示 Header / Hero / Footer 组合
+- [x] `pnpm typecheck / lint / build / test` 全部通过
+- [x] 运行时零外部字体 URL（dev server CSS 扫描验证：13 个 `@font-face` + 9 个 self-hosted URL + 0 外部）
+
+- (frontend) 路由组 layout.tsx（Header + main + Footer）；把 login 从路由组里挪出去（顶层 /login）让 layout 不再需要排除路径
+- (admin)/admin/layout.tsx 改为 Sidebar + TopBar 结构（替换 Day 1 的 AdminShell 占位）
+- 404 / error / loading 三个约定文件
+- 移动端响应式：Header 抽屉菜单、Sidebar 折叠
+- Git Tag `v0.3.0-design`
