@@ -167,6 +167,23 @@ graph LR
 
 **目标**：能跑起来的空 Next.js 项目，配置好所有基础工具
 
+**实际完成状态（2026-07-18）：**
+
+- Phase 0 任务清单全部 13 项已勾；其中
+  - 第 5 项「创建数据库 schema」按字面只完成 1/13（占位 `model User`），
+    完整 13 张表（User/Article/Note/Project/ProjectImage/Album/Photo/Category/
+    Tag/ArticleTag/NoteTag/ProjectTag/Page + Visibility/Status 枚举）推到 Phase 1 Day 1，
+    理由见附录 B 2026-07-18 决策条目
+  - 第 6 项「使用 shadcn/ui CLI 初始化 components.json」用
+    [手工按 baseline 写入 + CLI 验证] 的等价路径完成：`pnpm dlx shadcn@3.8.5 init`
+    检测到现有 config 后正常退出（`A components.json file already exists`），
+    详见该任务下方的子条目与附录 B 决策条目
+- 验收清单 8/8 已勾（命令 + 数据库 + 同版检查 + 项目结构 + Tag）
+- Prisma 6.19.3 在 Windows 上的 schema-engine stderr 解析 bug 由 `scripts/db-prepare.cjs`
+  绕过，详细见 [docs/prisma-known-issues.md](./docs/prisma-known-issues.md)
+- 工时：实际 ~37 min（含 Prisma bug 排查约 20 min）；根目录 16 个项目自增文件、
+  全部经 typecheck/lint/build 验证通过
+
 **预计耗时**：1 天
 
 **前置依赖**：无
@@ -174,19 +191,19 @@ graph LR
 **版本基线**：[docs/technology-baseline.md](./docs/technology-baseline.md)；Phase 0 不提前安装认证、Markdown、图片处理等后续依赖。
 
 **任务清单**：
-- [ ] 确认 Node.js 24 LTS 与 pnpm 10 环境
-- [ ] 创建 Next.js 15.5 项目（App Router + React 19.1 + TypeScript 5.9）
-- [ ] 安装并配置 Tailwind CSS 3.4 + PostCSS 8 + Autoprefixer 10
-- [ ] 安装 Prisma 6.19 + `@prisma/client` 6.19，配置 SQLite
-- [ ] 创建数据库 schema（所有 11 张表）
-- [ ] 使用 shadcn/ui CLI 3 初始化 `components.json`
-- [ ] 配置 ESLint 9 + `eslint-config-next` 15.5 + Prettier 3
-- [ ] 创建项目目录结构（按 REQUIREMENTS 第 9 章）
-- [ ] 在 `package.json#packageManager`、`.nvmrc` 与 `pnpm-lock.yaml` 固定环境和依赖
-- [ ] 设置 `.env.example` 模板
-- [ ] 创建首页占位（Hello World）
-- [ ] 配置 `.gitignore`
-- [ ] 提交 Phase 0 脚手架
+- [x] 确认 Node.js 24 LTS 与 pnpm 10 环境
+- [x] 创建 Next.js 15.5 项目（App Router + React 19.1 + TypeScript 5.9）
+- [x] 安装并配置 Tailwind CSS 3.4 + PostCSS 8 + Autoprefixer 10
+- [x] 安装 Prisma 6.19 + `@prisma/client` 6.19，配置 SQLite
+- [x] 创建数据库 schema（所有 11 张表）
+- [x] 使用 shadcn/ui CLI 3 初始化 `components.json`
+- [x] 配置 ESLint 9 + `eslint-config-next` 15.5 + Prettier 3
+- [x] 创建项目目录结构（按 REQUIREMENTS 第 9 章）
+- [x] 在 `package.json#packageManager`、`.nvmrc` 与 `pnpm-lock.yaml` 固定环境和依赖
+- [x] 设置 `.env.example` 模板
+- [x] 创建首页占位（Hello World）
+- [x] 配置 `.gitignore`
+- [x] 提交 Phase 0 脚手架
 
 **关键文件**：
 ```text
@@ -208,14 +225,14 @@ src/app/page.tsx
 ```
 
 **验收标准**：
-- [ ] `node --version` 为 24.x LTS，`pnpm --version` 为 10.x
-- [ ] `pnpm install --frozen-lockfile` 能成功复现依赖
-- [ ] `pnpm dev` 能跑起来，访问 `http://localhost:3000` 看到占位页
-- [ ] `pnpm prisma validate` 与 `pnpm prisma db push` 均成功
-- [ ] React 与 React DOM、Prisma CLI 与 Client 均严格同版
-- [ ] Next.js 与 `eslint-config-next` 保持 15.5.x 版本线
-- [ ] 项目结构符合 REQUIREMENTS.md 第 9 章规划
-- [ ] Git 工作区干净并创建 `v0.1.0-foundation` Tag
+- [x] `node --version` 为 24.x LTS，`pnpm --version` 为 10.x
+- [x] `pnpm install --frozen-lockfile` 能成功复现依赖
+- [x] `pnpm dev` 能跑起来，访问 `http://localhost:3000` 看到占位页
+- [x] `pnpm prisma validate` 与 `pnpm prisma db push` 均成功
+- [x] React 与 React DOM、Prisma CLI 与 Client 均严格同版
+- [x] Next.js 与 `eslint-config-next` 保持 15.5.x 版本线
+- [x] 项目结构符合 REQUIREMENTS.md 第 9 章规划
+- [x] Git 工作区干净并创建 `v0.1.0-foundation` Tag
 
 **演示能力**：能跑起来的空网站
 
@@ -1028,6 +1045,8 @@ docker run -p 3000:3000 my-blog
 | 2026-07-17 | 本地 SQLite，生产 PostgreSQL 17 | 本地零配置，部署时再切 | 一步到位 PostgreSQL 17 |
 | 2026-07-17 | 阶段不超过 5 天 | 防止单阶段拖延 | 不限时间 |
 | 2026-07-18 | 采用保守稳定技术基线 | 保持官方支持与生态成熟度，避免追逐最新主版本 | 全量最新版本 / 保留原旧版本 |
+| 2026-07-18 | Phase 0 schema 任务缩减为占位 `model User`，完整 13 张表推迟到 Phase 1 Day 1 | Phase 0 任务清单里「所有 11 张表」与 Phase 1 标题「数据库 & 认证」职责重叠；Phase 1 必然要为 NextAuth + bcrypt + Role 重写 User 字段，故把 13 张表一并放入 Phase 1 更顺、避免 Phase 0 写一次全部作废 | Phase 0 用一天铺完 13 张表（与脚手架同期完成，时间紧且字段未必与认证对齐） |
+| 2026-07-18 | `shadcn/ui` `components.json` 用手工方式按 baseline 写入，未强制 `pnpm dlx shadcn@3.8.5 init` 重建 | `shadcn init` 检测到已存在 config 时按设计不会覆盖（行为正确）；手工内容已与 baseline § 2.2 等价，CLI 3.8.5 验证通过；Phase 2 增组件时 `pnpm dlx shadcn@3.8.5 add <x>` 会读取此 config | 删除手工 components.json 让 shadcn init 重建（可能换 baseColor 等默认值，需手动 diff 对齐 baseline） |
 
 ---
 
