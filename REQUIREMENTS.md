@@ -4,7 +4,6 @@
 > 最后更新：2026-07-18（稳定技术栈与视觉决策已统一）
 > 项目代号：My-Blog
 
-
 > **配套文档**：[docs/technology-baseline.md](./docs/technology-baseline.md)（技术版本唯一事实来源）· [docs/design-decisions.md](./docs/design-decisions.md)（设计决策与 Token）· [docs/visual-anchor.png](./docs/visual-anchor.png)（视觉锚图）
 
 ---
@@ -42,13 +41,13 @@
 
 ### 1.3 核心场景
 
-| 场景 | 描述 |
-|------|------|
+| 场景     | 描述                                                   |
+| -------- | ------------------------------------------------------ |
 | 公开浏览 | 游客通过搜索引擎或直接访问，阅读公开文章、查看公开作品 |
-| 私密访问 | 已登录朋友查看仅限朋友的私密内容 |
-| 内容创作 | 博主在后台撰写文章、上传作品、发布笔记 |
-| 内容订阅 | 读者通过 RSS 订阅博客更新 |
-| 站内探索 | 读者通过标签、分类、归档、搜索发现更多内容 |
+| 私密访问 | 已登录朋友查看仅限朋友的私密内容                       |
+| 内容创作 | 博主在后台撰写文章、上传作品、发布笔记                 |
+| 内容订阅 | 读者通过 RSS 订阅博客更新                              |
+| 站内探索 | 读者通过标签、分类、归档、搜索发现更多内容             |
 
 ### 1.4 不在范围内
 
@@ -73,12 +72,12 @@
 
 ### 2.2 内容分层
 
-| 层级 | 形态 | 长度 | 制作成本 | 更新频率 |
-|------|------|------|----------|----------|
-| 顶层 | 作品集（Project） | 多图 + 长描述 | 高 | 周/月 |
-| 主力 | 文章（Article） | 1000+ 字 | 中 | 周更 / 隔几天 |
-| 日常 | 笔记（Note） | 几行 - 几百字 | 低 | 任意 |
-| 素材 | 照片（Photo） | 单图 | 极低 | 任意 |
+| 层级 | 形态              | 长度          | 制作成本 | 更新频率      |
+| ---- | ----------------- | ------------- | -------- | ------------- |
+| 顶层 | 作品集（Project） | 多图 + 长描述 | 高       | 周/月         |
+| 主力 | 文章（Article）   | 1000+ 字      | 中       | 周更 / 隔几天 |
+| 日常 | 笔记（Note）      | 几行 - 几百字 | 低       | 任意          |
+| 素材 | 照片（Photo）     | 单图          | 极低     | 任意          |
 
 ---
 
@@ -86,19 +85,19 @@
 
 ### 3.1 角色定义
 
-| 角色 | 数量 | 能力 |
-|------|------|------|
+| 角色      | 数量          | 能力                                        |
+| --------- | ------------- | ------------------------------------------- |
 | **ADMIN** | 1（博主本人） | 全部能力：管理后台、CRUD 所有内容、用户管理 |
-| **USER** | N（朋友） | 登录后可查看私密内容，**无后台权限** |
-| **GUEST** | 不限 | 仅可查看 PUBLIC 可见性内容 |
+| **USER**  | N（朋友）     | 登录后可查看私密内容，**无后台权限**        |
+| **GUEST** | 不限          | 仅可查看 PUBLIC 可见性内容                  |
 
 ### 3.2 可见性矩阵
 
-| 角色 / 内容可见性 | PUBLIC | PRIVATE | PASSWORD |
-|------------------|--------|---------|----------|
-| GUEST（未登录） | ✅ | ❌ | ❌ |
-| USER（已登录） | ✅ | ✅ | 需输入密码 |
-| ADMIN | ✅ | ✅ | ✅ |
+| 角色 / 内容可见性 | PUBLIC | PRIVATE | PASSWORD   |
+| ----------------- | ------ | ------- | ---------- |
+| GUEST（未登录）   | ✅     | ❌      | ❌         |
+| USER（已登录）    | ✅     | ✅      | 需输入密码 |
+| ADMIN             | ✅     | ✅      | ✅         |
 
 ### 3.3 后台权限
 
@@ -162,21 +161,21 @@
 
 #### 4.2.2 字段
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| slug | string | 自动生成 | URL 路径，允许手动覆盖 |
-| title | string | ✅ | 标题 |
-| excerpt | string | 自动提取 | 摘要（200 字内） |
-| content | markdown | ✅ | 正文（支持代码高亮） |
-| coverImage | string | ✅ | 封面图 URL |
-| category | string | 可选 | 一个文章只能有一个分类 |
-| tags | string[] | 可选 | 多个标签 |
-| visibility | enum | ✅ | PUBLIC / PRIVATE / PASSWORD |
-| password | string | 视情况 | 仅 PASSWORD 可见性时需要 |
-| status | enum | ✅ | DRAFT / PUBLISHED / ARCHIVED |
-| featured | boolean | false | 是否首页置顶 |
-| publishedAt | datetime | 自动 | 发布时间 |
-| viewCount | int | 0 | 阅读量 |
+| 字段        | 类型     | 必填     | 说明                         |
+| ----------- | -------- | -------- | ---------------------------- |
+| slug        | string   | 自动生成 | URL 路径，允许手动覆盖       |
+| title       | string   | ✅       | 标题                         |
+| excerpt     | string   | 自动提取 | 摘要（200 字内）             |
+| content     | markdown | ✅       | 正文（支持代码高亮）         |
+| coverImage  | string   | ✅       | 封面图 URL                   |
+| category    | string   | 可选     | 一个文章只能有一个分类       |
+| tags        | string[] | 可选     | 多个标签                     |
+| visibility  | enum     | ✅       | PUBLIC / PRIVATE / PASSWORD  |
+| password    | string   | 视情况   | 仅 PASSWORD 可见性时需要     |
+| status      | enum     | ✅       | DRAFT / PUBLISHED / ARCHIVED |
+| featured    | boolean  | false    | 是否首页置顶                 |
+| publishedAt | datetime | 自动     | 发布时间                     |
+| viewCount   | int      | 0        | 阅读量                       |
 
 #### 4.2.3 功能要求
 
@@ -232,30 +231,30 @@
 
 #### 4.3.2 字段
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| slug | string | 自动 | |
-| title | string | 可选 | 笔记可以无标题 |
-| content | markdown | ✅ | 正文（短） |
-| visibility | enum | ✅ | PUBLIC / PRIVATE / PASSWORD |
-| password | string | 视情况 | |
-| status | enum | ✅ | DRAFT / PUBLISHED |
-| publishedAt | datetime | 自动 | |
-| viewCount | int | 0 | |
+| 字段        | 类型     | 必填   | 说明                        |
+| ----------- | -------- | ------ | --------------------------- |
+| slug        | string   | 自动   |                             |
+| title       | string   | 可选   | 笔记可以无标题              |
+| content     | markdown | ✅     | 正文（短）                  |
+| visibility  | enum     | ✅     | PUBLIC / PRIVATE / PASSWORD |
+| password    | string   | 视情况 |                             |
+| status      | enum     | ✅     | DRAFT / PUBLISHED           |
+| publishedAt | datetime | 自动   |                             |
+| viewCount   | int      | 0      |                             |
 
 > 笔记**没有**封面图、分类、置顶字段，保持轻量。
 
 #### 4.3.3 与文章的区别
 
-| 维度 | 文章 | 笔记 |
-|------|------|------|
-| 长度 | 1000+ 字 | 几行 - 几百字 |
-| 封面图 | 必填 | 无 |
-| 分类 | 必填/可选 | 无 |
-| 列表样式 | 杂志卡片 | 紧凑列表 |
-| 详情样式 | 沉浸式封面 + 排版 | 极简单栏 |
+| 维度     | 文章               | 笔记            |
+| -------- | ------------------ | --------------- |
+| 长度     | 1000+ 字           | 几行 - 几百字   |
+| 封面图   | 必填               | 无              |
+| 分类     | 必填/可选          | 无              |
+| 列表样式 | 杂志卡片           | 紧凑列表        |
+| 详情样式 | 沉浸式封面 + 排版  | 极简单栏        |
 | URL 风格 | `/articles/[slug]` | `/notes/[slug]` |
-| SEO 权重 | 高 | 中 |
+| SEO 权重 | 高                 | 中              |
 
 #### 4.3.4 前台展示
 
@@ -286,32 +285,32 @@
 
 #### Project 表
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| slug | string | 自动 | |
-| title | string | ✅ | 作品名 |
-| description | text | ✅ | 作品描述 |
-| coverImage | string | 自动 | 封面（首图或单独指定） |
-| category | string | 可选 | |
-| tags | string[] | 可选 | |
-| visibility | enum | ✅ | PUBLIC / PRIVATE / PASSWORD |
-| password | string | 视情况 | |
-| status | enum | ✅ | DRAFT / PUBLISHED |
-| featured | boolean | false | 是否首页精选 |
-| order | int | 999 | 手动排序 |
-| publishedAt | datetime | 自动 | |
-| viewCount | int | 0 | |
+| 字段        | 类型     | 必填   | 说明                        |
+| ----------- | -------- | ------ | --------------------------- |
+| slug        | string   | 自动   |                             |
+| title       | string   | ✅     | 作品名                      |
+| description | text     | ✅     | 作品描述                    |
+| coverImage  | string   | 自动   | 封面（首图或单独指定）      |
+| category    | string   | 可选   |                             |
+| tags        | string[] | 可选   |                             |
+| visibility  | enum     | ✅     | PUBLIC / PRIVATE / PASSWORD |
+| password    | string   | 视情况 |                             |
+| status      | enum     | ✅     | DRAFT / PUBLISHED           |
+| featured    | boolean  | false  | 是否首页精选                |
+| order       | int      | 999    | 手动排序                    |
+| publishedAt | datetime | 自动   |                             |
+| viewCount   | int      | 0      |                             |
 
 #### ProjectImage 表
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| projectId | FK | ✅ | 所属作品 |
-| imageUrl | string | ✅ | |
-| caption | string | 可选 | 图片说明 |
-| order | int | 0 | 排序 |
-| width | int | 自动 | 原始宽度 |
-| height | int | 自动 | 原始高度 |
+| 字段      | 类型   | 必填 | 说明     |
+| --------- | ------ | ---- | -------- |
+| projectId | FK     | ✅   | 所属作品 |
+| imageUrl  | string | ✅   |          |
+| caption   | string | 可选 | 图片说明 |
+| order     | int    | 0    | 排序     |
+| width     | int    | 自动 | 原始宽度 |
+| height    | int    | 自动 | 原始高度 |
 
 #### 4.4.3 前台展示
 
@@ -336,33 +335,33 @@
 
 #### Album 表
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| slug | string | 自动 | |
-| title | string | ✅ | 相册名（如"2025 西藏行"） |
-| description | text | 可选 | |
-| coverImage | string | 自动 | 封面（首图） |
-| visibility | enum | ✅ | |
-| status | enum | ✅ | |
-| publishedAt | datetime | 自动 | |
+| 字段        | 类型     | 必填 | 说明                      |
+| ----------- | -------- | ---- | ------------------------- |
+| slug        | string   | 自动 |                           |
+| title       | string   | ✅   | 相册名（如"2025 西藏行"） |
+| description | text     | 可选 |                           |
+| coverImage  | string   | 自动 | 封面（首图）              |
+| visibility  | enum     | ✅   |                           |
+| status      | enum     | ✅   |                           |
+| publishedAt | datetime | 自动 |                           |
 
 #### Photo 表
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| title | string | 可选 | |
-| description | text | 可选 | |
-| imageUrl | string | ✅ | |
-| thumbnailUrl | string | 自动 | 缩略图 |
-| location | string | 可选 | 拍摄地点 |
-| takenAt | date | 可选 | 拍摄时间 |
-| albumId | FK | 可空 | 独立照片为 null |
-| visibility | enum | ✅ | |
-| status | enum | ✅ | |
-| width | int | 自动 | |
-| height | int | 自动 | |
-| order | int | 0 | |
-| createdAt | datetime | 自动 | |
+| 字段         | 类型     | 必填 | 说明            |
+| ------------ | -------- | ---- | --------------- |
+| title        | string   | 可选 |                 |
+| description  | text     | 可选 |                 |
+| imageUrl     | string   | ✅   |                 |
+| thumbnailUrl | string   | 自动 | 缩略图          |
+| location     | string   | 可选 | 拍摄地点        |
+| takenAt      | date     | 可选 | 拍摄时间        |
+| albumId      | FK       | 可空 | 独立照片为 null |
+| visibility   | enum     | ✅   |                 |
+| status       | enum     | ✅   |                 |
+| width        | int      | 自动 |                 |
+| height       | int      | 自动 |                 |
+| order        | int      | 0    |                 |
+| createdAt    | datetime | 自动 |                 |
 
 #### 4.5.3 关系
 
@@ -448,14 +447,14 @@
 
 #### 4.7.3 数据模型
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| id | string | UUID |
-| type | enum | ABOUT / NOW |
-| content | markdown | 正文 |
-| meta | json | 扩展字段 |
-| createdAt | datetime | |
-| updatedAt | datetime | |
+| 字段      | 类型     | 说明        |
+| --------- | -------- | ----------- |
+| id        | string   | UUID        |
+| type      | enum     | ABOUT / NOW |
+| content   | markdown | 正文        |
+| meta      | json     | 扩展字段    |
+| createdAt | datetime |             |
+| updatedAt | datetime |             |
 
 ---
 
@@ -469,19 +468,19 @@
 
 #### 4.8.2 功能模块
 
-| 模块 | 功能 |
-|------|------|
-| 仪表盘 | 内容统计、最近发布、快速入口 |
-| 文章管理 | 列表、新建、编辑、删除、批量操作 |
-| 笔记管理 | 列表、新建、编辑、删除 |
-| 作品管理 | 列表、新建（含多图上传）、编辑、删除 |
-| 相册管理 | 相册 CRUD、照片上传 |
-| 分类管理 | CRUD、排序 |
-| 标签管理 | CRUD、合并 |
-| 单页管理 | 关于我、Now 编辑 |
-| 用户管理 | 列表、新建、编辑、禁用、删除 |
-| 媒体库 | 所有上传文件的统一管理（搜索、按类型筛选） |
-| 系统设置 | 站点标题、Logo、SEO 设置、可见性默认设置 |
+| 模块     | 功能                                       |
+| -------- | ------------------------------------------ |
+| 仪表盘   | 内容统计、最近发布、快速入口               |
+| 文章管理 | 列表、新建、编辑、删除、批量操作           |
+| 笔记管理 | 列表、新建、编辑、删除                     |
+| 作品管理 | 列表、新建（含多图上传）、编辑、删除       |
+| 相册管理 | 相册 CRUD、照片上传                        |
+| 分类管理 | CRUD、排序                                 |
+| 标签管理 | CRUD、合并                                 |
+| 单页管理 | 关于我、Now 编辑                           |
+| 用户管理 | 列表、新建、编辑、禁用、删除               |
+| 媒体库   | 所有上传文件的统一管理（搜索、按类型筛选） |
+| 系统设置 | 站点标题、Logo、SEO 设置、可见性默认设置   |
 
 #### 4.8.3 编辑器
 
@@ -565,12 +564,12 @@
 
 ### 5.6 响应式断点
 
-| 断点 | 宽度 | 列数 |
-|------|------|------|
-| mobile | < 640px | 1 列 |
-| tablet | 640-1024px | 2 列 |
-| desktop | > 1024px | 3 列 |
-| wide | > 1440px | 4 列（部分页面） |
+| 断点    | 宽度       | 列数             |
+| ------- | ---------- | ---------------- |
+| mobile  | < 640px    | 1 列             |
+| tablet  | 640-1024px | 2 列             |
+| desktop | > 1024px   | 3 列             |
+| wide    | > 1440px   | 4 列（部分页面） |
 
 ### 5.7 国际化（暂缓）
 
@@ -606,13 +605,13 @@
 
 #### 6.2.2 字体
 
-| 用途 | 字体 |
-|------|------|
-| 中文标题 | 思源宋体（Source Han Serif） |
-| 中文正文 | 思源黑体（Source Han Sans） |
-| 英文 | Inter |
-| 代码 | JetBrains Mono |
-| 装饰 | 霞鹜文楷（可选，用于引用、签名） |
+| 用途     | 字体                             |
+| -------- | -------------------------------- |
+| 中文标题 | 思源宋体（Source Han Serif）     |
+| 中文正文 | 思源黑体（Source Han Sans）      |
+| 英文     | Inter                            |
+| 代码     | JetBrains Mono                   |
+| 装饰     | 霞鹜文楷（可选，用于引用、签名） |
 
 字体加载：使用 `next/font` 进行子集化 + 预加载
 
@@ -625,8 +624,8 @@
 - 正文行高：`1.8`
 - 标题与正文间距：`1.5em`
 
-
 > 📐 **2026-07-18 注**：通用栅格约定——
+>
 > - 列表页（首页/文章列表/作品列表）卡片栅格统一为 **3 列**（lg 3 / md 2 / sm 1）
 > - 详情页正文列最大宽度 **720px** 居中
 
@@ -681,7 +680,6 @@
 │  © 2026 · Powered by you                                │
 └─────────────────────────────────────────────────────────┘
 ```
-
 
 > 📐 **2026-07-18 设计决策**：首页"最新文章"和"作品精选"卡片栅格**锁定为 3 列**（响应式：≥1024px 3 列，≥640px 2 列，<640px 1 列）。
 >
@@ -793,38 +791,38 @@ erDiagram
     User ||--o{ Project : "创建"
     User ||--o{ Album : "创建"
     User ||--o{ Photo : "上传"
-    
+
     Category ||--o{ Article : "归类"
     Category ||--o{ Project : "归类"
-    
+
     Article ||--o{ ArticleTag : ""
     Tag ||--o{ ArticleTag : ""
     Note ||--o{ NoteTag : ""
     Tag ||--o{ NoteTag : ""
     Project ||--o{ ProjectTag : ""
     Tag ||--o{ ProjectTag : ""
-    
+
     Project ||--o{ ProjectImage : "包含"
     Album ||--o{ Photo : "包含"
 ```
 
 ### 7.2 表清单（共 11 张）
 
-| 序号 | 表名 | 用途 | 归属模块 |
-|------|------|------|----------|
-| 1 | User | 用户 | 系统 |
-| 2 | Article | 文章 | 内容 |
-| 3 | Note | 笔记 | 内容 |
-| 4 | Project | 作品集 | 内容 |
-| 5 | ProjectImage | 作品集图片 | 内容 |
-| 6 | Album | 相册 | 内容 |
-| 7 | Photo | 照片 | 内容 |
-| 8 | Category | 分类 | 组织 |
-| 9 | Tag | 标签 | 组织 |
-| 10 | ArticleTag | 文章-标签关联 | 组织 |
-| 11 | NoteTag | 笔记-标签关联 | 组织 |
-| 12 | ProjectTag | 作品-标签关联 | 组织 |
-| 13 | Page | 单页内容（About/Now） | 内容 |
+| 序号 | 表名         | 用途                  | 归属模块 |
+| ---- | ------------ | --------------------- | -------- |
+| 1    | User         | 用户                  | 系统     |
+| 2    | Article      | 文章                  | 内容     |
+| 3    | Note         | 笔记                  | 内容     |
+| 4    | Project      | 作品集                | 内容     |
+| 5    | ProjectImage | 作品集图片            | 内容     |
+| 6    | Album        | 相册                  | 内容     |
+| 7    | Photo        | 照片                  | 内容     |
+| 8    | Category     | 分类                  | 组织     |
+| 9    | Tag          | 标签                  | 组织     |
+| 10   | ArticleTag   | 文章-标签关联         | 组织     |
+| 11   | NoteTag      | 笔记-标签关联         | 组织     |
+| 12   | ProjectTag   | 作品-标签关联         | 组织     |
+| 13   | Page         | 单页内容（About/Now） | 内容     |
 
 ### 7.3 关键字段约定
 
@@ -832,18 +830,18 @@ erDiagram
 
 每张内容表（Article/Note/Project/Photo/Album）都包含：
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| id | String (UUID) | 主键 |
-| slug | String | URL 唯一标识 |
-| visibility | Enum | PUBLIC / PRIVATE / PASSWORD |
-| password | String? | 仅 PASSWORD 时使用 |
-| status | Enum | DRAFT / PUBLISHED / ARCHIVED |
-| publishedAt | DateTime? | |
-| createdAt | DateTime | |
-| updatedAt | DateTime | |
-| deletedAt | DateTime? | 软删除标记 |
-| viewCount | Int | 阅读量 |
+| 字段        | 类型          | 说明                         |
+| ----------- | ------------- | ---------------------------- |
+| id          | String (UUID) | 主键                         |
+| slug        | String        | URL 唯一标识                 |
+| visibility  | Enum          | PUBLIC / PRIVATE / PASSWORD  |
+| password    | String?       | 仅 PASSWORD 时使用           |
+| status      | Enum          | DRAFT / PUBLISHED / ARCHIVED |
+| publishedAt | DateTime?     |                              |
+| createdAt   | DateTime      |                              |
+| updatedAt   | DateTime      |                              |
+| deletedAt   | DateTime?     | 软删除标记                   |
+| viewCount   | Int           | 阅读量                       |
 
 #### 可见性枚举
 
@@ -881,24 +879,24 @@ CREATE INDEX idx_article_visibility ON Article(visibility);
 
 ### 8.1 全栈选型
 
-| 层级 | 统一选型 |
-|---|---|
-| 运行环境 | **Node.js 24 LTS** + **pnpm 10** |
-| 框架 | **Next.js 15.5（App Router，Maintenance LTS）** |
-| 视图层 | **React / React DOM 19.1** |
-| 语言 | **TypeScript 5.9** |
-| 样式 | **Tailwind CSS 3.4** + **shadcn/ui CLI 3** |
-| 数据库（本地） | **SQLite**（通过 Prisma） |
-| 数据库（生产） | **PostgreSQL 17**（部署时切换） |
-| ORM | **Prisma 6.19** |
-| 认证 | **NextAuth.js 4.24**：Credentials + JWT Session + HTTP-only Cookie |
-| Markdown | **next-mdx-remote 5** + **remark/rehype** 插件 |
-| 代码高亮 | **rehype-pretty-code + Shiki 3** |
-| 图片处理 | **sharp 0.34**（服务端生成多尺寸） |
-| 表单 | **react-hook-form 7** + **Zod 3.25** |
-| 状态管理 | **React Server Components + Server Actions**（无需 Redux/Zustand） |
-| 图标 | **lucide-react 0.577** |
-| 部署 | **Vercel** / **自建 Docker** |
+| 层级           | 统一选型                                                           |
+| -------------- | ------------------------------------------------------------------ |
+| 运行环境       | **Node.js 24 LTS** + **pnpm 10**                                   |
+| 框架           | **Next.js 15.5（App Router，Maintenance LTS）**                    |
+| 视图层         | **React / React DOM 19.1**                                         |
+| 语言           | **TypeScript 5.9**                                                 |
+| 样式           | **Tailwind CSS 3.4** + **shadcn/ui CLI 3**                         |
+| 数据库（本地） | **SQLite**（通过 Prisma）                                          |
+| 数据库（生产） | **PostgreSQL 17**（部署时切换）                                    |
+| ORM            | **Prisma 6.19**                                                    |
+| 认证           | **NextAuth.js 4.24**：Credentials + JWT Session + HTTP-only Cookie |
+| Markdown       | **next-mdx-remote 5** + **remark/rehype** 插件                     |
+| 代码高亮       | **rehype-pretty-code + Shiki 3**                                   |
+| 图片处理       | **sharp 0.34**（服务端生成多尺寸）                                 |
+| 表单           | **react-hook-form 7** + **Zod 3.25**                               |
+| 状态管理       | **React Server Components + Server Actions**（无需 Redux/Zustand） |
+| 图标           | **lucide-react 0.577**                                             |
+| 部署           | **Vercel** / **自建 Docker**                                       |
 
 ### 8.2 依赖分类与安装边界
 
@@ -1156,26 +1154,26 @@ my-blog/
 
 #### 方案 A：Vercel + Cloudflare R2 + Neon Postgres
 
-| 组件 | 服务 |
-|------|------|
-| 应用 | Vercel（免费额度足够个人博客） |
-| 数据库 | Neon Postgres（兼容 PostgreSQL 17，Serverless） |
-| 文件存储 | Cloudflare R2（10GB 免费） |
-| 域名 | Cloudflare 注册 + 解析 |
-| 监控 | Vercel Analytics |
+| 组件     | 服务                                            |
+| -------- | ----------------------------------------------- |
+| 应用     | Vercel（免费额度足够个人博客）                  |
+| 数据库   | Neon Postgres（兼容 PostgreSQL 17，Serverless） |
+| 文件存储 | Cloudflare R2（10GB 免费）                      |
+| 域名     | Cloudflare 注册 + 解析                          |
+| 监控     | Vercel Analytics                                |
 
 **优点**：零运维，扩展性强，免费层够用  
 **缺点**：依赖第三方，国内访问速度一般
 
 #### 方案 B：自建 VPS + Docker
 
-| 组件 | 服务 |
-|------|------|
-| 服务器 | 阿里云 / 腾讯云 轻量应用服务器 |
-| 应用 | Docker 容器 |
-| 数据库 | PostgreSQL 17（Docker） |
-| 文件存储 | 本地磁盘（定期备份） |
-| 反向代理 | Nginx + Let's Encrypt HTTPS |
+| 组件     | 服务                           |
+| -------- | ------------------------------ |
+| 服务器   | 阿里云 / 腾讯云 轻量应用服务器 |
+| 应用     | Docker 容器                    |
+| 数据库   | PostgreSQL 17（Docker）        |
+| 文件存储 | 本地磁盘（定期备份）           |
+| 反向代理 | Nginx + Let's Encrypt HTTPS    |
 
 **优点**：完全可控，国内访问快  
 **缺点**：需要运维，备份、安全更新都要自己做
@@ -1198,65 +1196,65 @@ my-blog/
 
 ### 12.1 已确认的关键决策
 
-| 决策 | 选择 | 理由 |
-|------|------|------|
-| 内容形式 | 文章 + 笔记 双轨制 | 兼顾正式与碎片化 |
-| 可见性方案 | 账号体系（PUBLIC/PRIVATE/PASSWORD） | 长期私密内容管理方便 |
-| 技术栈 | Next.js 15.5 + React 19.1 + TypeScript 5.9 + Prisma 6.19 | 处于支持期、生态成熟、易部署 |
-| 数据库 | 本地 SQLite → 生产 PostgreSQL 17 | 本地零配置，生产性能强 |
-| 设计风格 | 杂志卡片 + 大图沉浸 | 兼顾浏览效率与作品展示 |
-| 强调色 | 主橙 `#E85A2C` | 温暖、年轻、有活力（2026-07-18 由 #FF6B35 微调） |
-| 相册风格 | 瀑布流（Pinterest 式） | 适合不规则尺寸照片 |
+| 决策       | 选择                                                     | 理由                                             |
+| ---------- | -------------------------------------------------------- | ------------------------------------------------ |
+| 内容形式   | 文章 + 笔记 双轨制                                       | 兼顾正式与碎片化                                 |
+| 可见性方案 | 账号体系（PUBLIC/PRIVATE/PASSWORD）                      | 长期私密内容管理方便                             |
+| 技术栈     | Next.js 15.5 + React 19.1 + TypeScript 5.9 + Prisma 6.19 | 处于支持期、生态成熟、易部署                     |
+| 数据库     | 本地 SQLite → 生产 PostgreSQL 17                         | 本地零配置，生产性能强                           |
+| 设计风格   | 杂志卡片 + 大图沉浸                                      | 兼顾浏览效率与作品展示                           |
+| 强调色     | 主橙 `#E85A2C`                                           | 温暖、年轻、有活力（2026-07-18 由 #FF6B35 微调） |
+| 相册风格   | 瀑布流（Pinterest 式）                                   | 适合不规则尺寸照片                               |
 
 ### 12.2 未来可能调整的点
 
-| 方面 | 当前方案 | 备选方案 |
-|------|----------|----------|
-| 认证 | 邮箱 + 密码 | 增加 GitHub OAuth |
-| 文件存储 | 本地 → 云 | 全程云存储 |
-| 搜索 | 第二期添加 | 使用 MeiliSearch |
-| 邮件 | 不需要 | Resend（Newsletter 时） |
-| CDN | 不需要 | Cloudflare CDN |
-| 监控 | Vercel Analytics | Plausible / Umami |
+| 方面     | 当前方案         | 备选方案                |
+| -------- | ---------------- | ----------------------- |
+| 认证     | 邮箱 + 密码      | 增加 GitHub OAuth       |
+| 文件存储 | 本地 → 云        | 全程云存储              |
+| 搜索     | 第二期添加       | 使用 MeiliSearch        |
+| 邮件     | 不需要           | Resend（Newsletter 时） |
+| CDN      | 不需要           | Cloudflare CDN          |
+| 监控     | Vercel Analytics | Plausible / Umami       |
 
 ### 12.3 风险与缓解
 
-| 风险 | 影响 | 缓解措施 |
-|------|------|----------|
-| 图片过多导致存储成本上升 | 中 | 定期清理 + 云存储 + CDN |
-| 数据库迁移出错 | 高 | 完整测试 + 备份 + 分步迁移 |
-| Next.js 升级破坏现有代码 | 中 | 遵循技术基线，主版本升级单独决策并完整回归 |
-| 第三方服务（Vercel/R2）故障 | 中 | 准备自建备份方案 |
-| 内容丢失 | 高 | 软删除 + 定期备份 + Git 存草稿 |
+| 风险                        | 影响 | 缓解措施                                   |
+| --------------------------- | ---- | ------------------------------------------ |
+| 图片过多导致存储成本上升    | 中   | 定期清理 + 云存储 + CDN                    |
+| 数据库迁移出错              | 高   | 完整测试 + 备份 + 分步迁移                 |
+| Next.js 升级破坏现有代码    | 中   | 遵循技术基线，主版本升级单独决策并完整回归 |
+| 第三方服务（Vercel/R2）故障 | 中   | 准备自建备份方案                           |
+| 内容丢失                    | 高   | 软删除 + 定期备份 + Git 存草稿             |
 
 ### 12.4 性能基线目标
 
-| 指标 | 目标 |
-|------|------|
-| 首屏加载（桌面） | < 2s |
-| 首屏加载（移动） | < 3s |
-| Lighthouse 性能 | > 85 |
-| Lighthouse 可访问性 | > 90 |
-| 服务端响应时间 | < 200ms |
-| 图片加载（首屏） | < 1s |
+| 指标                | 目标    |
+| ------------------- | ------- |
+| 首屏加载（桌面）    | < 2s    |
+| 首屏加载（移动）    | < 3s    |
+| Lighthouse 性能     | > 85    |
+| Lighthouse 可访问性 | > 90    |
+| 服务端响应时间      | < 200ms |
+| 图片加载（首屏）    | < 1s    |
 
 ---
 
 ## 附录 A：术语表
 
-| 术语 | 含义 |
-|------|------|
-| Article | 文章 - 长文、正式内容 |
-| Note | 笔记 - 碎片化短文 |
-| Project | 作品集 - Behance 风格的多图作品 |
-| Album | 相册 - 一组照片的容器 |
-| Photo | 照片 - 单张图 |
-| Category | 分类 - 一对多归类 |
-| Tag | 标签 - 多对多标记 |
-| Visibility | 可见性 - PUBLIC / PRIVATE / PASSWORD |
+| 术语           | 含义                                 |
+| -------------- | ------------------------------------ |
+| Article        | 文章 - 长文、正式内容                |
+| Note           | 笔记 - 碎片化短文                    |
+| Project        | 作品集 - Behance 风格的多图作品      |
+| Album          | 相册 - 一组照片的容器                |
+| Photo          | 照片 - 单张图                        |
+| Category       | 分类 - 一对多归类                    |
+| Tag            | 标签 - 多对多标记                    |
+| Visibility     | 可见性 - PUBLIC / PRIVATE / PASSWORD |
 | Digital Garden | 数字花园 - 文章+笔记双轨制的博客形式 |
-| slug | URL 友好的语义化字符串 |
-| RSC | React Server Component |
+| slug           | URL 友好的语义化字符串               |
+| RSC            | React Server Component               |
 
 ---
 
@@ -1277,13 +1275,12 @@ my-blog/
 
 ## 附录 C：变更日志
 
-| 版本 | 日期 | 变更 |
-|------|------|------|
+| 版本 | 日期       | 变更                                             |
+| ---- | ---------- | ------------------------------------------------ |
 | v1.1 | 2026-07-18 | 统一完整技术栈稳定版本、认证表述与分阶段安装边界 |
-| v1.0 | 2026-07-16 | 初版，完成需求讨论后生成 |
+| v1.0 | 2026-07-16 | 初版，完成需求讨论后生成                         |
 
 ---
-
 
 ---
 
@@ -1296,6 +1293,5 @@ my-blog/
 - **[docs/design-explorations/](./docs/design-explorations/)** —— P1-P6 视觉稿原图存档
 
 核心变动摘要：品牌名 `My-Blog` → `小川记事`，主色 `#FF6B35` → `#E85A2C`，首页/列表卡片锁定 3 列。
-
 
 **文档结束**

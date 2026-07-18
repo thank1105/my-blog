@@ -35,7 +35,11 @@ export default async function AdminHomePage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="当前账号" value={user.email ?? ""} hint={user.role ?? ""} />
         <StatCard label="账号总数" value={String(users.length)} hint={`${adminCount} ADMIN`} />
-        <StatCard label="已禁用" value={String(disabledCount)} hint={disabledCount === 0 ? "无" : "需关注"} />
+        <StatCard
+          label="已禁用"
+          value={String(disabledCount)}
+          hint={disabledCount === 0 ? "无" : "需关注"}
+        />
       </div>
 
       <section className="mt-8 rounded-md border border-hair bg-surface p-8 shadow-soft">
@@ -49,9 +53,7 @@ export default async function AdminHomePage() {
             >
               <span>
                 <span className="block font-medium text-ink">用户管理</span>
-                <span className="block text-sm text-muted">
-                  新建 / 编辑 / 禁用账号、重置密码
-                </span>
+                <span className="block text-sm text-muted">新建 / 编辑 / 禁用账号、重置密码</span>
               </span>
               <span className="text-muted">→</span>
             </Link>

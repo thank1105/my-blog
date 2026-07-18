@@ -4,9 +4,9 @@
 //
 //   role \ visibility | PUBLIC | PRIVATE | PASSWORD
 //   ----------------+--------+---------+----------
-//   GUEST           |  yes   |  no     |  no      
+//   GUEST           |  yes   |  no     |  no
 //   USER            |  yes   |  yes    |  password required
-//   ADMIN           |  yes   |  yes    |  yes     
+//   ADMIN           |  yes   |  yes    |  yes
 //
 // This module is pure logic; the database / Prisma layer never reaches
 // into it. Day 2 keeps the API surface small. Phase 3 (articles) wires it
@@ -33,14 +33,9 @@ export interface VisibilityContext {
 }
 
 export type DenialReason =
-  | "GUEST_PRIVATE"
-  | "GUEST_PASSWORD"
-  | "USER_PASSWORD_REQUIRED"
-  | "USER_PASSWORD_MISMATCH";
+  "GUEST_PRIVATE" | "GUEST_PASSWORD" | "USER_PASSWORD_REQUIRED" | "USER_PASSWORD_MISMATCH";
 
-export type VisibilityDecision =
-  | { allowed: true }
-  | { allowed: false; reason: DenialReason };
+export type VisibilityDecision = { allowed: true } | { allowed: false; reason: DenialReason };
 
 function safeEqual(a: string | null | undefined, b: string | null | undefined): boolean {
   if (!a || !b) return false;
@@ -79,9 +74,7 @@ export function canViewContent(
     case "PUBLIC":
       return { allowed: true };
     case "PRIVATE":
-      return role === "GUEST"
-        ? { allowed: false, reason: "GUEST_PRIVATE" }
-        : { allowed: true };
+      return role === "GUEST" ? { allowed: false, reason: "GUEST_PRIVATE" } : { allowed: true };
     case "PASSWORD":
       if (role === "GUEST") {
         return { allowed: false, reason: "GUEST_PASSWORD" };

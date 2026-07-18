@@ -24,7 +24,9 @@ function makeReq(path: string, search = "") {
 describe("decideAdminRedirect", () => {
   it("unauthenticated -> /login with callbackUrl", () => {
     const res = decideAdminRedirect(makeReq("/admin/users"), undefined);
-    expect(res.headers.get("location")).toBe("http://example.com/login?callbackUrl=%2Fadmin%2Fusers");
+    expect(res.headers.get("location")).toBe(
+      "http://example.com/login?callbackUrl=%2Fadmin%2Fusers",
+    );
   });
 
   it("unauthenticated preserves original query inside the callbackUrl param", () => {

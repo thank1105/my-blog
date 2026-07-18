@@ -19,9 +19,7 @@ export function AdminShell({ crumbs, children }: AdminShellProps) {
     <div className="mx-auto max-w-container px-8 py-10">
       <header className="mb-8 flex items-end justify-between gap-4 border-b border-hair pb-4">
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted">
-            Phase 1 · Admin
-          </p>
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted">Phase 1 · Admin</p>
           <nav aria-label="breadcrumb" className="mt-2 text-sm text-muted">
             {crumbs.map((c, i) => (
               <span key={c.label + i}>

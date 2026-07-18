@@ -4,12 +4,7 @@
 // happy path, mismatch path, and the safeEqual helper.
 
 import { describe, expect, it } from "vitest";
-import {
-  canListInPublicIndex,
-  canViewContent,
-  viewerRoleOf,
-  __internal,
-} from "./visibility";
+import { canListInPublicIndex, canViewContent, viewerRoleOf, __internal } from "./visibility";
 
 describe("viewerRoleOf", () => {
   it("returns GUEST when viewer is null", () => {
@@ -52,15 +47,17 @@ describe("canViewContent", () => {
   });
 
   it("PASSWORD blocks GUEST unconditionally", () => {
-    expect(
-      canViewContent(GUEST, { visibility: "PASSWORD", contentPassword: "x" }),
-    ).toEqual({ allowed: false, reason: "GUEST_PASSWORD" });
+    expect(canViewContent(GUEST, { visibility: "PASSWORD", contentPassword: "x" })).toEqual({
+      allowed: false,
+      reason: "GUEST_PASSWORD",
+    });
   });
 
   it("PASSWORD blocks USER without password attempt", () => {
-    expect(
-      canViewContent(USER, { visibility: "PASSWORD", contentPassword: "x" }),
-    ).toEqual({ allowed: false, reason: "USER_PASSWORD_REQUIRED" });
+    expect(canViewContent(USER, { visibility: "PASSWORD", contentPassword: "x" })).toEqual({
+      allowed: false,
+      reason: "USER_PASSWORD_REQUIRED",
+    });
   });
 
   it("PASSWORD blocks USER when password mismatches", () => {

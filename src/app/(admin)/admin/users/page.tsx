@@ -32,9 +32,7 @@ export default async function AdminUsersPage() {
   const users = await listUsers();
 
   return (
-    <AdminShell
-      crumbs={[{ label: "后台首页", href: "/admin" }, { label: "用户管理" }]}
-    >
+    <AdminShell crumbs={[{ label: "后台首页", href: "/admin" }, { label: "用户管理" }]}>
       <section className="rounded-md border border-hair bg-surface p-8 shadow-soft">
         <div className="mb-6 flex items-center justify-between">
           <div>
@@ -74,9 +72,7 @@ export default async function AdminUsersPage() {
                   <span
                     className={
                       "inline-block rounded px-2 py-0.5 text-xs font-medium " +
-                      (u.role === "ADMIN"
-                        ? "bg-accent/10 text-accent"
-                        : "bg-hair text-muted")
+                      (u.role === "ADMIN" ? "bg-accent/10 text-accent" : "bg-hair text-muted")
                     }
                   >
                     {u.role}
@@ -89,7 +85,9 @@ export default async function AdminUsersPage() {
                     <span className="text-danger">已禁用</span>
                   )}
                 </td>
-                <td className="border-b border-hair px-3 py-2 text-muted">{formatDate(u.lastLoginAt)}</td>
+                <td className="border-b border-hair px-3 py-2 text-muted">
+                  {formatDate(u.lastLoginAt)}
+                </td>
                 <td className="border-b border-hair px-3 py-2 text-right">
                   <Link
                     href={`/admin/users/${u.id}/edit`}

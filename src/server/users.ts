@@ -66,11 +66,7 @@ export async function getUser(id: string) {
 // Input validation for createUser / updateUser / resetPassword. We use Zod
 // schemas so they can be reused on the client form too.
 
-const emailSchema = z
-  .string()
-  .trim()
-  .toLowerCase()
-  .email("邮箱格式不正确");
+const emailSchema = z.string().trim().toLowerCase().email("邮箱格式不正确");
 const usernameSchema = z
   .string()
   .trim()
@@ -83,10 +79,7 @@ const displayNameSchema = z
   .max(60, "昵称最多 60 个字符")
   .optional()
   .or(z.literal(""));
-const passwordSchema = z
-  .string()
-  .min(8, "密码至少 8 位")
-  .max(128, "密码过长");
+const passwordSchema = z.string().min(8, "密码至少 8 位").max(128, "密码过长");
 const roleSchema = z.enum(["ADMIN", "USER"]);
 
 export const createUserSchema = z.object({

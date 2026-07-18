@@ -32,8 +32,7 @@ async function requireAdmin() {
 }
 
 export type ActionResult =
-  | { ok: true }
-  | { ok: false; error: string; fieldErrors?: Record<string, string> };
+  { ok: true } | { ok: false; error: string; fieldErrors?: Record<string, string> };
 
 function flattenZodError(err: z.ZodError): Record<string, string> {
   const out: Record<string, string> = {};
@@ -69,10 +68,7 @@ export async function createUserAction(formData: FormData): Promise<ActionResult
   redirect("/admin/users");
 }
 
-export async function updateUserAction(
-  id: string,
-  formData: FormData,
-): Promise<ActionResult> {
+export async function updateUserAction(id: string, formData: FormData): Promise<ActionResult> {
   await requireAdmin();
   const input = {
     displayName: formData.get("displayName"),
@@ -89,10 +85,7 @@ export async function updateUserAction(
   return { ok: true };
 }
 
-export async function resetPasswordAction(
-  id: string,
-  formData: FormData,
-): Promise<ActionResult> {
+export async function resetPasswordAction(id: string, formData: FormData): Promise<ActionResult> {
   await requireAdmin();
   const input = { newPassword: formData.get("newPassword") };
   const parsed = resetPasswordSchema.safeParse(input);
