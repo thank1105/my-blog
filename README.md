@@ -7,7 +7,7 @@
 
 ## 项目状态
 
-🚧 **规划与设计阶段**，尚未开始脚手架。
+🚧 **规划与技术基线阶段**，稳定版本方案已确认，尚未开始脚手架。
 
 ## 文档导航
 
@@ -17,11 +17,12 @@
 |---|---|---|
 | 0 | [docs/visual-anchor.png](./docs/visual-anchor.png) | **视觉锚**：一张图了解全站气质 |
 | 1 | [REQUIREMENTS.md](./REQUIREMENTS.md) | 需求文档（功能 + 数据 + UI 规范 + 部署） |
-| 2 | [DEVELOPMENT.md](./DEVELOPMENT.md) | 开发文档（阶段规划 + 任务清单 + 里程碑） |
-| 3 | [docs/design-decisions.md](./docs/design-decisions.md) | 设计决策记录（Token + 已合并到 REQUIREMENTS 的变更） |
-| 4 | [docs/design-prompts.md](./docs/design-prompts.md) | 视觉稿生成 Prompt 包 |
-| 5 | [docs/design-explorations/](./docs/design-explorations/) | P1-P6 出图存档 |
-| 6 | [docs/README.md](./docs/README.md) | docs 目录索引 |
+| 2 | [docs/technology-baseline.md](./docs/technology-baseline.md) | **技术版本唯一事实来源**：完整版本矩阵 + 升级规则 |
+| 3 | [DEVELOPMENT.md](./DEVELOPMENT.md) | 开发文档（阶段规划 + 任务清单 + 里程碑） |
+| 4 | [docs/design-decisions.md](./docs/design-decisions.md) | 设计决策记录（Token + 已合并到 REQUIREMENTS 的变更） |
+| 5 | [docs/design-prompts.md](./docs/design-prompts.md) | 视觉稿生成 Prompt 包 |
+| 6 | [docs/design-explorations/](./docs/design-explorations/) | P1-P6 出图存档 |
+| 7 | [docs/README.md](./docs/README.md) | docs 目录索引 |
 
 ## 设计风格
 
@@ -30,18 +31,21 @@
 - 衬线大标 + 无衬线正文
 - 风格基线参见 [docs/visual-anchor.png](./docs/visual-anchor.png)
 
-## 技术栈（来自 REQUIREMENTS § 8）
+## 技术栈摘要
 
-- 框架：Next.js 14（App Router）+ TypeScript
-- UI：Tailwind CSS + shadcn/ui
-- 数据库：本地 SQLite → 部署时迁 PostgreSQL
-- ORM：Prisma
-- 认证：邮箱 + 密码（bcrypt + HTTP-only Cookie Session）
+完整版本与升级规则以 [技术栈稳定版本基线](./docs/technology-baseline.md) 为准。
+
+- 运行环境：Node.js 24 LTS + pnpm 10
+- 框架：Next.js 15.5（Maintenance LTS）+ React 19.1 + TypeScript 5.9
+- UI：Tailwind CSS 3.4 + shadcn/ui CLI 3
+- 数据：Prisma 6.19；本地 SQLite → 部署时 PostgreSQL 17
+- 认证：NextAuth.js 4.24 Credentials + JWT Session + HTTP-only Cookie
+- 工具：ESLint 9 + Prettier 3 + Vitest 3（按阶段启用）
 
 ## 阶段概览（来自 DEVELOPMENT § 3）
 
 | 阶段 | 名称 | 累计天数 | Tag |
-|---|---|---|---|
+|---|---|---:|---|
 | 0 | 项目脚手架 | 1 | v0.1.0-foundation |
 | 1 | 数据库 & 认证 | 3 | v0.2.0-auth |
 | 2 | 设计系统 & 布局 | 5 | v0.3.0-design |

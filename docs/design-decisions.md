@@ -1,11 +1,10 @@
 ﻿# 设计决策记录（Design Decisions）
 
 > 🟢 **状态**：✅ 已合并入 [REQUIREMENTS.md](../REQUIREMENTS.md) 与 [DEVELOPMENT.md](../DEVELOPMENT.md)（合并日期 2026-07-18）
-> 配套：[visual-anchor.png](./visual-anchor.png)、[design-prompts.md](./design-prompts.md)
+> 配套：[visual-anchor.png](./visual-anchor.png)、[design-prompts.md](./design-prompts.md)、[technology-baseline.md](./technology-baseline.md)（技术版本）
 > 配套原始文档：[REQUIREMENTS.md](../REQUIREMENTS.md) § 6、[DEVELOPMENT.md](../DEVELOPMENT.md)
 > 创建日期：2026-07-18
 
-> 状态：✅ 已确认，待合并回 REQUIREMENTS.md
 
 ---
 
@@ -110,7 +109,7 @@
 
 ## 对 Phase 0 / Phase 2 实施的传递清单
 
-进入脚手架阶段时，下面这些必须**先于业务代码**做：
+进入脚手架阶段时，下面这些必须**先于业务代码**做。技术版本以 [technology-baseline.md](./technology-baseline.md) 为准；样式固定采用 Tailwind CSS 3.4 的 `tailwind.config.ts` 配置模型：
 
 1. **在 `tailwind.config.ts`**：
    ```ts

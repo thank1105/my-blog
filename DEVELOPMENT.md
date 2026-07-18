@@ -1,11 +1,11 @@
 ﻿# 个人博客系统开发文档
 
-> 版本：v1.0
-> 最后更新：2026-07-18（待启动 Phase 0；视觉 Token 已与设计文档对齐，见 docs/design-decisions.md）
-> 配套文档：[REQUIREMENTS.md](./REQUIREMENTS.md)
+> 版本：v1.1
+> 最后更新：2026-07-18（待启动 Phase 0；稳定技术栈与视觉 Token 已统一）
+> 配套文档：[REQUIREMENTS.md](./REQUIREMENTS.md) · [docs/technology-baseline.md](./docs/technology-baseline.md)（技术版本唯一事实来源）
 
 
-> **配套设计文档**：[REQUIREMENTS.md](./REQUIREMENTS.md) · [docs/design-decisions.md](./docs/design-decisions.md)（设计 Token）· [docs/visual-anchor.png](./docs/visual-anchor.png)（视觉锚）
+> **配套设计文档**：[docs/design-decisions.md](./docs/design-decisions.md)（设计 Token）· [docs/visual-anchor.png](./docs/visual-anchor.png)（视觉锚）
 
 ---
 
@@ -44,7 +44,7 @@
 | 文章 → 笔记 → 作品 → 相册 | 而非按字母或时间 | 文章功能最全，是其他模块的"母版" |
 | 后台 CRUD → 前台展示 | 同步推进 | 同一个模块内先跑通后台，再做前台 |
 | 公开功能 → 私密功能 | 先公开后私密 | 公开无权限复杂度，先打通主流程 |
-| 本地 SQLite → 部署 PostgreSQL | 分阶段切换 | 本地零配置，部署时再换高性能方案 |
+| 本地 SQLite → 部署 PostgreSQL 17 | 分阶段切换 | 本地零配置，部署时再换高性能方案 |
 
 ### 1.3 拒绝的做法
 
@@ -95,6 +95,22 @@ main                 ← 主分支，始终可运行
 ```
 
 **个人项目推荐**：直接在 main 上开发，每完成一个阶段打 Tag。
+
+### 2.4 技术版本与分阶段安装
+
+完整版本矩阵统一维护在 [docs/technology-baseline.md](./docs/technology-baseline.md)，本开发文档不得另行选择不同主版本。
+
+| 阶段 | 新增依赖范围 |
+|---|---|
+| Phase 0 | Next.js/React/TypeScript、Tailwind CSS、Prisma、shadcn/ui CLI、ESLint、Prettier |
+| Phase 1 | NextAuth.js、bcryptjs、react-hook-form、Zod、Vitest（首次测试时） |
+| Phase 2 | lucide-react 和具体 shadcn/ui 组件依赖 |
+| Phase 3 | next-mdx-remote、remark/rehype、rehype-pretty-code、Shiki |
+| Phase 5–6 | sharp（若此前尚未安装） |
+| 按需 | Husky、lint-staged，仅在启用 Git Hooks 时安装 |
+| Phase 10 | PostgreSQL 17 或兼容该版本的托管服务 |
+
+**锁定规则**：不得使用 `latest` 或预发布标签；React/React DOM、Prisma CLI/Client 必须严格同版，Next.js/`eslint-config-next` 必须保持同一版本线，最终解析结果提交到 `pnpm-lock.yaml`。
 
 ---
 
@@ -155,24 +171,34 @@ graph LR
 
 **前置依赖**：无
 
+**版本基线**：[docs/technology-baseline.md](./docs/technology-baseline.md)；Phase 0 不提前安装认证、Markdown、图片处理等后续依赖。
+
 **任务清单**：
-- [ ] 创建 Next.js 14 项目（App Router + TypeScript）
-- [ ] 安装并配置 Tailwind CSS
-- [ ] 安装 Prisma + 配置 SQLite
+- [ ] 确认 Node.js 24 LTS 与 pnpm 10 环境
+- [ ] 创建 Next.js 15.5 项目（App Router + React 19.1 + TypeScript 5.9）
+- [ ] 安装并配置 Tailwind CSS 3.4 + PostCSS 8 + Autoprefixer 10
+- [ ] 安装 Prisma 6.19 + `@prisma/client` 6.19，配置 SQLite
 - [ ] 创建数据库 schema（所有 11 张表）
-- [ ] 初始化 shadcn/ui
-- [ ] 配置 ESLint + Prettier
+- [ ] 使用 shadcn/ui CLI 3 初始化 `components.json`
+- [ ] 配置 ESLint 9 + `eslint-config-next` 15.5 + Prettier 3
 - [ ] 创建项目目录结构（按 REQUIREMENTS 第 9 章）
+- [ ] 在 `package.json#packageManager`、`.nvmrc` 与 `pnpm-lock.yaml` 固定环境和依赖
 - [ ] 设置 `.env.example` 模板
 - [ ] 创建首页占位（Hello World）
-- [ ] `.gitignore` 配置
-- [ ] 第一次 Git 提交
+- [ ] 配置 `.gitignore`
+- [ ] 提交 Phase 0 脚手架
 
 **关键文件**：
-```
+```text
 package.json
+pnpm-lock.yaml
+.nvmrc
 next.config.mjs
+postcss.config.mjs
 tailwind.config.ts
+eslint.config.mjs
+.prettierrc.json
+components.json
 tsconfig.json
 prisma/schema.prisma
 .env.example
@@ -182,10 +208,14 @@ src/app/page.tsx
 ```
 
 **验收标准**：
+- [ ] `node --version` 为 24.x LTS，`pnpm --version` 为 10.x
+- [ ] `pnpm install --frozen-lockfile` 能成功复现依赖
 - [ ] `pnpm dev` 能跑起来，访问 `http://localhost:3000` 看到占位页
-- [ ] `pnpm prisma db push` 能成功创建数据库
+- [ ] `pnpm prisma validate` 与 `pnpm prisma db push` 均成功
+- [ ] React 与 React DOM、Prisma CLI 与 Client 均严格同版
+- [ ] Next.js 与 `eslint-config-next` 保持 15.5.x 版本线
 - [ ] 项目结构符合 REQUIREMENTS.md 第 9 章规划
-- [ ] Git 仓库初始化完成
+- [ ] Git 工作区干净并创建 `v0.1.0-foundation` Tag
 
 **演示能力**：能跑起来的空网站
 
@@ -204,10 +234,11 @@ src/app/page.tsx
 **任务清单**：
 
 **Day 1 - 认证核心**：
-- [ ] 配置 NextAuth.js（Credentials Provider）
+- [ ] 安装 NextAuth.js 4.24、bcryptjs 3、react-hook-form 7、Zod 3.25
+- [ ] 配置 NextAuth.js v4（Credentials Provider）
 - [ ] 实现登录页 UI
-- [ ] 实现 Session 管理（JWT）
-- [ ] 密码 bcrypt 加密（cost 12）
+- [ ] 实现 JWT Session，由 HTTP-only Cookie 持有会话令牌
+- [ ] 密码使用 bcryptjs 加密（cost 12）
 - [ ] 登录限流（5 次/15 分钟）
 - [ ] 创建 seed 脚本（生成 admin 账号 + 测试朋友账号）
 
@@ -239,7 +270,7 @@ src/app/(admin)/admin/users/[id]/edit/page.tsx
 - [ ] 未登录访问 `/admin/*` 跳转到 `/login`
 - [ ] 登录后访问 `/admin` 能看到用户管理页
 - [ ] 创建新用户，新用户能登录
-- [ ] 密码在数据库中是 bcrypt 哈希（明文看不到）
+- [ ] 密码在数据库中是 bcryptjs 哈希（明文看不到）
 - [ ] 5 次错误密码后被限流 15 分钟
 - [ ] 关闭浏览器再打开，session 保持（如果选了"记住我"）
 
@@ -266,10 +297,10 @@ src/app/(admin)/admin/users/[id]/edit/page.tsx
 **任务清单**：
 
 **Day 1 - 主题 & 字体 & 公共组件**：
-- [ ] 配置 Tailwind 主题色（**主色 `#E85A2C`**，详见 [docs/design-decisions.md](./docs/design-decisions.md) —— 2026-07-18 由 #FF6B35 微调）
+- [ ] 使用 Tailwind CSS 3.4 配置主题色（**主色 `#E85A2C`**，详见 [docs/design-decisions.md](./docs/design-decisions.md) —— 2026-07-18 由 #FF6B35 微调）
 - [ ] 引入字体（思源黑体、思源宋体、Inter、JetBrains Mono）
 - [ ] 使用 `next/font` 子集化 + 预加载
-- [ ] 创建 `Button`、`Card`、`Input`、`Badge` 等 shadcn 基础组件
+- [ ] 安装 lucide-react 0.577，并创建 `Button`、`Card`、`Input`、`Badge` 等 shadcn 基础组件
 - [ ] 创建 `Header` 组件（含导航、搜索占位、登录状态）
 - [ ] 创建 `Footer` 组件
 
@@ -551,7 +582,7 @@ src/app/(frontend)/projects/[slug]/page.tsx
 - [ ] 照片批量删除
 
 **Day 2 - 前台瀑布流**：
-- [ ] `/photos` 瀑布流总览（CSS columns 或 react-masonry-css）
+- [ ] `/photos` 瀑布流总览（CSS columns（避免额外瀑布流依赖））
 - [ ] `/photos/albums/[slug]` 相册详情瀑布流
 - [ ] 照片灯箱（复用 Phase 5 的 `Lightbox`）
 - [ ] 按相册筛选（顶部 tab）
@@ -740,13 +771,13 @@ src/lib/structured-data.ts
 **任务清单**：
 
 **Day 1 - 部署准备**：
-- [ ] 切换数据库到 PostgreSQL（Neon 免费层）
-- [ ] 数据迁移（SQLite → PostgreSQL，用 prisma migrate）
+- [ ] 切换数据库到 PostgreSQL 17（Neon 或兼容托管服务）
+- [ ] 数据迁移（SQLite → PostgreSQL 17，用 prisma migrate）
 - [ ] 切换文件存储到云存储（Cloudflare R2 / 阿里云 OSS）
 - [ ] 已有数据迁移到云存储
 - [ ] 环境变量整理（生产环境专用 `.env.production`）
 - [ ] 域名准备（建议在 Cloudflare 购买）
-- [ ] 错误监控（Sentry 集成）
+- [ ] 错误监控（优先使用部署平台能力；Sentry 作为后续候选，启用前先纳入技术基线）
 - [ ] Dockerfile 准备（备用自建方案）
 
 **Day 2 - 部署上线**：
@@ -816,7 +847,7 @@ DEPLOYMENT.md
 | 阶段 | 测试方式 |
 |------|----------|
 | 第一期（MVP） | 关键流程手测 + 核心逻辑单测 |
-| 第二期 | E2E 测试（Playwright） |
+| 第二期 | E2E 测试（Playwright 候选，启用前先纳入技术基线） |
 | 第三期 | 性能测试、压力测试 |
 
 ### 7.3 核心流程测试清单
@@ -848,7 +879,7 @@ DEPLOYMENT.md
 | [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) | OG 标签 |
 | [Twitter Card Validator](https://cards-dev.twitter.com/validator) | Twitter Card |
 | [Google Rich Results Test](https://search.google.com/test/rich-results) | 结构化数据 |
-| [Playwright](https://playwright.dev) | E2E 测试（后续） |
+| [Playwright](https://playwright.dev) | E2E 测试候选（启用前先纳入技术基线） |
 
 ---
 
@@ -857,11 +888,11 @@ DEPLOYMENT.md
 | 风险 | 影响阶段 | 应对措施 |
 |------|----------|----------|
 | Prisma 迁移出错 | Phase 1, 10 | 备份 + 分步迁移 + 准备降级脚本 |
-| NextAuth 配置复杂 | Phase 1 | 参照官方示例，必要时简化为简化版 |
-| Markdown 渲染 XSS | Phase 3 | 严格白名单 + DOMPurify + 代码审计 |
+| NextAuth.js v4 配置复杂 | Phase 1 | 固定 Credentials + JWT Session 方案，参照官方示例并补测试 |
+| Markdown 渲染 XSS | Phase 3 | 严格白名单净化 + 禁用不受信任原始 HTML + 代码审计 |
 | 图片上传 OOM | Phase 3, 5, 6 | 客户端预压缩到 2400px + 服务端限制 10MB |
-| SQLite 性能瓶颈 | Phase 8+ | 准备迁移到 PostgreSQL 方案 |
-| Next.js 升级破坏 | 全程 | 锁定版本，延迟升级到稳版 |
+| SQLite 性能瓶颈 | Phase 8+ | 准备迁移到 PostgreSQL 17 方案 |
+| Next.js 升级破坏 | 全程 | 固定 15.5.x；主版本升级单独决策并完整回归 |
 | 灵感中断 | 全程 | 保持小步快跑，每天有可见进展 |
 | 个人项目拖延 | 全程 | 严格按阶段打 Tag，阶段间允许休息 |
 | 第三方服务故障 | Phase 10 | 准备自建备份方案 + 数据本地保留 |
@@ -933,7 +964,7 @@ pnpm prisma generate
 pnpm prisma studio
 
 # 查看 Next.js 编译输出
-pnpm dev --turbo          # Turbopack（Next.js 14+ 实验性）
+pnpm dev --turbo          # Turbopack（Next.js 15 稳定可用）
 ```
 
 ### 9.4 部署相关（Phase 10）
@@ -994,18 +1025,20 @@ docker run -p 3000:3000 my-blog
 |------|------|------|----------|
 | 2026-07-17 | 文章 → 笔记 → 作品 → 相册 的开发顺序 | 文章功能最全，是其他模块的模板 | 按字母序、按复杂度 |
 | 2026-07-17 | 后台 → 前台 的开发节奏 | 同一个模块内先跑通后台 | 并行开发 |
-| 2026-07-17 | 本地 SQLite，生产 PostgreSQL | 本地零配置，部署时再切 | 一步到位 PostgreSQL |
+| 2026-07-17 | 本地 SQLite，生产 PostgreSQL 17 | 本地零配置，部署时再切 | 一步到位 PostgreSQL 17 |
 | 2026-07-17 | 阶段不超过 5 天 | 防止单阶段拖延 | 不限时间 |
+| 2026-07-18 | 采用保守稳定技术基线 | 保持官方支持与生态成熟度，避免追逐最新主版本 | 全量最新版本 / 保留原旧版本 |
 
 ---
 
 ## 附录 C：相关文档索引
 
 - [REQUIREMENTS.md](./REQUIREMENTS.md) - 需求文档
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - 部署文档（Phase 10 产出）
-- [ROADMAP.md](./ROADMAP.md) - 实时进度跟踪（推荐创建）
-- [CHANGELOG.md](./CHANGELOG.md) - 变更日志（推荐创建）
-- [docs/screenshots/](./docs/screenshots/) - 阶段截图
+- [docs/technology-baseline.md](./docs/technology-baseline.md) - 技术版本唯一事实来源
+- `DEPLOYMENT.md` - 部署文档（Phase 10 产出，尚未创建）
+- `ROADMAP.md` - 实时进度跟踪（推荐创建）
+- `CHANGELOG.md` - 变更日志（推荐创建）
+- `docs/screenshots/` - 阶段截图目录（按阶段创建）
 
 ---
 

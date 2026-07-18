@@ -1,11 +1,11 @@
 ﻿# 个人博客系统需求文档
 
-> 版本：v1.0
-> 最后更新：2026-07-18（视觉决策已合并，见 [docs/design-decisions.md](./docs/design-decisions.md)）
+> 版本：v1.1
+> 最后更新：2026-07-18（稳定技术栈与视觉决策已统一）
 > 项目代号：My-Blog
 
 
-> **配套设计文档**：[docs/design-decisions.md](./docs/design-decisions.md)（设计决策与 Token）· [docs/visual-anchor.png](./docs/visual-anchor.png)（视觉锚图）· [docs/design-prompts.md](./docs/design-prompts.md)（视觉稿生成 Prompt）
+> **配套文档**：[docs/technology-baseline.md](./docs/technology-baseline.md)（技术版本唯一事实来源）· [docs/design-decisions.md](./docs/design-decisions.md)（设计决策与 Token）· [docs/visual-anchor.png](./docs/visual-anchor.png)（视觉锚图）
 
 ---
 
@@ -108,9 +108,9 @@
 
 ### 3.4 认证方案
 
-- 邮箱 + 密码登录
-- 密码使用 bcrypt 加密存储
-- Session 通过 HTTP-only Cookie 维持
+- 使用 NextAuth.js v4 Credentials Provider 实现邮箱 + 密码登录
+- 密码使用 bcryptjs 哈希存储（cost 12）
+- 使用 JWT Session，并由框架管理的 HTTP-only Cookie 持有会话令牌
 - 提供"记住我"选项（延长 session 有效期）
 - 后续可考虑接入 OAuth（GitHub / Google），但非必需
 
@@ -527,7 +527,7 @@
 - **CSRF**：所有写操作要求 CSRF token
 - **XSS**：
   - Markdown 渲染时白名单过滤
-  - HTML 内容使用 DOMPurify
+  - HTML 内容采用严格白名单净化，默认禁用不受信任的原始 HTML
   - Content Security Policy
 - **SQL 注入**：使用 ORM（Prisma）参数化查询
 - **文件上传**：
@@ -877,72 +877,85 @@ CREATE INDEX idx_article_visibility ON Article(visibility);
 
 ## 8. 技术栈
 
+> 完整版本矩阵、参考补丁、安装阶段和升级规则统一维护在 [docs/technology-baseline.md](./docs/technology-baseline.md)。本章只保留架构选型摘要；出现差异时，以技术基线文档为准。
+
 ### 8.1 全栈选型
 
-| 层级 | 技术 |
-|------|------|
-| 框架 | **Next.js 14+（App Router）** |
-| 语言 | **TypeScript** |
-| 样式 | **Tailwind CSS** + **shadcn/ui** |
+| 层级 | 统一选型 |
+|---|---|
+| 运行环境 | **Node.js 24 LTS** + **pnpm 10** |
+| 框架 | **Next.js 15.5（App Router，Maintenance LTS）** |
+| 视图层 | **React / React DOM 19.1** |
+| 语言 | **TypeScript 5.9** |
+| 样式 | **Tailwind CSS 3.4** + **shadcn/ui CLI 3** |
 | 数据库（本地） | **SQLite**（通过 Prisma） |
-| 数据库（生产） | **PostgreSQL**（部署时切换） |
-| ORM | **Prisma** |
-| 认证 | **Auth.js（NextAuth.js）** |
-| Markdown | **next-mdx-remote** + **remark/rehype** 插件 |
-| 代码高亮 | **Shiki**（在 Markdown 渲染时使用） |
-| 图片处理 | **sharp**（服务端生成多尺寸） |
-| 表单 | **react-hook-form** + **zod** |
+| 数据库（生产） | **PostgreSQL 17**（部署时切换） |
+| ORM | **Prisma 6.19** |
+| 认证 | **NextAuth.js 4.24**：Credentials + JWT Session + HTTP-only Cookie |
+| Markdown | **next-mdx-remote 5** + **remark/rehype** 插件 |
+| 代码高亮 | **rehype-pretty-code + Shiki 3** |
+| 图片处理 | **sharp 0.34**（服务端生成多尺寸） |
+| 表单 | **react-hook-form 7** + **Zod 3.25** |
 | 状态管理 | **React Server Components + Server Actions**（无需 Redux/Zustand） |
-| 图标 | **lucide-react** |
+| 图标 | **lucide-react 0.577** |
 | 部署 | **Vercel** / **自建 Docker** |
 
-### 8.2 包依赖（核心）
+### 8.2 依赖分类与安装边界
 
-```json
-{
-  "dependencies": {
-    "next": "^14.0.0",
-    "react": "^18.0.0",
-    "typescript": "^5.0.0",
-    "tailwindcss": "^3.4.0",
-    "@prisma/client": "^5.0.0",
-    "next-auth": "^4.24.0",
-    "next-mdx-remote": "^4.4.0",
-    "remark-gfm": "^4.0.0",
-    "rehype-slug": "^6.0.0",
-    "rehype-autolink-headings": "^7.0.0",
-    "rehype-pretty-code": "^0.13.0",
-    "shiki": "^1.0.0",
-    "sharp": "^0.33.0",
-    "react-hook-form": "^7.49.0",
-    "zod": "^3.22.0",
-    "bcryptjs": "^2.4.3",
-    "lucide-react": "^0.300.0"
-  },
-  "devDependencies": {
-    "prisma": "^5.0.0",
-    "@types/node": "^20.0.0",
-    "@types/react": "^18.0.0",
-    "eslint": "^8.0.0",
-    "prettier": "^3.0.0"
-  }
-}
+Phase 0 只安装脚手架所需依赖，其他包在首次使用的阶段加入，避免未使用依赖提前进入项目。
+
+**Phase 0 运行时依赖**：
+
+```text
+next, react, react-dom, @prisma/client
 ```
+
+**Phase 0 开发依赖**：
+
+```text
+typescript, @types/node, @types/react, @types/react-dom,
+tailwindcss, postcss, autoprefixer, prisma,
+eslint, eslint-config-next, prettier
+```
+
+**后续阶段按需加入**：
+
+```text
+Phase 1: next-auth, bcryptjs, react-hook-form, zod, vitest
+Phase 2: lucide-react 与具体 shadcn/ui 组件依赖
+Phase 3: next-mdx-remote, remark-gfm, rehype-slug,
+         rehype-autolink-headings, rehype-pretty-code, shiki
+Phase 5-6: sharp（若此前尚未安装）
+按需工具: husky, lint-staged
+```
+
+具体版本不得使用 `latest` 或预发布标签，按技术基线确定版本并由 `pnpm-lock.yaml` 锁定。
 
 ### 8.3 shadcn/ui 选用的组件
 
-```
+```text
 button, card, input, textarea, dialog, dropdown-menu,
 tabs, toast, badge, avatar, separator, switch, label
 ```
 
+shadcn/ui CLI 使用固定的 3.x 版本通过 `pnpm dlx` 执行；生成的组件代码归项目所有。
+
 ### 8.4 工具链
 
-- **包管理**：pnpm（推荐）
-- **代码规范**：ESLint + Prettier
-- **Git Hooks**：husky + lint-staged（可选）
-- **测试**：Vitest（单元测试，后续）
-- **CI/CD**：GitHub Actions（后续）
+- **包管理**：pnpm 10（`packageManager` 字段固定具体版本）
+- **代码规范**：ESLint 9 + `eslint-config-next` 15.5 + Prettier 3
+- **Git Hooks**：Husky 9 + lint-staged 16（可选）
+- **测试**：Vitest 3（首次编写单元测试时安装）
+- **CI/CD**：GitHub Actions（后续，使用 `pnpm install --frozen-lockfile`）
+
+### 8.5 关键兼容约束
+
+- React 与 React DOM 必须严格同版。
+- Prisma CLI 与 `@prisma/client` 必须严格同版。
+- Next.js 与 `eslint-config-next` 必须保持相同版本线。
+- Tailwind CSS 固定使用 3.4 的 `tailwind.config.ts` 配置模型。
+- NextAuth.js 固定使用稳定的 v4，不使用仍处于 beta 的 v5。
+- 主版本升级必须单独记录技术决策，不随普通依赖更新进行。
 
 ---
 
@@ -1052,9 +1065,14 @@ my-blog/
 ├── README.md
 ├── REQUIREMENTS.md                # 本文档
 ├── next.config.mjs
+├── postcss.config.mjs
 ├── tailwind.config.ts
+├── eslint.config.mjs
+├── .prettierrc.json
+├── components.json               # shadcn/ui CLI 配置
 ├── tsconfig.json
-├── package.json
+├── .nvmrc                        # Node.js 24 LTS
+├── package.json                  # 含 packageManager: pnpm@10.x
 └── pnpm-lock.yaml
 ```
 
@@ -1066,7 +1084,7 @@ my-blog/
 
 **目标**：本地能跑通核心写、读、看流程
 
-- [ ] 项目初始化（Next.js + TypeScript + Tailwind + Prisma）
+- [ ] 项目初始化（Next.js 15.5 + React 19.1 + TypeScript 5.9 + Tailwind CSS 3.4 + Prisma 6.19）
 - [ ] 数据库 schema 设计 + 迁移
 - [ ] shadcn/ui 初始化 + 设计系统搭建
 - [ ] 认证系统（登录、Session、权限中间件）
@@ -1102,7 +1120,7 @@ my-blog/
 
 ### 第三期：部署 + 优化（约 1-2 周）
 
-- [ ] 切换到 PostgreSQL
+- [ ] 切换到 PostgreSQL 17
 - [ ] 切换到云存储（Cloudflare R2 / 阿里云 OSS）
 - [ ] Vercel 部署
 - [ ] 自定义域名
@@ -1128,9 +1146,9 @@ my-blog/
 ### 11.1 本地开发环境
 
 - 操作系统：Windows 11 / macOS / Linux
-- Node.js：>= 18.17
-- pnpm：>= 8.0
-- 数据库：SQLite（无需额外安装）
+- Node.js：24 LTS（使用当前 24.x 安全补丁）
+- pnpm：10.x（具体版本由 `package.json#packageManager` 固定）
+- 数据库：SQLite（由 Prisma 管理，无需额外安装）
 - 文件存储：本地 `public/uploads/`
 - 启动：`pnpm dev`，访问 `http://localhost:3000`
 
@@ -1141,7 +1159,7 @@ my-blog/
 | 组件 | 服务 |
 |------|------|
 | 应用 | Vercel（免费额度足够个人博客） |
-| 数据库 | Neon Postgres（Serverless，免费层） |
+| 数据库 | Neon Postgres（兼容 PostgreSQL 17，Serverless） |
 | 文件存储 | Cloudflare R2（10GB 免费） |
 | 域名 | Cloudflare 注册 + 解析 |
 | 监控 | Vercel Analytics |
@@ -1155,7 +1173,7 @@ my-blog/
 |------|------|
 | 服务器 | 阿里云 / 腾讯云 轻量应用服务器 |
 | 应用 | Docker 容器 |
-| 数据库 | PostgreSQL（Docker） |
+| 数据库 | PostgreSQL 17（Docker） |
 | 文件存储 | 本地磁盘（定期备份） |
 | 反向代理 | Nginx + Let's Encrypt HTTPS |
 
@@ -1184,8 +1202,8 @@ my-blog/
 |------|------|------|
 | 内容形式 | 文章 + 笔记 双轨制 | 兼顾正式与碎片化 |
 | 可见性方案 | 账号体系（PUBLIC/PRIVATE/PASSWORD） | 长期私密内容管理方便 |
-| 技术栈 | Next.js + TypeScript + Prisma | SEO 友好、生态强、易部署 |
-| 数据库 | 本地 SQLite → 生产 PostgreSQL | 本地零配置，生产性能强 |
+| 技术栈 | Next.js 15.5 + React 19.1 + TypeScript 5.9 + Prisma 6.19 | 处于支持期、生态成熟、易部署 |
+| 数据库 | 本地 SQLite → 生产 PostgreSQL 17 | 本地零配置，生产性能强 |
 | 设计风格 | 杂志卡片 + 大图沉浸 | 兼顾浏览效率与作品展示 |
 | 强调色 | 主橙 `#E85A2C` | 温暖、年轻、有活力（2026-07-18 由 #FF6B35 微调） |
 | 相册风格 | 瀑布流（Pinterest 式） | 适合不规则尺寸照片 |
@@ -1207,7 +1225,7 @@ my-blog/
 |------|------|----------|
 | 图片过多导致存储成本上升 | 中 | 定期清理 + 云存储 + CDN |
 | 数据库迁移出错 | 高 | 完整测试 + 备份 + 分步迁移 |
-| Next.js 升级破坏现有代码 | 中 | 锁定版本，谨慎升级 |
+| Next.js 升级破坏现有代码 | 中 | 遵循技术基线，主版本升级单独决策并完整回归 |
 | 第三方服务（Vercel/R2）故障 | 中 | 准备自建备份方案 |
 | 内容丢失 | 高 | 软删除 + 定期备份 + Git 存草稿 |
 
@@ -1246,7 +1264,8 @@ my-blog/
 
 - [Next.js 官方文档](https://nextjs.org/docs)
 - [Prisma 官方文档](https://www.prisma.io/docs)
-- [Auth.js 官方文档](https://authjs.dev)
+- [技术栈稳定版本基线](./docs/technology-baseline.md)
+- [Auth.js / NextAuth.js 官方文档](https://authjs.dev)
 - [shadcn/ui](https://ui.shadcn.com)
 - [Tailwind CSS](https://tailwindcss.com)
 - [数字花园概念 - Maggie Appleton](https://maggieappleton.com/garden)
@@ -1260,6 +1279,7 @@ my-blog/
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v1.1 | 2026-07-18 | 统一完整技术栈稳定版本、认证表述与分阶段安装边界 |
 | v1.0 | 2026-07-16 | 初版，完成需求讨论后生成 |
 
 ---
