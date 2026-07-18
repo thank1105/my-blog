@@ -1,4 +1,4 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -14,21 +14,39 @@
     --color-accent-soft: 251 230 220;
     --color-success: 16 185 129;
     --color-danger: 239 68 68;
+
+    /*
+     * Font CSS variables (`--font-sans` / `--font-sans-cn` / `--font-serif`
+     * / `--font-mono`) are owned by `next/font/local` instances defined in
+     * `src/app/layout.tsx`. They hold the hashed self-hosted font-family
+     * names and are consumed by `tailwind.config.ts -> fontFamily`.
+     *
+     * Why not inline the system fallbacks here?
+     *   Tailwind already wraps the next/font variable with an OS fallback
+     *   chain (see tailwind.config.ts). Keeping this file free of font
+     *   definitions means there's exactly one place to edit the stack.
+     */
   }
 
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   body {
     @apply bg-bg text-ink;
-    font-family:
-      var(--font-sans), "Inter", "Noto Sans SC", "Source Han Sans SC", system-ui, sans-serif;
   }
 
   ::selection {
     background: rgb(var(--color-accent) / 0.18);
     color: rgb(var(--color-ink));
+  }
+
+  /* Chinese-flavored headings default to the serif stack (思源宋体). */
+  h1,
+  h2,
+  h3 {
+    font-family: theme("fontFamily.serif");
   }
 }
