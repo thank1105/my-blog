@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 const root = process.cwd();
 
@@ -16,11 +16,11 @@ const root = process.cwd();
  * Will be re-evaluated when Prisma ships a fix or when we update past 6.19.x.
  */
 
-const dbPath = path.join(root, 'prisma', 'dev.db');
+const dbPath = path.join(root, "prisma", "dev.db");
 
 if (!fs.existsSync(dbPath)) {
-  fs.writeFileSync(dbPath, '');
-  console.log('[db-prepare] created', path.relative(root, dbPath));
+  fs.writeFileSync(dbPath, "");
+  console.log("[db-prepare] created", path.relative(root, dbPath));
 } else {
-  console.log('[db-prepare] present', path.relative(root, dbPath));
+  console.log("[db-prepare] present", path.relative(root, dbPath));
 }

@@ -22,7 +22,14 @@ const config: Config = {
       },
       fontFamily: {
         serif: ["var(--font-serif)", "Noto Serif SC", "Source Han Serif SC", "serif"],
-        sans: ["var(--font-sans)", "Inter", "Noto Sans SC", "Source Han Sans SC", "system-ui", "sans-serif"],
+        sans: [
+          "var(--font-sans)",
+          "Inter",
+          "Noto Sans SC",
+          "Source Han Sans SC",
+          "system-ui",
+          "sans-serif",
+        ],
         mono: ["var(--font-mono)", "JetBrains Mono", "Menlo", "monospace"],
       },
       maxWidth: {

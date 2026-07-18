@@ -23,40 +23,40 @@
 
 ### 2.1 运行环境与核心框架
 
-| 技术 | 锁定版本线 | 参考补丁 | 说明 |
-|---|---:|---:|---|
-| Node.js | **24 LTS** | 24.18.x | 使用 LTS，不使用非 LTS 的 Node 26 |
-| pnpm | **10.x** | 10.34.x | 不升级到 pnpm 11 |
-| Next.js | **15.5.x** | 15.5.20 | App Router；官方 Maintenance LTS |
-| React | **19.1.x** | 19.1.8 | 与 React DOM 严格同版 |
-| React DOM | **19.1.x** | 19.1.8 | 与 React 严格同版 |
-| TypeScript | **5.9.x** | 5.9.3 | 不采用新发布的 TypeScript 7 |
-| `@types/node` | **24.x** | 同 Node.js 主版本 | 开发依赖 |
-| `@types/react` | **19.x** | 同 React 主版本 | 开发依赖 |
-| `@types/react-dom` | **19.x** | 同 React DOM 主版本 | 开发依赖 |
+| 技术               | 锁定版本线 |            参考补丁 | 说明                              |
+| ------------------ | ---------: | ------------------: | --------------------------------- |
+| Node.js            | **24 LTS** |             24.18.x | 使用 LTS，不使用非 LTS 的 Node 26 |
+| pnpm               |   **10.x** |             10.34.x | 不升级到 pnpm 11                  |
+| Next.js            | **15.5.x** |             15.5.20 | App Router；官方 Maintenance LTS  |
+| React              | **19.1.x** |              19.1.8 | 与 React DOM 严格同版             |
+| React DOM          | **19.1.x** |              19.1.8 | 与 React 严格同版                 |
+| TypeScript         |  **5.9.x** |               5.9.3 | 不采用新发布的 TypeScript 7       |
+| `@types/node`      |   **24.x** |   同 Node.js 主版本 | 开发依赖                          |
+| `@types/react`     |   **19.x** |     同 React 主版本 | 开发依赖                          |
+| `@types/react-dom` |   **19.x** | 同 React DOM 主版本 | 开发依赖                          |
 
 ### 2.2 UI 与样式
 
-| 技术 | 锁定版本线 | 参考补丁 | 说明 |
-|---|---:|---:|---|
-| Tailwind CSS | **3.4.x** | 3.4.19 | 使用 `tailwind.config.ts` 配置模型 |
-| shadcn/ui CLI | **3.x** | 3.8.5 | 通过 `pnpm dlx shadcn@3.8.5` 初始化 |
-| PostCSS | **8.x** | 8.5.x | 开发依赖 |
-| Autoprefixer | **10.x** | 10.5.x | 开发依赖 |
-| lucide-react | **0.577.x** | 0.577.0 | Phase 2 按需安装 |
+| 技术          |  锁定版本线 | 参考补丁 | 说明                                |
+| ------------- | ----------: | -------: | ----------------------------------- |
+| Tailwind CSS  |   **3.4.x** |   3.4.19 | 使用 `tailwind.config.ts` 配置模型  |
+| shadcn/ui CLI |     **3.x** |    3.8.5 | 通过 `pnpm dlx shadcn@3.8.5` 初始化 |
+| PostCSS       |     **8.x** |    8.5.x | 开发依赖                            |
+| Autoprefixer  |    **10.x** |   10.5.x | 开发依赖                            |
+| lucide-react  | **0.577.x** |  0.577.0 | Phase 2 按需安装                    |
 
 shadcn/ui 生成组件时引入的 `class-variance-authority`、`clsx`、`tailwind-merge` 等辅助包，由锁定的 CLI 生成并交给 `pnpm-lock.yaml` 固定，不在架构文档中逐项维护版本。
 
 ### 2.3 数据库与认证
 
-| 技术 | 锁定版本线 | 参考补丁 | 说明 |
-|---|---:|---:|---|
-| Prisma CLI | **6.19.x** | 6.19.3 | 与 `@prisma/client` 严格同版 |
-| `@prisma/client` | **6.19.x** | 6.19.3 | 与 Prisma CLI 严格同版 |
-| SQLite | **Prisma 内置连接器** | — | Phase 0–9 本地数据库 |
-| PostgreSQL | **17.x** | 当前 17.x 安全补丁 | Phase 10 生产数据库 |
-| NextAuth.js | **4.24.x** | 4.24.14 | v5 仍为 beta，不采用 |
-| bcryptjs | **3.x** | 3.0.3 | 密码哈希 cost 固定为 12 |
+| 技术             |            锁定版本线 |           参考补丁 | 说明                         |
+| ---------------- | --------------------: | -----------------: | ---------------------------- |
+| Prisma CLI       |            **6.19.x** |             6.19.3 | 与 `@prisma/client` 严格同版 |
+| `@prisma/client` |            **6.19.x** |             6.19.3 | 与 Prisma CLI 严格同版       |
+| SQLite           | **Prisma 内置连接器** |                  — | Phase 0–9 本地数据库         |
+| PostgreSQL       |              **17.x** | 当前 17.x 安全补丁 | Phase 10 生产数据库          |
+| NextAuth.js      |            **4.24.x** |            4.24.14 | v5 仍为 beta，不采用         |
+| bcryptjs         |               **3.x** |              3.0.3 | 密码哈希 cost 固定为 12      |
 
 认证方案统一为：
 
@@ -66,42 +66,42 @@ JWT 是 NextAuth.js 的会话策略；浏览器通过框架管理的 HTTP-only C
 
 ### 2.4 Markdown、代码高亮与图片处理
 
-| 技术 | 锁定版本线 | 参考补丁 | 安装阶段 |
-|---|---:|---:|---|
-| next-mdx-remote | **5.x** | 5.0.0 | Phase 3 |
-| remark-gfm | **4.x** | 4.0.1 | Phase 3 |
-| rehype-slug | **6.x** | 6.0.0 | Phase 3 |
-| rehype-autolink-headings | **7.x** | 7.1.0 | Phase 3 |
-| rehype-pretty-code | **0.14.x** | 0.14.4 | Phase 3 |
-| Shiki | **3.x** | 3.23.0 | Phase 3，由 rehype-pretty-code 调用 |
-| sharp | **0.34.x** | 0.34.5 | 首个图片处理阶段 |
+| 技术                     | 锁定版本线 | 参考补丁 | 安装阶段                            |
+| ------------------------ | ---------: | -------: | ----------------------------------- |
+| next-mdx-remote          |    **5.x** |    5.0.0 | Phase 3                             |
+| remark-gfm               |    **4.x** |    4.0.1 | Phase 3                             |
+| rehype-slug              |    **6.x** |    6.0.0 | Phase 3                             |
+| rehype-autolink-headings |    **7.x** |    7.1.0 | Phase 3                             |
+| rehype-pretty-code       | **0.14.x** |   0.14.4 | Phase 3                             |
+| Shiki                    |    **3.x** |   3.23.0 | Phase 3，由 rehype-pretty-code 调用 |
+| sharp                    | **0.34.x** |   0.34.5 | 首个图片处理阶段                    |
 
 ### 2.5 表单、校验与工程工具
 
-| 技术 | 锁定版本线 | 参考补丁 | 说明 |
-|---|---:|---:|---|
-| react-hook-form | **7.x** | 7.82.x | Phase 1 按需安装 |
-| Zod | **3.25.x** | 3.25.76 | 不升级到 Zod 4 |
-| ESLint | **9.x** | 9.39.x | Phase 0 开发依赖 |
-| `eslint-config-next` | **15.5.x** | 15.5.20 | 与 Next.js 保持相同版本线 |
-| Prettier | **3.x** | 3.9.x | Phase 0 开发依赖 |
-| Vitest | **3.x** | 3.2.x | 首次编写单元测试时安装 |
-| Husky | **9.x** | 9.1.7 | 可选，启用 Git Hooks 时安装 |
-| lint-staged | **16.x** | 16.4.x | 可选，与 Husky 同时启用 |
+| 技术                 | 锁定版本线 | 参考补丁 | 说明                        |
+| -------------------- | ---------: | -------: | --------------------------- |
+| react-hook-form      |    **7.x** |   7.82.x | Phase 1 按需安装            |
+| Zod                  | **3.25.x** |  3.25.76 | 不升级到 Zod 4              |
+| ESLint               |    **9.x** |   9.39.x | Phase 0 开发依赖            |
+| `eslint-config-next` | **15.5.x** |  15.5.20 | 与 Next.js 保持相同版本线   |
+| Prettier             |    **3.x** |    3.9.x | Phase 0 开发依赖            |
+| Vitest               |    **3.x** |    3.2.x | 首次编写单元测试时安装      |
+| Husky                |    **9.x** |    9.1.7 | 可选，启用 Git Hooks 时安装 |
+| lint-staged          |   **16.x** |   16.4.x | 可选，与 Husky 同时启用     |
 
 ## 3. 分阶段安装边界
 
 统一完整技术栈不代表 Phase 0 一次安装所有依赖。
 
-| 阶段 | 安装范围 |
-|---|---|
-| Phase 0 | Node.js、pnpm、Next.js、React、React DOM、TypeScript、类型定义、Tailwind CSS、PostCSS、Autoprefixer、Prisma、`@prisma/client`、shadcn/ui CLI、ESLint、`eslint-config-next`、Prettier |
-| Phase 1 | NextAuth.js、bcryptjs、react-hook-form、Zod；首次写单元测试时安装 Vitest |
-| Phase 2 | lucide-react 和具体 shadcn/ui 组件依赖 |
-| Phase 3 | next-mdx-remote、remark/rehype、rehype-pretty-code、Shiki |
-| Phase 5–6 | sharp 及图片处理相关依赖（若此前尚未安装） |
-| 按需 | Husky、lint-staged，仅在启用提交钩子时安装 |
-| Phase 10 | PostgreSQL 17 或提供兼容 PostgreSQL 17 的托管服务 |
+| 阶段      | 安装范围                                                                                                                                                                             |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Phase 0   | Node.js、pnpm、Next.js、React、React DOM、TypeScript、类型定义、Tailwind CSS、PostCSS、Autoprefixer、Prisma、`@prisma/client`、shadcn/ui CLI、ESLint、`eslint-config-next`、Prettier |
+| Phase 1   | NextAuth.js、bcryptjs、react-hook-form、Zod；首次写单元测试时安装 Vitest                                                                                                             |
+| Phase 2   | lucide-react 和具体 shadcn/ui 组件依赖                                                                                                                                               |
+| Phase 3   | next-mdx-remote、remark/rehype、rehype-pretty-code、Shiki                                                                                                                            |
+| Phase 5–6 | sharp 及图片处理相关依赖（若此前尚未安装）                                                                                                                                           |
+| 按需      | Husky、lint-staged，仅在启用提交钩子时安装                                                                                                                                           |
+| Phase 10  | PostgreSQL 17 或提供兼容 PostgreSQL 17 的托管服务                                                                                                                                    |
 
 ## 4. 依赖分类
 
@@ -126,15 +126,15 @@ shadcn/ui CLI 使用固定版本的 `pnpm dlx` 执行，不作为应用运行时
 
 ## 6. 明确不采用的版本
 
-| 不采用 | 原因 |
-|---|---|
-| Next.js 14 | 已退出官方支持，不适合作为新项目基础 |
-| Next.js 16 | 当前 Active LTS，但不是本项目选择的保守稳定线 |
-| React 18 | 不是 Next.js 15 新项目的优先生态组合 |
-| Tailwind CSS 4 | 会改变现有 `tailwind.config.ts` 与设计 Token 配置方式 |
-| Prisma 7 | 最新主版本，当前项目无需承担迁移变化 |
-| NextAuth.js 5 beta | 预发布版本，不用于生产基线 |
-| TypeScript 7、ESLint 10、Vitest 4、pnpm 11 | 新主版本，暂不引入 |
+| 不采用                                     | 原因                                                  |
+| ------------------------------------------ | ----------------------------------------------------- |
+| Next.js 14                                 | 已退出官方支持，不适合作为新项目基础                  |
+| Next.js 16                                 | 当前 Active LTS，但不是本项目选择的保守稳定线         |
+| React 18                                   | 不是 Next.js 15 新项目的优先生态组合                  |
+| Tailwind CSS 4                             | 会改变现有 `tailwind.config.ts` 与设计 Token 配置方式 |
+| Prisma 7                                   | 最新主版本，当前项目无需承担迁移变化                  |
+| NextAuth.js 5 beta                         | 预发布版本，不用于生产基线                            |
+| TypeScript 7、ESLint 10、Vitest 4、pnpm 11 | 新主版本，暂不引入                                    |
 
 ## 7. 尚未纳入锁定范围的候选项
 

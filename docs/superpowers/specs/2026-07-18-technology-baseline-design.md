@@ -53,37 +53,37 @@
 
 ### 4.1 运行环境与核心框架
 
-| 技术 | 基线版本线 | 参考补丁 | 决策理由 |
-|---|---:|---:|---|
-| Node.js | 24 LTS | 24.18.x | 当前成熟 LTS；不使用非 LTS 的 Node 26 |
-| pnpm | 10.x | 10.34.x | 避开刚发布的 pnpm 11 |
-| Next.js | 15.5.x | 15.5.20 | 官方 Maintenance LTS；Next.js 14 已停止支持 |
-| React | 19.1.x | 19.1.8 | 与 Next.js 15 兼容，已充分成熟 |
-| React DOM | 19.1.x | 19.1.8 | 必须与 React 严格保持相同版本 |
-| TypeScript | 5.9.x | 5.9.3 | 生态成熟；暂不使用新发布的 TypeScript 7 |
+| 技术       | 基线版本线 | 参考补丁 | 决策理由                                    |
+| ---------- | ---------: | -------: | ------------------------------------------- |
+| Node.js    |     24 LTS |  24.18.x | 当前成熟 LTS；不使用非 LTS 的 Node 26       |
+| pnpm       |       10.x |  10.34.x | 避开刚发布的 pnpm 11                        |
+| Next.js    |     15.5.x |  15.5.20 | 官方 Maintenance LTS；Next.js 14 已停止支持 |
+| React      |     19.1.x |   19.1.8 | 与 Next.js 15 兼容，已充分成熟              |
+| React DOM  |     19.1.x |   19.1.8 | 必须与 React 严格保持相同版本               |
+| TypeScript |      5.9.x |    5.9.3 | 生态成熟；暂不使用新发布的 TypeScript 7     |
 
 ### 4.2 UI 与样式
 
-| 技术 | 基线版本线 | 参考补丁 | 决策理由 |
-|---|---:|---:|---|
-| Tailwind CSS | 3.4.x | 3.4.19 | 保留成熟配置模型和现有 `tailwind.config.ts` 设计 Token |
-| shadcn/ui CLI | 3.x | 3.8.5 | 避开最新 CLI 主版本，并与既定样式方案保持一致 |
-| PostCSS | 8.x | 8.5.x | Tailwind CSS 3 的稳定工具链 |
-| Autoprefixer | 10.x | 10.5.x | Tailwind CSS 3 的稳定工具链 |
-| lucide-react | 0.577.x | 0.577.0 | 采用进入 1.x 前的成熟 API 线，降低图标 API 变化风险 |
+| 技术          | 基线版本线 | 参考补丁 | 决策理由                                               |
+| ------------- | ---------: | -------: | ------------------------------------------------------ |
+| Tailwind CSS  |      3.4.x |   3.4.19 | 保留成熟配置模型和现有 `tailwind.config.ts` 设计 Token |
+| shadcn/ui CLI |        3.x |    3.8.5 | 避开最新 CLI 主版本，并与既定样式方案保持一致          |
+| PostCSS       |        8.x |    8.5.x | Tailwind CSS 3 的稳定工具链                            |
+| Autoprefixer  |       10.x |   10.5.x | Tailwind CSS 3 的稳定工具链                            |
+| lucide-react  |    0.577.x |  0.577.0 | 采用进入 1.x 前的成熟 API 线，降低图标 API 变化风险    |
 
 shadcn/ui 生成组件时产生的 `class-variance-authority`、`clsx`、`tailwind-merge` 等辅助依赖，由固定的 shadcn/ui CLI 版本生成并写入锁文件，不在需求文档中逐项充当架构选型。
 
 ### 4.3 数据库与认证
 
-| 技术 | 基线版本线 | 参考补丁 | 决策理由 |
-|---|---:|---:|---|
-| Prisma CLI | 6.19.x | 6.19.3 | 避开 Prisma 7，保留成熟 Schema 与迁移工作流 |
-| `@prisma/client` | 6.19.x | 6.19.3 | 必须与 Prisma CLI 严格保持相同版本 |
-| SQLite | Prisma 内置连接器 | — | Phase 0–9 本地开发，无需单独安装数据库服务 |
-| PostgreSQL | 17.x | 当前 17.x 补丁 | Phase 10 生产数据库；避开最新数据库主版本 |
-| NextAuth.js | 4.24.x | 4.24.14 | v4 是稳定版本；不采用仍为 beta 的 v5 |
-| bcryptjs | 3.x | 3.0.3 | 成熟纯 JavaScript 密码哈希实现 |
+| 技术             |        基线版本线 |       参考补丁 | 决策理由                                    |
+| ---------------- | ----------------: | -------------: | ------------------------------------------- |
+| Prisma CLI       |            6.19.x |         6.19.3 | 避开 Prisma 7，保留成熟 Schema 与迁移工作流 |
+| `@prisma/client` |            6.19.x |         6.19.3 | 必须与 Prisma CLI 严格保持相同版本          |
+| SQLite           | Prisma 内置连接器 |              — | Phase 0–9 本地开发，无需单独安装数据库服务  |
+| PostgreSQL       |              17.x | 当前 17.x 补丁 | Phase 10 生产数据库；避开最新数据库主版本   |
+| NextAuth.js      |            4.24.x |        4.24.14 | v4 是稳定版本；不采用仍为 beta 的 v5        |
+| bcryptjs         |               3.x |          3.0.3 | 成熟纯 JavaScript 密码哈希实现              |
 
 认证方案统一为：
 
@@ -93,30 +93,30 @@ shadcn/ui 生成组件时产生的 `class-variance-authority`、`clsx`、`tailwi
 
 ### 4.4 Markdown、代码高亮与图片处理
 
-| 技术 | 基线版本线 | 参考补丁 |
-|---|---:|---:|
-| next-mdx-remote | 5.x | 5.0.0 |
-| remark-gfm | 4.x | 4.0.1 |
-| rehype-slug | 6.x | 6.0.0 |
-| rehype-autolink-headings | 7.x | 7.1.0 |
-| rehype-pretty-code | 0.14.x | 0.14.4 |
-| Shiki | 3.x | 3.23.0 |
-| sharp | 0.34.x | 0.34.5 |
+| 技术                     | 基线版本线 | 参考补丁 |
+| ------------------------ | ---------: | -------: |
+| next-mdx-remote          |        5.x |    5.0.0 |
+| remark-gfm               |        4.x |    4.0.1 |
+| rehype-slug              |        6.x |    6.0.0 |
+| rehype-autolink-headings |        7.x |    7.1.0 |
+| rehype-pretty-code       |     0.14.x |   0.14.4 |
+| Shiki                    |        3.x |   3.23.0 |
+| sharp                    |     0.34.x |   0.34.5 |
 
 `rehype-pretty-code` 与 Shiki 共同负责服务端代码高亮；文档不得再将 Shiki 描述成互相独立的第二套渲染方案。
 
 ### 4.5 表单、校验与工程工具
 
-| 技术 | 基线版本线 | 参考补丁 | 说明 |
-|---|---:|---:|---|
-| react-hook-form | 7.x | 7.82.x | 稳定版本，v8 仍为 beta |
-| Zod | 3.25.x | 3.25.76 | 避开 Zod 4，减少生态兼容变动 |
-| ESLint | 9.x | 9.39.x | 避开 ESLint 10 |
-| eslint-config-next | 15.5.x | 15.5.20 | 与 Next.js 严格保持相同版本线 |
-| Prettier | 3.x | 3.9.x | 当前成熟稳定主版本 |
-| Vitest | 3.x | 3.2.x | 避开 Vitest 4 |
-| Husky | 9.x | 9.1.7 | 成熟 Git Hooks 工具链 |
-| lint-staged | 16.x | 16.4.x | 避开最新 17.x |
+| 技术               | 基线版本线 | 参考补丁 | 说明                          |
+| ------------------ | ---------: | -------: | ----------------------------- |
+| react-hook-form    |        7.x |   7.82.x | 稳定版本，v8 仍为 beta        |
+| Zod                |     3.25.x |  3.25.76 | 避开 Zod 4，减少生态兼容变动  |
+| ESLint             |        9.x |   9.39.x | 避开 ESLint 10                |
+| eslint-config-next |     15.5.x |  15.5.20 | 与 Next.js 严格保持相同版本线 |
+| Prettier           |        3.x |    3.9.x | 当前成熟稳定主版本            |
+| Vitest             |        3.x |    3.2.x | 避开 Vitest 4                 |
+| Husky              |        9.x |    9.1.7 | 成熟 Git Hooks 工具链         |
+| lint-staged        |       16.x |   16.4.x | 避开最新 17.x                 |
 
 Husky 与 lint-staged 仍为可选工具，是否在 Phase 0 启用保持原开发计划的“可选”定义；版本基线只规定启用时使用的版本。
 
