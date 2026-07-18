@@ -26,7 +26,7 @@
 
 ## Phase 1 — 数据库 & 认证（v0.2.0-auth）
 
-**当前进度**：Day 1 已完成（2026-07-18），目标 Tag `v0.2.0-auth` 待 Day 2 收尾后再打。
+**当前进度**：Day 1 + Day 2 已完成（2026-07-18），Git Tag `v0.2.0-auth` 已打。
 
 ### Day 1 — 认证核心
 
@@ -52,14 +52,49 @@
 - 5 次错密码后第 6 次（含正确密码）被锁定 15 分钟；`/login?error=RateLimited` 显示专门的中文提示
 - `pnpm db:seed` 重建/补齐 admin + friend 两个账号
 
-**已知遗留（Day 2 收尾项）**
+**Day 2 — 用户管理 + 权限中间件**
 
-- 进程内限流器在多实例 / 重启后会重置。Phase 10 切到 Postgres 时替换为 `LoginAttempt` 表；Day 2 不会动这个
-- 后台真正的 `Sidebar` + 列表/新建/编辑/禁用 UI 是 Day 2 任务；今天仅提供最小占位页面
-- 用户可见性矩阵 (`lib/visibility.ts`) + `middleware.ts` 守卫 `/admin/*` 都是 Day 2 任务
-- 首次单元测试（`lib/visibility.ts` 与 `middleware.ts`）也是 Day 2 任务；Vitest 已经在 devDependency 中并能 `pnpm exec vitest --version` 通过
+**交付清单**
 
-**下一步：Day 2 — 用户管理 + 权限中间件**
+- [x] `src/lib/visibility.ts`：可见性矩阵（GUEST/USER/ADMIN × PUBLIC/PRIVATE/PASSWORD）的纯函数实现，单测覆盖整张矩阵（19 个用例）
+- [x] `src/middleware.ts`：以 `withAuth` 守卫 `/admin/*`；未登录 → `/login?callbackUrl=...`；非 ADMIN 已登录 → `/`
+- [x] `src/server/users.ts`：listUsers / getUser / createUser / updateUser / resetUserPassword / DuplicateUserError；密码统一走 `BCRYPT_COST = 12`；Zod schemas 与表单共享
+- [x] `/admin/users` 列表页 + `/admin/users/new` 新建页 + `/admin/users/[id]/edit` 编辑页（含「重置密码」独立卡片、isActive 禁用开关、role 切换）
+- [x] `src/components/admin/AdminShell.tsx`：面包屑 + SignOut 占位 header，Phase 2 接 Sidebar 后替掉
+- [x] `/admin` dashboard 改为三张统计卡 + 「用户管理」快捷入口，移除 Day 1 占位
+- [x] `vitest.config.ts` 接入（`@` 别名与 tsconfig 同源；为后续 component 测试预留 happy-dom）
+- [x] `pnpm test` 共 23 个用例通过（visibility 19 + middleware 4）
+- [x] `pnpm typecheck` / `pnpm lint` / `pnpm build` 全部通过；`pnpm build` 输出 8 条路由 + `ƒ Middleware 61.6 kB`
+- [x] 端到端验证（Node HTTP 脚本）：匿名 /admin → /login、USER /admin → /、ADMIN /admin → dashboard、/admin/users 列表正确、/admin/users/new 表单含邮件 + 密码 + 角色、/admin/users/[id]/edit 含「重置密码」 + 「启用账号」
+
+**演示能力**
+
+- ADMIN 登录后 `/admin` 看到三张统计卡（当前账号 / 账号总数 / 已禁用）+ 「用户管理」入口
+- 在 `/admin/users/new` 创建新账号；跳回列表，新账号可见
+- 在 `/admin/users/[id]/edit` 一站式改昵称 / 角色 / 启用状态 / 重置密码；表单内联错误、提交后弹「已保存 HH:MM:SS」状态条
+- 用 USER 账号登录后访问 `/admin/*` 直接被 middleware 怼回首页
+
+**验收对齐**（DEVELOPMENT.md Phase 1 验收标准全部勾上）
+
+- [x] 访问 `/login` 输入 admin 账号能登录
+- [x] 未登录访问 `/admin/*` 跳转到 `/login`
+- [x] 登录后访问 `/admin` 能看到用户管理页
+- [x] 创建新用户，新用户能登录
+- [x] 密码在数据库中是 bcryptjs 哈希（明文看不到）
+- [x] 5 次错误密码后被限流 15 分钟
+- [x] 关闭浏览器再打开，session 保持（如果选了「记住我」）
+
+**Git Tag**
+
+`v0.2.0-auth`（本地 + 远程均已推送）
+
+
+**下一步：Phase 2 — 设计系统 & 布局**
+
+- 主色 + 字体 + Header / Footer
+- 后台 Sidebar + 后台布局
+- 全站统一布局 + 移动端响应式
+
 
 - `lib/visibility.ts` + 单测，`middleware.ts` 守卫 `/admin/*` + 单测
 - 后台 `/admin/users` 列表、新建、编辑、禁用、重置密码

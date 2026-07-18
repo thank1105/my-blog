@@ -1,23 +1,16 @@
-// Phase 1 Day 1 admin landing page (placeholder).
+// /admin -- Phase 1 / Day 2 dashboard.
 //
-// The real sidebar-driven admin shell is delivered in Phase 2 (design system
-// + layouts). For Day 1 we only need a server component that proves the JWT
-// session works: it shows the currently signed-in user and exposes a SignOut
-// button. Day 2 will add the middleware that bounces unauthenticated users;
-// today we redirect manually inside the page so the verification flow is
-// self-contained.
-//
-// Stepping stone for the Phase 1 acceptance test: login via /login, land
-// here, see your email + role, sign out and confirm you get bounced back to
-// /login again.
+// The real sidebar layout is delivered in Phase 2. Until then, this page
+// shows the smallest useful entry: who is signed in, how many users exist,
+// and the only Day-2 admin entry point (User Management).
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
-import { SignOutButton } from "@/components/admin/SignOutButton";
+import { AdminShell } from "@/components/admin/AdminShell";
+import { listUsers } from "@/server/users";
 
 export const metadata: Metadata = {
   title: "后台首页",
@@ -27,60 +20,60 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function AdminHomePage() {
+  // Middleware enforces ADMIN at the edge; this is defence in depth and a
+  // convenient place to short-circuit if the session disappears.
   const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    redirect("/login?callbackUrl=/admin");
-  }
+  const user = session?.user;
+  if (!user) return null;
 
-  const { email, name, role } = session.user;
+  const users = await listUsers();
+  const adminCount = users.filter((u) => u.role === "ADMIN").length;
+  const disabledCount = users.filter((u) => !u.isActive).length;
 
   return (
-    <main className="mx-auto max-w-container px-8 py-16">
-      <div className="rounded-md border border-hair bg-surface p-10 shadow-soft">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted">Phase 1 · Auth</p>
-        <h1 className="mt-2 font-serif text-3xl font-bold text-ink">后台首页</h1>
-        <p className="mt-4 text-sm text-muted">
-          远程 placeholder, 仅用于验证 JWT session 可用。左侧侧边栏与完整后台在 Phase 2 提供。
-        </p>
-
-        <dl className="mt-8 grid gap-3 text-sm">
-          <div className="grid grid-cols-[6rem_1fr] gap-3">
-            <dt className="text-muted">邮箱</dt>
-            <dd className="text-ink">{email}</dd>
-          </div>
-          <div className="grid grid-cols-[6rem_1fr] gap-3">
-            <dt className="text-muted">名称</dt>
-            <dd className="text-ink">{name ?? "—"}</dd>
-          </div>
-          <div className="grid grid-cols-[6rem_1fr] gap-3">
-            <dt className="text-muted">角色</dt>
-            <dd>
-              <span
-                className={
-                  "inline-block rounded px-2 py-0.5 text-xs font-medium " +
-                  (role === "ADMIN" ? "bg-accent/10 text-accent" : "bg-hair text-muted")
-                }
-              >
-                {role}
-              </span>
-            </dd>
-          </div>
-          <div className="grid grid-cols-[6rem_1fr] gap-3">
-            <dt className="text-muted">会话 ID</dt>
-            <dd className="font-mono text-xs text-muted">{session.user.id}</dd>
-          </div>
-        </dl>
-
-        <div className="mt-10 flex items-center justify-end gap-3">
-          <Link
-            href="/"
-            className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
-          >
-            返回首页
-          </Link>
-          <SignOutButton callbackUrl="/login" />
-        </div>
+    <AdminShell crumbs={[{ label: "后台首页" }]}>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard label="当前账号" value={user.email ?? ""} hint={user.role ?? ""} />
+        <StatCard label="账号总数" value={String(users.length)} hint={`${adminCount} ADMIN`} />
+        <StatCard label="已禁用" value={String(disabledCount)} hint={disabledCount === 0 ? "无" : "需关注"} />
       </div>
-    </main>
+
+      <section className="mt-8 rounded-md border border-hair bg-surface p-8 shadow-soft">
+        <h2 className="font-serif text-lg font-bold text-ink">快捷入口</h2>
+        <p className="mt-1 text-sm text-muted">Phase 2 会接上侧边栏；目前仅暴露用户管理。</p>
+        <ul className="mt-6 space-y-3">
+          <li>
+            <Link
+              href="/admin/users"
+              className="flex items-center justify-between rounded border border-hair px-4 py-3 transition-colors hover:border-accent"
+            >
+              <span>
+                <span className="block font-medium text-ink">用户管理</span>
+                <span className="block text-sm text-muted">
+                  新建 / 编辑 / 禁用账号、重置密码
+                </span>
+              </span>
+              <span className="text-muted">→</span>
+            </Link>
+          </li>
+        </ul>
+      </section>
+    </AdminShell>
+  );
+}
+
+interface StatCardProps {
+  label: string;
+  value: string;
+  hint?: string | null;
+}
+
+function StatCard({ label, value, hint }: StatCardProps) {
+  return (
+    <div className="rounded-md border border-hair bg-surface p-5 shadow-soft">
+      <p className="text-xs uppercase tracking-widest text-muted">{label}</p>
+      <p className="mt-2 font-serif text-2xl font-bold text-ink">{value}</p>
+      {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
+    </div>
   );
 }
