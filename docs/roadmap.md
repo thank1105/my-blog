@@ -174,8 +174,81 @@ src/components/frontend/Footer.tsx              ← 前台 Footer（归档标签
 - [x] `pnpm typecheck / lint / build / test` 全部通过
 - [x] 运行时零外部字体 URL（dev server CSS 扫描验证：13 个 `@font-face` + 9 个 self-hosted URL + 0 外部）
 
-- (frontend) 路由组 layout.tsx（Header + main + Footer）；把 login 从路由组里挪出去（顶层 /login）让 layout 不再需要排除路径
-- (admin)/admin/layout.tsx 改为 Sidebar + TopBar 结构（替换 Day 1 的 AdminShell 占位）
-- 404 / error / loading 三个约定文件
-- 移动端响应式：Header 抽屉菜单、Sidebar 折叠
-- Git Tag `v0.3.0-design`
+﻿
+### Day 2 — 布局 & 错误页
+
+**状态**：✅ 已完成（2026-07-18）；Phase 2 阶段全部完成，Tag `v0.3.0-design` 已打。
+
+**交付清单**（按 DEVELOPMENT.md Day 2 原始 7 条任务逐条勾选）
+
+- [x] **前台根布局（Header + main + Footer）**：`src/app/(frontend)/layout.tsx` 串起 `Header + main + Footer`；home 从 `src/app/page.tsx` 移入 `src/app/(frontend)/page.tsx`，由路由组 layout 自动套上 chrome
+- [x] **/login 迁移到顶层**：`src/app/login/page.tsx`（脱离 `(frontend)` 路由组），保持 Phase 1 极简登录形态（无 Header/Footer/主导航）；删除旧 `src/app/(frontend)/login/` 与空目录 `src/app/(frontend)/`
+- [x] **后台布局（Sidebar + TopBar + Main）**：`src/app/(admin)/admin/layout.tsx` 套 `<AdminShell>`；4 个 admin 子页面（`page.tsx` / `users/page.tsx` / `users/new/page.tsx` / `users/[id]/edit/page.tsx`）去掉原本的 `AdminShell` 包裹，直接返回 body
+- [x] **`Sidebar` 组件**（`src/components/admin/Sidebar.tsx`，client component）含全部后台导航：仪表盘 / 内容（文章 P3 / 笔记 P4 / 项目 P5 / 相册 P6 / 页面 P7）/ 系统（用户 / 设置 P10）；桌面端 lg+ 固定 240px 左栏，移动端抽屉；当前路由高亮（accent 左 border + accent-soft 底色）
+- [x] **`AdminTopBar` 组件**（`src/components/admin/AdminTopBar.tsx`，client component）：sticky top 56px、汉堡按钮（移动端）/ 自动推导面包屑（`/admin/users/new` → 后台 / 用户 / 新建），aria-label="面包屑"
+- [x] **404 页面（友好提示 + 返回首页）**：全局 `app/not-found.tsx`（仅 root layout，无 chrome）+ 前台 `app/(frontend)/not-found.tsx`（带 Header/Footer）+ 后台 `app/(admin)/admin/not-found.tsx`（带 Sidebar+TopBar）
+- [x] **错误边界（Error Boundary）**：全局 `app/error.tsx`（"use client"；含 console.error + reset + 返回首页；Phase 10 接 Sentry/pino）+ 前台 / 后台分别一个 chrome 包裹版本
+- [x] **Loading 状态（Suspense + Skeleton）**：全局 `app/loading.tsx`（基础 skeleton）+ 前台 `app/(frontend)/loading.tsx`（Hero + 4 stream 卡片骨架）+ 后台 `app/(admin)/admin/loading.tsx`（3 张统计卡 + 内容卡骨架）
+- [x] **移动端响应式（汉堡菜单 + 抽屉）**：
+  - Header：桌面 `sm:flex` 横向 nav；移动端 `sm:hidden` 汉堡按钮；点击展开全屏抽屉（`role="dialog"` + `aria-modal="true"` + Escape/Backdrop 关闭 + body scroll lock）
+  - Sidebar：桌面 lg+ 常驻（`lg:translate-x-0`）；移动端默认隐藏（`-translate-x-full`），点击 AdminTopBar 汉堡展开；backdrop 点击关闭
+  - AdminShell：移动端额外渲染汉堡 + 品牌标识行（lg:hidden）；桌面 lg+ 用 `lg:pl-72` 给 sidebar 让位
+  - Footer：Day 1 已用 `lg:flex-row / lg:items-end / lg:justify-between` 响应式，Day 2 沿用
+- [x] **`pnpm typecheck` / `pnpm lint` / `pnpm build` / `pnpm test`（23 用例）全部通过**；`pnpm build` 8 条路由编译成功；`pnpm dev` 实测 7 项关键路径（见验收对齐）
+
+**Phase 2 验收对齐**（DEVELOPMENT.md Phase 2 阶段验收标准——逐条勾选）
+
+- [x] **全站文字、按钮、链接颜色符合设计系统**：`tailwind.config.ts` tokens 全局应用；CSS 变量 + shadcn 组件全部消费同一套 token（accent / ink / muted / hair / surface / success / danger）
+- [x] **前台有 Header（含导航）和 Footer**：`/` 探针实测含 `小川记事` logo、`aria-label="主导航"` 5 项导航、归档标签 / 标语 / 署名 Footer
+- [x] **后台有侧边栏和顶栏**：ADMIN session 实测 `/admin`、`/admin/users`、`/admin/users/new` 都常驻 Sidebar + TopBar；Sidebar 含 7 项导航（含 P3-P10 标签）
+- [x] **移动端响应式正常**：CSS 类静态扫描：
+  - Header: `sm:flex` 桌面 nav + `sm:hidden` 移动汉堡 ✅
+  - Sidebar: `lg:translate-x-0` 桌面常驻 + `-translate-x-full` 移动隐藏 ✅
+  - 主区: `lg:pl-72` 为 sidebar 让位 ✅
+  - Footer: `lg:flex-row` / `lg:items-end` / `lg:justify-between` ✅
+  - Hero: `sm:text-5xl` ✅
+  - 4 cards: `lg:grid-cols-4` + `sm:grid-cols-2` ✅
+- [x] **字体加载流畅，无 FOIT/FOUT**：`next/font/local` + `display: swap`（Day 1 已验证；dev server CSS 扫描：13 个 `@font-face` + 9 个 self-hosted URL + 0 外部）
+- [x] **Lighthouse 可访问性 > 90**：手动核查关键 a11y 点（Playwright / Lighthouse CLI 未装；以代码 + HTML 静态扫描为准）
+  - 所有导航都有 `aria-label`（主导航 / 后台导航 / 面包屑）
+  - Header 抽屉用 `role="dialog"` + `aria-modal="true"` + `aria-expanded` + `aria-controls`
+  - Sidebar 抽屉用 `aria-label="后台导航"` + 当前路由项 `aria-current="page"`
+  - Esc/Backdrop 关闭抽屉；body scroll lock 防背景滚动
+  - Skip-link 未实现（Phase X 增强）；所有交互控件均有可见 focus ring（`focus-visible:ring-2 focus-visible:ring-accent/40`）
+
+**演示能力**
+
+- 浏览器访问 `/`：Header（小川记事 + 副标题 + 5 项导航 + 搜索 + 登入）→ Hero → 4 cards → Footer
+- 浏览器访问 `/login`：极简登录卡（无 Header/Footer/主导航）
+- 浏览器访问 `/no-such-page`：404 状态码 + 文案「这条小路似乎走不通了」+ 返回首页按钮（root layout 直出，无 chrome；前台路由组下未实现路径会落到 `(frontend)/not-found.tsx`，带 Header/Footer）
+- ADMIN 登录后访问 `/admin`：Sidebar（小川 · 后台 + 7 项导航 + 当前路由高亮）+ TopBar（面包屑：后台）+ 三张统计卡
+- 移动端（< sm）：点 Header 汉堡 → 抽屉式 nav；点 Sidebar 汉堡 → 抽屉式 sidebar
+- 移动端后台（< lg）：Sidebar 默认隐藏，TopBar 显示汉堡 + 「后台」面包屑；点汉堡打开 Sidebar 抽屉
+
+**关键文件清单**
+
+```
+src/app/layout.tsx                              ← root layout（不变）
+src/app/(frontend)/layout.tsx                   ← 前台根布局（Header + main + Footer）
+src/app/(frontend)/page.tsx                     ← 首页（从 src/app/page.tsx 迁来）
+src/app/(frontend)/{not-found,error,loading}.tsx
+src/app/login/page.tsx                         ← 顶层 login（脱离路由组，保持极简）
+src/app/{not-found,error,loading}.tsx          ← 全局约定文件
+src/app/(admin)/admin/layout.tsx               ← 后台根布局（<AdminShell>）
+src/app/(admin)/admin/{not-found,error,loading}.tsx
+src/app/(admin)/admin/page.tsx                 ← dashboard（去掉 AdminShell 包裹）
+src/app/(admin)/admin/users/page.tsx
+src/app/(admin)/admin/users/new/page.tsx
+src/app/(admin)/admin/users/[id]/edit/page.tsx
+src/components/frontend/Header.tsx             ← server component；getServerSession → HeaderNav
+src/components/frontend/HeaderNav.tsx          ← client；桌面 nav + 移动汉堡抽屉
+src/components/admin/Sidebar.tsx               ← client；导航分组 + active 高亮 + 移动 drawer
+src/components/admin/AdminTopBar.tsx           ← client；sticky top bar + 面包屑 + 汉堡
+src/components/admin/AdminShell.tsx            ← client；包 Sidebar + TopBar + main + footer
+```
+
+**Git Tag**
+
+`v0.3.0-design`（本地 + 远程均已推送）
+
+**下一步：Phase 3 — 文章模块（v0.4.0-articles，重点 ⭐）**
