@@ -1,13 +1,12 @@
-// /admin/users -- Day 2 user management list.
+﻿// /admin/users -- user management list.
 //
-// Phase 1 / Day 2 task list (DEVELOPMENT.md) calls for a list page that
-// shows email / username / role / last-login / disabled status, plus a
-// shortcut to create a new user.
+// Phase 2 / Day 2: chrome lives in (admin)/admin/layout.tsx now, so we
+// return the body directly. The breadcrumb is auto-derived from the URL
+// by AdminTopBar.
 
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { AdminShell } from "@/components/admin/AdminShell";
 import { listUsers } from "@/server/users";
 
 export const metadata: Metadata = {
@@ -32,21 +31,21 @@ export default async function AdminUsersPage() {
   const users = await listUsers();
 
   return (
-    <AdminShell crumbs={[{ label: "后台首页", href: "/admin" }, { label: "用户管理" }]}>
-      <section className="rounded-md border border-hair bg-surface p-8 shadow-soft">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="font-serif text-2xl font-bold text-ink">用户管理</h1>
-            <p className="mt-1 text-sm text-muted">共 {users.length} 个账号</p>
-          </div>
-          <Link
-            href="/admin/users/new"
-            className="rounded bg-accent px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-accent/90"
-          >
-            + 新建用户
-          </Link>
+    <section className="rounded-md border border-hair bg-surface p-8 shadow-soft">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="font-serif text-2xl font-bold text-ink">用户管理</h1>
+          <p className="mt-1 text-sm text-muted">共 {users.length} 个账号</p>
         </div>
+        <Link
+          href="/admin/users/new"
+          className="rounded bg-accent px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-accent/90"
+        >
+          + 新建用户
+        </Link>
+      </div>
 
+      <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="text-left text-muted">
@@ -100,7 +99,7 @@ export default async function AdminUsersPage() {
             ))}
           </tbody>
         </table>
-      </section>
-    </AdminShell>
+      </div>
+    </section>
   );
 }

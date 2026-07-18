@@ -1,15 +1,13 @@
-// /admin -- Phase 1 / Day 2 dashboard.
+﻿// /admin -- Phase 1 / Day 2 dashboard.
 //
-// The real sidebar layout is delivered in Phase 2. Until then, this page
-// shows the smallest useful entry: who is signed in, how many users exist,
-// and the only Day-2 admin entry point (User Management).
+// Phase 2 / Day 2 hoists the chrome (Sidebar + TopBar) into
+// `(admin)/admin/layout.tsx`, so this page just returns its body.
 
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
-import { AdminShell } from "@/components/admin/AdminShell";
 import { listUsers } from "@/server/users";
 
 export const metadata: Metadata = {
@@ -31,7 +29,7 @@ export default async function AdminHomePage() {
   const disabledCount = users.filter((u) => !u.isActive).length;
 
   return (
-    <AdminShell crumbs={[{ label: "后台首页" }]}>
+    <div className="space-y-8">
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="当前账号" value={user.email ?? ""} hint={user.role ?? ""} />
         <StatCard label="账号总数" value={String(users.length)} hint={`${adminCount} ADMIN`} />
@@ -42,9 +40,11 @@ export default async function AdminHomePage() {
         />
       </div>
 
-      <section className="mt-8 rounded-md border border-hair bg-surface p-8 shadow-soft">
+      <section className="rounded-md border border-hair bg-surface p-8 shadow-soft">
         <h2 className="font-serif text-lg font-bold text-ink">快捷入口</h2>
-        <p className="mt-1 text-sm text-muted">Phase 2 会接上侧边栏；目前仅暴露用户管理。</p>
+        <p className="mt-1 text-sm text-muted">
+          Phase 2 已接上侧边栏；侧边栏「内容」分组下的 P3-P7 项会随对应阶段点亮。
+        </p>
         <ul className="mt-6 space-y-3">
           <li>
             <Link
@@ -60,7 +60,7 @@ export default async function AdminHomePage() {
           </li>
         </ul>
       </section>
-    </AdminShell>
+    </div>
   );
 }
 
