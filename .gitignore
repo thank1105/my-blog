@@ -89,3 +89,8 @@ Thumbs.db
 /scripts/tick-*.mjs
 /scripts/trim-*.mjs
 
+
+# Phase 3 Day 2-3 one-off follow-ups (verb- prefix). Safe to delete.
+/scripts/seed-*.mjs
+/scripts/reset-*.mjs
+/scripts/rewrite-*.mjs
