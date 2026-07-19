@@ -70,3 +70,8 @@ Thumbs.db
 /scripts/download-*.mjs
 /scripts/normalize-*.mjs
 
+
+# Uploaded cover images (Phase 3 / Day 1). Phase 10 will swap local disk
+# for cloud storage; the public/ prefix stays the same so call sites do not change.
+/public/uploads/
+
