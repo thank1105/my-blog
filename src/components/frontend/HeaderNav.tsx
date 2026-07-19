@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -7,7 +7,8 @@ import { Menu, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * Header nav + auth switch (Phase 2 / Day 2).
+ * Header nav + auth switch (Phase 2 / Day 2; albums entry added in
+ * Phase 6 / Day 2).
  *
  * Lives in a client component so we can hold the mobile drawer open
  * state. The server component (`Header.tsx`) reads `getServerSession`
@@ -39,6 +40,7 @@ const PRIMARY_NAV: readonly NavItem[] = [
   { label: "写作", href: "/articles" },
   { label: "观察", href: "/notes" },
   { label: "项目", href: "/projects" },
+  { label: "相册", href: "/photos" },
   { label: "关于", href: "/about" },
   { label: "归档", href: "/archive" },
 ];

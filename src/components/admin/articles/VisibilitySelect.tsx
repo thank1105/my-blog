@@ -1,6 +1,10 @@
-﻿"use client";
+"use client";
 
 // Visibility (PUBLIC / PRIVATE / PASSWORD) + optional password input.
+//
+// Modules whose model has no `password` column (Album / Photo) pass
+// `hidePassword` so the PASSWORD radio is suppressed -- otherwise the
+// form would accept a value it cannot persist.
 
 import { Eye, EyeOff, Lock, Globe } from "lucide-react";
 
@@ -39,26 +43,39 @@ const OPTIONS: readonly Option[] = [
 export interface VisibilitySelectProps {
   value: VisibilityValue;
   onChange: (next: VisibilityValue) => void;
-  password: string;
-  onPasswordChange: (next: string) => void;
+  /** Required when the model carries a password column (Article / Note). */
+  password?: string;
+  onPasswordChange?: (next: string) => void;
   passwordError?: string | null;
+  /**
+   * When true, hide the PASSWORD radio. Use this for content types
+   * without a `password` column on the schema (Album / Photo).
+   */
+  hidePassword?: boolean;
   disabled?: boolean;
 }
 
 export function VisibilitySelect({
   value,
   onChange,
-  password,
+  password = "",
   onPasswordChange,
   passwordError,
+  hidePassword = false,
   disabled,
 }: VisibilitySelectProps) {
+  const options = hidePassword ? OPTIONS.filter((o) => o.value !== "PASSWORD") : OPTIONS;
   return (
     <div className="space-y-3">
       <fieldset>
         <legend className="text-sm font-medium text-ink">可见性</legend>
-        <div className="mt-2 grid gap-2 sm:grid-cols-3">
-          {OPTIONS.map((opt) => {
+        <div
+          className={cn(
+            "mt-2 grid gap-2",
+            hidePassword ? "sm:grid-cols-2" : "sm:grid-cols-3",
+          )}
+        >
+          {options.map((opt) => {
             const Icon = opt.icon;
             const active = value === opt.value;
             return (
@@ -92,7 +109,7 @@ export function VisibilitySelect({
         </div>
       </fieldset>
 
-      {value === "PASSWORD" ? (
+      {value === "PASSWORD" && !hidePassword ? (
         <div>
           <label htmlFor="article-password" className="text-sm font-medium text-ink">
             阅读密码
@@ -104,7 +121,7 @@ export function VisibilitySelect({
             autoComplete="off"
             value={password}
             disabled={disabled}
-            onChange={(e) => onPasswordChange(e.target.value)}
+            onChange={(e) => onPasswordChange?.(e.target.value)}
             placeholder="至少 4 位"
             aria-invalid={passwordError ? "true" : "false"}
             className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-2 text-base text-ink outline-none transition-colors focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/30"

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -17,7 +17,8 @@ import {
 import { cn } from "@/lib/utils";
 
 /**
- * Admin sidebar (Phase 2 / Day 2; articles row promoted in Phase 3 / Day 1).
+ * Admin sidebar (Phase 2 / Day 2; articles row promoted in Phase 3 / Day 1,
+ * albums entry upgraded in Phase 6 / Day 1).
  *
  * Two visual modes:
  *   - desktop  (>= lg): fixed left column, 240px, always visible.
@@ -61,7 +62,8 @@ const NAV_GROUPS: readonly NavGroup[] = [
       { href: "/admin/articles", label: "文章", icon: FileText },
       { href: "/admin/notes", label: "笔记", icon: NotebookPen, badge: "P4" },
       { href: "/admin/projects", label: "项目", icon: FolderKanban },
-      { href: "/admin/albums", label: "相册", icon: Images, badge: "P6" },
+      // Phase 6 / Day 1: albums + photos CRUD shipped -> P6 badge dropped.
+      { href: "/admin/photos", label: "相册", icon: Images },
       { href: "/admin/pages", label: "页面", icon: FileCode, badge: "P7" },
     ],
   },
@@ -164,7 +166,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </nav>
 
         <div className="border-t border-hair px-5 py-3 text-xs text-muted">
-          <p>v0.5.0-projects · Day 1</p>
+          <p>v0.7.0-photos · Day 1</p>
         </div>
       </aside>
     </>
