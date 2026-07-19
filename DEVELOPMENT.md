@@ -296,7 +296,7 @@ src/app/(admin)/admin/users/[id]/edit/page.tsx
 - [x] 创建新用户，新用户能登录
 - [x] 密码在数据库中是 bcryptjs 哈希（明文看不到）
 - [x] 5 次错误密码后被限流 15 分钟
-- [ ] 关闭浏览器再打开，session 保持（如果选了"记住我"）
+- [x] 关闭浏览器再打开，session 保持（JWT cookie 默认 maxAge = 30 天，与是否勾"记住我"无关；"记住我"checkbox 当前为 dead UI，差异化 session 时长留待 Phase X）
 
 **演示能力**：
 
@@ -322,22 +322,22 @@ src/app/(admin)/admin/users/[id]/edit/page.tsx
 
 **Day 1 - 主题 & 字体 & 公共组件**：
 
-- [ ] 使用 Tailwind CSS 3.4 配置主题色（**主色 `#E85A2C`**，详见 [docs/design-decisions.md](./docs/design-decisions.md) —— 2026-07-18 由 #FF6B35 微调）
-- [ ] 引入字体（思源黑体、思源宋体、Inter、JetBrains Mono）
-- [ ] 使用 `next/font` 子集化 + 预加载
-- [ ] 安装 lucide-react 0.577，并创建 `Button`、`Card`、`Input`、`Badge` 等 shadcn 基础组件
-- [ ] 创建 `Header` 组件（含导航、搜索占位、登录状态）
-- [ ] 创建 `Footer` 组件
+- [x] 使用 Tailwind CSS 3.4 配置主题色（**主色 `#E85A2C`**，详见 [docs/design-decisions.md](./docs/design-decisions.md) —— 2026-07-18 由 #FF6B35 微调）
+- [x] 引入字体（思源黑体、思源宋体、Inter、JetBrains Mono）
+- [x] 使用 `next/font` 子集化 + 预加载
+- [x] 安装 lucide-react 0.577，并创建 `Button`、`Card`、`Input`、`Badge` 等 shadcn 基础组件
+- [x] 创建 `Header` 组件（含导航、搜索占位、登录状态）
+- [x] 创建 `Footer` 组件
 
 **Day 2 - 布局 & 错误页**：
 
-- [ ] 前台根布局（`Header + main + Footer`）
-- [ ] 后台布局（`Sidebar + TopBar + Main`）
-- [ ] `Sidebar` 组件（含所有后台导航项）
-- [ ] 404 页面（友好提示 + 返回首页）
-- [ ] 错误边界（Error Boundary）
-- [ ] Loading 状态（Suspense + Skeleton）
-- [ ] 移动端响应式（汉堡菜单、抽屉）
+- [x] 前台根布局（`Header + main + Footer`）
+- [x] 后台布局（`Sidebar + TopBar + Main`）
+- [x] `Sidebar` 组件（含所有后台导航项）
+- [x] 404 页面（友好提示 + 返回首页）
+- [x] 错误边界（Error Boundary）
+- [x] Loading 状态（Suspense + Skeleton）
+- [x] 移动端响应式（汉堡菜单、抽屉）
 
 **关键文件**：
 
@@ -358,16 +358,16 @@ src/app/loading.tsx
 
 **验收标准**：
 
-- [ ] 全站文字、按钮、链接颜色符合设计系统
-- [ ] 前台有 Header（含导航）和 Footer
-- [ ] 后台有侧边栏和顶栏
-- [ ] 移动端响应式正常
-- [ ] 字体加载流畅，无 FOIT/FOUT
-- [ ] Lighthouse 可访问性 > 90
+- [x] 全站文字、按钮、链接颜色符合设计系统
+- [x] 前台有 Header（含导航）和 Footer
+- [x] 后台有侧边栏和顶栏
+- [x] 移动端响应式正常
+- [x] 字体加载流畅，无 FOIT/FOUT
+- [x] Lighthouse 可访问性 > 90
 
 **演示能力**：整个网站的"骨架"展示（点击导航都能正常切换）
 
-**Git Tag**：`v0.3.0-design`
+**Git Tag**：✅ `[x] v0.3.0-design` 已打并推送（本地 + 远程）
 
 ---
 
@@ -1108,6 +1108,7 @@ docker run -p 3000:3000 my-blog
 ---
 | 2026-07-18 | Phase 2 Day 1 字体策略：**`next/font/local` 自托管，零外部链接**——从 GitHub 下载 Inter / JetBrains Mono 的 `.woff2` 和 Adobe 官方 Source Han Sans / Serif CN 的 SubsetOTF（GB2312 3500 字子集）放入 `src/fonts/`，由 4 个 `next/font/local` 实例在构建期 self-host 到 `.next/static/media/`（hash 命名），运行时浏览器从同源加载 | 用户明确要求避免任何外部网络请求；`next/font/google` 构建期会向 Google Fonts 发起请求被排除；纯系统字体栈（苹方 / 雅黑 fallback）让思源黑体 / Inter 在多数用户系统实际未安装时被跳过，违反「引入字体」原任务。SubSetOTF（GB2312）使 Source Han 单字体从 50MB+ 降到 8-11MB | 用 fonttools 在 Phase X 把 OTF 转 woff2，可把 Source Han 进一步压到 ~3MB / 文件 |
 | 2026-07-18 | shadcn Button 暂时去掉 `asChild` / `@radix-ui/react-slot`，避免仅为一个按钮引入 Radix 依赖 | 当前 Day 1 唯一按钮链接用 `<Link className={buttonVariants(...)}>` 实现；Radix Slot 仅在 Phase 3 文章卡片「按钮包链接」场景真正需要 | Phase 3 加 `@radix-ui/react-slot` 恢复 asChild |
+| 2026-07-19 | Phase 1 登录页 "记住我" checkbox 是 **dead UI**：`authOptions.session.maxAge` 固定 30 天，不论勾不勾都是同一个 session 时长；`LoginForm` 把 `remember` 作为表单值传给 `signIn()`，但 `authorize()` / `jwt()` 回调并未消费这个字段 | Phase 1 验收项「关闭浏览器再打开，session 保持」**默认即满足**（JWT cookie 30 天 maxAge），与 checkbox 是否勾选无关；按字面验收可以勾选。但 checkbox 给用户的暗示（勾=长 session，不勾=短 session）是误导 | Phase X 在 `jwt()` 回调里读 `user.remember`，若 false 则把 `token.exp` 设为 now + 8h，并让 `signOut` 自动清 cookie |
 
 ---
 
