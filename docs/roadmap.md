@@ -252,3 +252,163 @@ src/components/admin/AdminShell.tsx            ← client；包 Sidebar + TopBar
 `v0.3.0-design`（本地 + 远程均已推送）
 
 **下一步：Phase 3 — 文章模块（v0.4.0-articles，重点 ⭐）**
+﻿
+## Phase 3 — 文章模块（v0.4.0-articles，重点 ⭐）
+
+**当前进度**：Day 1 已完成（2026-07-19）；Day 2-4 待启动。
+
+### Day 1 — 后台 CRUD
+
+**状态**：✅ 已完成（2026-07-19）；Git commits `557f737`（deps）+ `6b678a0`（代码）已推 origin/main。
+
+**交付清单**（按 DEVELOPMENT.md Day 1 原始 11 条任务逐条勾选）
+
+- [x] **文章列表页（表格 + 分页 + 状态筛选 + 搜索）**：`src/app/(admin)/admin/articles/page.tsx`；GET query `q / status / visibility / page / pageSize`；20 条/页；空状态文案「暂无文章，点击「新建文章」开始写第一篇。」
+- [x] **文章新建/编辑页表单**：`new/page.tsx` + `[id]/edit/page.tsx` + 共享的 `ArticleForm` 组件（react-hook-form + zod + Controller）；空字段用 server-side schema 校验，错误映射回表单 fieldError
+- [x] **Markdown 编辑器组件（左右分屏：编辑 + 实时预览）**：`MarkdownEditor.tsx`，三个 tab（写作 / 分屏 / 预览）；react-markdown + remark-gfm 渲染预览；IME guard 防止 CJK 输入被打断
+- [x] **工具栏**：加粗 / 斜体 / 行内代码 / 代码块 / H1 / H2 / 引用 / 无序列表 / 有序列表 / 链接（图片插入留到 Day 2 富文本时做）
+- [x] **可见性切换（PUBLIC/PRIVATE/PASSWORD）+ 密码输入**：`VisibilitySelect.tsx` 单选卡片 + 仅 PASSWORD 时展开 password 输入（最少 4 位，schema 校验）
+- [x] **状态切换（DRAFT/PUBLISHED/ARCHIVED）**：`StatusSelect.tsx` 单选卡片；PUBLISHED 时自动写 `publishedAt`
+- [x] **封面图上传（单图）**：`/api/admin/upload/route.ts`（ADMIN-only multipart）+ `CoverImageUploader.tsx` + `src/lib/upload.ts`；MIME 白名单（jpg/png/webp/gif/avif）、5 MB 上限、magic-byte 二次校验、文件落到 `public/uploads/yyyy-mm/<sha256[0:20]>.<ext>`
+- [x] **自动保存草稿（30 秒一次，存到 localStorage + 服务端）**：服务端 PATCH 通过 `autosaveArticleAction`（30 秒一次，仅 dirty 时触发）；localStorage 快照每 5 秒一次；remount 时弹窗询问是否用本地草稿覆盖
+- [x] **分类选择（下拉）+ 标签输入（多选）**：`CategorySelect.tsx`（下拉，读 `listCategories("ARTICLE")`，分类 CRUD 留 Phase 7）+ `TagSelector.tsx`（多选 chips，可输入新名字 + Enter 通过 `ensureTagsByNames` inline 创建）
+- [x] **slug 自动生成（基于标题拼音），可手动修改**：`src/lib/slug.ts`（pinyin-pro 处理中文 → 拼音 → 字母数字小写 → 连字符）+ `uniqueSlug` 防重名；表单侧 250ms debounce + 用户手动改过就停自动覆盖
+- [x] **软删除（移入回收站）**：`softDeleteArticleAction` 设置 `deletedAt = new Date()`，所有读路径默认过滤；UI 在 edit 页底部「移入回收站」按钮 + confirm
+
+**Phase 3 / Day 1 验收对齐**（DEVELOPMENT.md Phase 3 / Day 1 子项 —— 11/11 全勾）
+
+- [x] 后台能创建、编辑、软删除文章 —— `createArticleAction` / `updateArticleAction` / `softDeleteArticleAction` + E2E 实测建了一篇 `phase-3-day-1-e2e` 写入 sqlite
+- [x] 自动保存有效（autosave + localStorage）—— 30s dirty PATCH + 5s localStorage 快照
+- [x] slug 自动生成可手动覆盖 —— 250ms debounce + dirty 标记
+
+**演示能力**
+
+- 浏览器登录 admin → `/admin/articles`：看到「文章管理」标题 + 「共 0 篇」+ 筛选表单（搜索/状态/可见性）+ 空状态文案 + 「+ 新建文章」按钮
+- `/admin/articles/new`：完整表单渲染 —— 标题 + slug（实时自动从标题生成）+ 摘要 + 封面图上传（拖选后立即预览）+ Markdown 分屏编辑器（左侧 textarea + 右侧实时预览 + 字符计数 + GFM 提示）+ 分类下拉 + 标签多选 chips（输入新名字回车创建）+ 可见性卡片 + 状态卡片 + sticky 底部「发布」按钮
+- 创建一篇后跳到 `/admin/articles/[id]/edit`：表单预填 + 「移入回收站」按钮出现；右上角 SaveIndicator 显示「草稿 · 前台不可见」
+- 离开页面再回来：弹窗「检测到 X 分钟前保存的本地草稿，是否用本地草稿覆盖？」
+- 上传一张 PNG：进度提示 + 缩略图 + 「移除封面」按钮；服务端校验 magic bytes 后返回 `/uploads/2026-07/<hash>.png`
+
+**关键文件清单**
+
+```
+src/lib/slug.ts                                ← pinyin-pro 包装的 slugify + uniqueSlug
+src/lib/markdown.ts                            ← markdownExcerpt + estimateReadingMinutes
+src/lib/upload.ts                              ← saveCoverImage (MIME + size + magic bytes)
+src/lib/format.ts                             ← formatDate (Intl.DateTimeFormat zh-CN)
+src/server/articles.ts                         ← listArticles / get / create / update /
+                                                autosaveDraft / softDelete 等
+src/server/categories.ts                      ← listCategories(type)
+src/server/tags.ts                            ← listTags / ensureTagsByNames
+src/app/api/admin/upload/route.ts              ← POST /api/admin/upload (ADMIN-only)
+src/components/admin/articles/MarkdownEditor.tsx
+src/components/admin/articles/VisibilitySelect.tsx
+src/components/admin/articles/StatusSelect.tsx
+src/components/admin/articles/CategorySelect.tsx
+src/components/admin/articles/TagSelector.tsx
+src/components/admin/articles/CoverImageUploader.tsx
+src/components/admin/articles/ArticleForm.tsx ← 主表单（含 autosave + localStorage）
+src/components/admin/articles/actions.ts      ← 5 个 server actions（与 page 旁置便于 client 直接 import）
+src/app/(admin)/admin/articles/page.tsx        ← 列表 + 筛选 + 分页
+src/app/(admin)/admin/articles/new/page.tsx
+src/app/(admin)/admin/articles/[id]/edit/page.tsx
+src/app/(admin)/admin/articles/not-found.tsx
+src/components/admin/Sidebar.tsx               ← 文章项去 P3 标签；版本 chip = "v0.4.0-articles · Day 1"
+```
+
+**Git 状态**
+
+- `557f737` chore(deps): add react-markdown / remark-gfm / pinyin-pro for Phase 3
+- `6b678a0` feat(articles): Phase 3 / Day 1 backend CRUD + admin chrome
+
+**下一步：Day 2 — Markdown 渲染 & 公共组件**
+
+- Markdown 渲染组件（含 GFM、代码高亮、表格、任务列表）—— 引入 next-mdx-remote + rehype-pretty-code + Shiki
+- 代码块复制按钮
+- 图片懒加载
+- 私密文章密码输入组件 `PasswordPrompt`
+- 无权限时的占位组件 `NoAccess`
+- 文章卡片组件 `ArticleCard`（封面 + 标题 + 摘要 + 元信息）
+- 文章分类侧边栏组件 `CategorySidebar`
+- 文章标签云组件 `TagCloud`
+- 阅读时间计算工具（lib/markdown.ts 已就绪）
+﻿
+## Phase 3 — 文章模块（v0.4.0-articles，重点 ⭐）
+
+**当前进度**：Day 1 已完成（2026-07-19）；Day 2-4 待启动。
+
+### Day 1 — 后台 CRUD
+
+**状态**：✅ 已完成（2026-07-19）；Git commits `557f737`（deps）+ `6b678a0`（代码）已推 origin/main。
+
+**交付清单**（按 DEVELOPMENT.md Day 1 原始 11 条任务逐条勾选）
+
+- [x] **文章列表页（表格 + 分页 + 状态筛选 + 搜索）**：`src/app/(admin)/admin/articles/page.tsx`；GET query `q / status / visibility / page / pageSize`；20 条/页；空状态文案「暂无文章，点击「新建文章」开始写第一篇。」
+- [x] **文章新建/编辑页表单**：`new/page.tsx` + `[id]/edit/page.tsx` + 共享的 `ArticleForm` 组件（react-hook-form + zod + Controller）；空字段用 server-side schema 校验，错误映射回表单 fieldError
+- [x] **Markdown 编辑器组件（左右分屏：编辑 + 实时预览）**：`MarkdownEditor.tsx`，三个 tab（写作 / 分屏 / 预览）；react-markdown + remark-gfm 渲染预览；IME guard 防止 CJK 输入被打断
+- [x] **工具栏**：加粗 / 斜体 / 行内代码 / 代码块 / H1 / H2 / 引用 / 无序列表 / 有序列表 / 链接（图片插入留到 Day 2 富文本时做）
+- [x] **可见性切换（PUBLIC/PRIVATE/PASSWORD）+ 密码输入**：`VisibilitySelect.tsx` 单选卡片 + 仅 PASSWORD 时展开 password 输入（最少 4 位，schema 校验）
+- [x] **状态切换（DRAFT/PUBLISHED/ARCHIVED）**：`StatusSelect.tsx` 单选卡片；PUBLISHED 时自动写 `publishedAt`
+- [x] **封面图上传（单图）**：`/api/admin/upload/route.ts`（ADMIN-only multipart）+ `CoverImageUploader.tsx` + `src/lib/upload.ts`；MIME 白名单（jpg/png/webp/gif/avif）、5 MB 上限、magic-byte 二次校验、文件落到 `public/uploads/yyyy-mm/<sha256[0:20]>.<ext>`
+- [x] **自动保存草稿（30 秒一次，存到 localStorage + 服务端）**：服务端 PATCH 通过 `autosaveArticleAction`（30 秒一次，仅 dirty 时触发）；localStorage 快照每 5 秒一次；remount 时弹窗询问是否用本地草稿覆盖
+- [x] **分类选择（下拉）+ 标签输入（多选）**：`CategorySelect.tsx`（下拉，读 `listCategories("ARTICLE")`，分类 CRUD 留 Phase 7）+ `TagSelector.tsx`（多选 chips，可输入新名字 + Enter 通过 `ensureTagsByNames` inline 创建）
+- [x] **slug 自动生成（基于标题拼音），可手动修改**：`src/lib/slug.ts`（pinyin-pro 处理中文 → 拼音 → 字母数字小写 → 连字符）+ `uniqueSlug` 防重名；表单侧 250ms debounce + 用户手动改过就停自动覆盖
+- [x] **软删除（移入回收站）**：`softDeleteArticleAction` 设置 `deletedAt = new Date()`，所有读路径默认过滤；UI 在 edit 页底部「移入回收站」按钮 + confirm
+
+**Phase 3 / Day 1 验收对齐**（DEVELOPMENT.md Phase 3 / Day 1 子项 —— 11/11 全勾）
+
+- [x] 后台能创建、编辑、软删除文章 —— `createArticleAction` / `updateArticleAction` / `softDeleteArticleAction` + E2E 实测建了一篇 `phase-3-day-1-e2e` 写入 sqlite
+- [x] 自动保存有效（autosave + localStorage）—— 30s dirty PATCH + 5s localStorage 快照
+- [x] slug 自动生成可手动覆盖 —— 250ms debounce + dirty 标记
+
+**演示能力**
+
+- 浏览器登录 admin → `/admin/articles`：看到「文章管理」标题 + 「共 0 篇」+ 筛选表单（搜索/状态/可见性）+ 空状态文案 + 「+ 新建文章」按钮
+- `/admin/articles/new`：完整表单渲染 —— 标题 + slug（实时自动从标题生成）+ 摘要 + 封面图上传（拖选后立即预览）+ Markdown 分屏编辑器（左侧 textarea + 右侧实时预览 + 字符计数 + GFM 提示）+ 分类下拉 + 标签多选 chips（输入新名字回车创建）+ 可见性卡片 + 状态卡片 + sticky 底部「发布」按钮
+- 创建一篇后跳到 `/admin/articles/[id]/edit`：表单预填 + 「移入回收站」按钮出现；右上角 SaveIndicator 显示「草稿 · 前台不可见」
+- 离开页面再回来：弹窗「检测到 X 分钟前保存的本地草稿，是否用本地草稿覆盖？」
+- 上传一张 PNG：进度提示 + 缩略图 + 「移除封面」按钮；服务端校验 magic bytes 后返回 `/uploads/2026-07/<hash>.png`
+
+**关键文件清单**
+
+```
+src/lib/slug.ts                                ← pinyin-pro 包装的 slugify + uniqueSlug
+src/lib/markdown.ts                            ← markdownExcerpt + estimateReadingMinutes
+src/lib/upload.ts                              ← saveCoverImage (MIME + size + magic bytes)
+src/lib/format.ts                             ← formatDate (Intl.DateTimeFormat zh-CN)
+src/server/articles.ts                         ← listArticles / get / create / update /
+                                                autosaveDraft / softDelete 等
+src/server/categories.ts                      ← listCategories(type)
+src/server/tags.ts                            ← listTags / ensureTagsByNames
+src/app/api/admin/upload/route.ts              ← POST /api/admin/upload (ADMIN-only)
+src/components/admin/articles/MarkdownEditor.tsx
+src/components/admin/articles/VisibilitySelect.tsx
+src/components/admin/articles/StatusSelect.tsx
+src/components/admin/articles/CategorySelect.tsx
+src/components/admin/articles/TagSelector.tsx
+src/components/admin/articles/CoverImageUploader.tsx
+src/components/admin/articles/ArticleForm.tsx ← 主表单（含 autosave + localStorage）
+src/components/admin/articles/actions.ts      ← 5 个 server actions（与 page 旁置便于 client 直接 import）
+src/app/(admin)/admin/articles/page.tsx        ← 列表 + 筛选 + 分页
+src/app/(admin)/admin/articles/new/page.tsx
+src/app/(admin)/admin/articles/[id]/edit/page.tsx
+src/app/(admin)/admin/articles/not-found.tsx
+src/components/admin/Sidebar.tsx               ← 文章项去 P3 标签；版本 chip = "v0.4.0-articles · Day 1"
+```
+
+**Git 状态**
+
+- `557f737` chore(deps): add react-markdown / remark-gfm / pinyin-pro for Phase 3
+- `6b678a0` feat(articles): Phase 3 / Day 1 backend CRUD + admin chrome
+
+**下一步：Day 2 — Markdown 渲染 & 公共组件**
+
+- Markdown 渲染组件（含 GFM、代码高亮、表格、任务列表）—— 引入 next-mdx-remote + rehype-pretty-code + Shiki
+- 代码块复制按钮
+- 图片懒加载
+- 私密文章密码输入组件 `PasswordPrompt`
+- 无权限时的占位组件 `NoAccess`
+- 文章卡片组件 `ArticleCard`（封面 + 标题 + 摘要 + 元信息）
+- 文章分类侧边栏组件 `CategorySidebar`
+- 文章标签云组件 `TagCloud`
+- 阅读时间计算工具（lib/markdown.ts 已就绪）

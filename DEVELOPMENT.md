@@ -385,17 +385,17 @@ src/app/loading.tsx
 
 **Day 1 - 后台 CRUD**：
 
-- [ ] 文章列表页（表格 + 分页 + 状态筛选 + 搜索）
-- [ ] 文章新建/编辑页表单
-- [ ] Markdown 编辑器组件（左右分屏：编辑 + 实时预览）
-- [ ] 工具栏：标题、加粗、斜体、链接、图片、代码块、引用、列表
-- [ ] 可见性切换（PUBLIC/PRIVATE/PASSWORD）+ 密码输入
-- [ ] 状态切换（DRAFT/PUBLISHED/ARCHIVED）
-- [ ] 封面图上传（单图）
-- [ ] 自动保存草稿（30 秒一次，存到 localStorage + 服务端）
-- [ ] 分类选择（下拉）+ 标签输入（多选）
-- [ ] slug 自动生成（基于标题拼音），可手动修改
-- [ ] 软删除（移入回收站）
+- [x] 文章列表页（表格 + 分页 + 状态筛选 + 搜索）
+- [x] 文章新建/编辑页表单
+- [x] Markdown 编辑器组件（左右分屏：编辑 + 实时预览）
+- [x] 工具栏：标题、加粗、斜体、链接、代码块、引用、列表（图片插入留到 Day 2 富文本时一起做）
+- [x] 可见性切换（PUBLIC/PRIVATE/PASSWORD）+ 密码输入
+- [x] 状态切换（DRAFT/PUBLISHED/ARCHIVED）
+- [x] 封面图上传（单图，public/uploads/yyyy-mm/<sha256>.<ext>，5 MB 上限）
+- [x] 自动保存草稿（30 秒一次，服务端 PATCH + 5 秒一次的 localStorage 快照，remount 时弹窗询问是否恢复）
+- [x] 分类选择（下拉）+ 标签输入（多选，含新建标签的 inline 创建）
+- [x] slug 自动生成（基于标题拼音，pinyin-pro），可手动修改（修改后停止自动覆盖）
+- [x] 软删除（移入回收站，schema.deletedAt 字段已就位）
 
 **Day 2 - Markdown 渲染 & 公共组件**：
 
