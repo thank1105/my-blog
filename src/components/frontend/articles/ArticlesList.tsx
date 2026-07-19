@@ -1,4 +1,4 @@
-﻿// Shared server component for the article-list + filter experience.
+// Shared server component for the article-list + filter experience.
 // Used by /articles, /categories/[slug], /tags/[slug] so the three
 // pages stay in lockstep (filters, sidebar, pagination all derived
 // from the same props).
@@ -86,8 +86,8 @@ export async function ArticlesList({
   }));
 
   return (
-    <section className="mx-auto max-w-container px-4 py-10 sm:px-8">
-      <header className="mb-8">
+    <section className="mx-auto max-w-container px-4 py-6 sm:py-10 sm:px-8">
+      <header className="mb-6 sm:mb-8">
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted">
           Articles · {total} 篇
         </p>

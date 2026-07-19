@@ -15,6 +15,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Clock, Eye } from "lucide-react";
 
@@ -45,7 +46,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!row) {
     return { title: "文章不存在" };
   }
-  const description = row.excerpt?.trim() || `小川记事 · ${row.title}`;
+  const description = row.excerpt?.trim() || "小川记事";
   const ogImages = row.coverImage ? [row.coverImage] : undefined;
   const canonical = `/articles/${row.slug}`;
   return {
@@ -82,7 +83,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
   const canonicalUrl = `https://xiaochuan.blog/articles/${row.slug}`;
 
   return (
-    <article className="mx-auto max-w-container px-4 py-10 sm:px-8">
+    <article className="mx-auto max-w-container px-4 py-6 sm:py-10 sm:px-8">
       <ArticleViewIncrementer articleId={row.id} />
 
       <header className="mx-auto max-w-prose">
@@ -117,22 +118,24 @@ export default async function ArticleDetailPage({ params }: PageProps) {
       </header>
 
       {row.coverImage ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={row.coverImage}
-          alt={row.title}
-          loading="lazy"
-          decoding="async"
-          className="mx-auto mt-8 max-h-[480px] w-full max-w-4xl rounded-md border border-hair object-cover shadow-soft"
-        />
+        <div className="relative mx-auto mt-8 max-h-[480px] w-full max-w-4xl aspect-[16/9]">
+          <Image
+            src={row.coverImage}
+            alt={row.title}
+            fill
+            sizes="(max-width: 1024px) 100vw, 896px"
+            className="rounded-md border border-hair object-cover shadow-soft"
+            priority
+          />
+        </div>
       ) : null}
 
-      <div className="mx-auto mt-10 max-w-prose">
+      <div className="mx-auto mt-8 sm:mt-10 max-w-prose">
         <ArticleBody source={row.content} slug={row.slug} />
       </div>
 
       {/* Footer: tag cloud + share buttons */}
-      <footer className="mx-auto mt-12 max-w-prose space-y-8 border-t border-hair pt-8">
+      <footer className="mx-auto mt-10 sm:mt-12 max-w-prose space-y-8 border-t border-hair pt-6 sm:pt-8">
         {tags.length > 0 ? (
           <section aria-label="文章标签">
             <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted">
@@ -156,7 +159,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
       </footer>
 
       {related.length > 0 ? (
-        <aside className="mx-auto mt-16 max-w-container">
+        <aside className="mx-auto mt-12 sm:mt-16 max-w-container">
           <h2 className="font-serif text-2xl font-bold text-ink">相关文章</h2>
           <ul className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((a) => (
@@ -184,7 +187,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
         </aside>
       ) : null}
 
-      <nav className="mx-auto mt-16 max-w-prose border-t border-hair pt-6 text-sm">
+      <nav className="mx-auto mt-12 sm:mt-16 max-w-prose border-t border-hair pt-6 text-sm">
         <Link
           href="/articles"
           className="inline-flex items-center gap-1 text-muted underline-offset-4 hover:text-accent hover:underline"

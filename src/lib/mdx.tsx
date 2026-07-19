@@ -1,4 +1,4 @@
-﻿// MDX / Markdown rendering pipeline (Phase 3 / Day 2).
+// MDX / Markdown rendering pipeline (Phase 3 / Day 2).
 //
 // Goals:
 //   - Render article content server-side with proper GFM support.
@@ -141,7 +141,7 @@ export async function renderMarkdown(
  */
 export function Prose({ children }: { children: React.ReactNode }) {
   return (
-    <div className="prose prose-base max-w-none text-ink prose-headings:font-serif prose-headings:text-ink prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-a:text-accent prose-strong:text-ink prose-code:rounded prose-code:bg-bg prose-code:px-1 prose-code:py-0.5 prose-code:font-mono prose-code:text-[0.9em] prose-pre:bg-bg prose-pre:text-ink prose-blockquote:border-l-2 prose-blockquote:border-accent prose-blockquote:text-muted prose-img:rounded-md prose-img:shadow-soft prose-li:my-1">
+    <div className="prose prose-sm sm:prose-base max-w-none text-ink prose-headings:font-serif prose-headings:text-ink prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-a:text-accent prose-strong:text-ink prose-code:rounded prose-code:bg-bg prose-code:px-1 prose-code:py-0.5 prose-code:font-mono prose-code:text-[0.9em] prose-pre:bg-bg prose-pre:text-ink prose-blockquote:border-l-2 prose-blockquote:border-accent prose-blockquote:text-muted prose-img:rounded-md prose-img:shadow-soft prose-li:my-1">
       {children}
     </div>
   );

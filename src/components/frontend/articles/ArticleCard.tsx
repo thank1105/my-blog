@@ -1,4 +1,4 @@
-﻿// ArticleCard (Phase 3 / Day 2).
+// ArticleCard (Phase 3 / Day 2).
 //
 // Card grid item for the public article list / archive pages. The card
 // shape is "magazine grid" per docs/visual-anchor.png (P3) and P4: cover
@@ -6,6 +6,7 @@
 // into the public /articles list + /archive.
 
 import Link from "next/link";
+import Image from "next/image";
 import { Clock } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -48,14 +49,15 @@ export function ArticleCard({ article, href, compact, className }: ArticleCardPr
       {showCover ? (
         <Link href={link} className="block overflow-hidden">
           {article.coverImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={article.coverImage}
-              alt={article.title}
-              loading="lazy"
-              decoding="async"
-              className="h-44 w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-            />
+            <div className="relative h-44 w-full">
+              <Image
+                src={article.coverImage}
+                alt={article.title}
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+              />
+            </div>
           ) : (
             <div className="flex h-44 w-full items-end bg-gradient-to-br from-hair/60 via-bg to-accent-soft/60 p-4">
               <span className="font-serif text-xs uppercase tracking-[0.3em] text-muted">
