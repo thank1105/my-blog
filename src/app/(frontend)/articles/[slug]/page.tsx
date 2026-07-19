@@ -1,4 +1,4 @@
-﻿// /articles/[slug] -- the public article detail page (Phase 3 / Day 3).
+// /articles/[slug] -- the public article detail page (Phase 3 / Day 3).
 //
 // Pipeline:
 //   1. Fetch the PUBLISHED article by slug.
@@ -25,6 +25,7 @@ import {
 
 import { ArticleBody } from "@/components/frontend/articles/ArticleBody";
 import { ArticleViewIncrementer } from "@/components/frontend/articles/ArticleViewIncrementer";
+import { ShareButtons } from "@/components/frontend/articles/ShareButtons";
 import {
   ArticleCard,
   type ArticleCardArticle,
@@ -78,6 +79,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
   const related = await listRelatedArticles(row.id, 3);
   const readingMin = estimateReadingMinutes(row.content);
   const tags = row.tags.map((t) => t.tag);
+  const canonicalUrl = `https://xiaochuan.blog/articles/${row.slug}`;
 
   return (
     <article className="mx-auto max-w-container px-4 py-10 sm:px-8">
@@ -112,19 +114,6 @@ export default async function ArticleDetailPage({ params }: PageProps) {
             {row.viewCount} 次阅读
           </span>
         </div>
-        {tags.length > 0 ? (
-          <div className="mt-4 flex flex-wrap gap-2 text-xs">
-            {tags.map((t) => (
-              <Link
-                key={t.id}
-                href={`/articles?tag=${t.slug}`}
-                className="rounded-full border border-hair px-2 py-0.5 text-ink transition-colors hover:border-accent hover:text-accent"
-              >
-                #{t.name}
-              </Link>
-            ))}
-          </div>
-        ) : null}
       </header>
 
       {row.coverImage ? (
@@ -141,6 +130,30 @@ export default async function ArticleDetailPage({ params }: PageProps) {
       <div className="mx-auto mt-10 max-w-prose">
         <ArticleBody source={row.content} slug={row.slug} />
       </div>
+
+      {/* Footer: tag cloud + share buttons */}
+      <footer className="mx-auto mt-12 max-w-prose space-y-8 border-t border-hair pt-8">
+        {tags.length > 0 ? (
+          <section aria-label="文章标签">
+            <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted">
+              标签
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {tags.map((t) => (
+                <Link
+                  key={t.id}
+                  href={`/articles?tag=${t.slug}`}
+                  className="rounded-full border border-hair px-3 py-1 text-sm text-ink transition-colors hover:border-accent hover:text-accent"
+                >
+                  #{t.name}
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <ShareButtons url={canonicalUrl} title={row.title} />
+      </footer>
 
       {related.length > 0 ? (
         <aside className="mx-auto mt-16 max-w-container">

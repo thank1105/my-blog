@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
@@ -6,13 +7,9 @@ import { cn } from "@/lib/utils";
 /**
  * shadcn/ui Button (new-york flavour), adapted to the project token set.
  *
- * Notes:
- *   - Dropped `asChild` / `@radix-ui/react-slot` on purpose for Phase 2:
- *     we don't render `<Button><Link/></Button>` yet, and avoiding the
- *     dependency keeps the bundle smaller. Re-introduce in Phase 3 when
- *     article cards need the polymorphic API.
- *   - Variants follow the design tokens (accent / danger / hair / bg) so
- *     we never reach for an arbitrary hex at the call site.
+ * Phase 3 update: restored `asChild` / `@radix-ui/react-slot` so the
+ * Button can act as a polymorphic wrapper (e.g. <Button asChild><Link>…</Link></Button>
+ * for article-card link buttons).
  */
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-1 focus-visible:ring-offset-bg disabled:pointer-events-none disabled:opacity-60 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
@@ -43,12 +40,15 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {}
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+}
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, type = "button", ...props }, ref) => {
+  ({ className, variant, size, asChild = false, type = "button", ...props }, ref) => {
+    const Comp = asChild ? Slot : "button";
     return (
-      <button
+      <Comp
         ref={ref}
         type={type}
         className={cn(buttonVariants({ variant, size, className }))}
