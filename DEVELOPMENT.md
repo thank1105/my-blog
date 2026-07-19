@@ -542,15 +542,15 @@ src/app/(frontend)/notes/[slug]/page.tsx
 
 **Day 1 - 后台 & 多图上传**：
 
-- [ ] 作品列表页（大图卡片）
-- [ ] 作品新建/编辑页
-- [ ] 多图上传组件 `MultiImageUploader`（拖拽 + 排序 + 删除）
-- [ ] 作品图片单独管理（不与封面图混在一起）
-- [ ] 图片拖拽排序（dnd-kit）
-- [ ] 图片说明文字（caption）
-- [ ] 作品分类（复用 Category）
-- [ ] 作品标签（复用 Tag）
-- [ ] 作品排序（order 字段）
+- [x] 作品列表页（大图卡片）
+- [x] 作品新建/编辑页
+- [x] 多图上传组件 `MultiImageUploader`（拖拽 + 排序 + 删除）
+- [x] 作品图片单独管理（不与封面图混在一起）
+- [x] 图片拖拽排序（dnd-kit）
+- [x] 图片说明文字（caption）
+- [x] 作品分类（复用 Category）
+- [x] 作品标签（复用 Tag）
+- [x] 作品排序（order 字段）
 
 **Day 2 - 前台展示**：
 
