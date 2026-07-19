@@ -67,7 +67,7 @@ export type ListArticlesQuery = z.infer<typeof listArticlesQuerySchema>;
 /* Select shape (used everywhere we read an article row)               */
 /* ------------------------------------------------------------------ */
 
-const articleSelect = {
+export const articleSelect = {
   id: true,
   slug: true,
   title: true,
