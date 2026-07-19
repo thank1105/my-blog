@@ -411,17 +411,17 @@ src/app/loading.tsx
 
 **Day 3 - 前台列表 + 详情**：
 
-- [ ] `/articles` 列表页（杂志卡片网格，3 列 → 2 列 → 1 列）
-- [ ] 分类筛选、标签筛选
-- [ ] 分页或无限滚动（先做分页，简单）
-- [ ] `/articles/[slug]` 详情页
+- [x] `/articles` 列表页（杂志卡片网格，3 列 → 2 列 → 1 列）
+- [x] 分类筛选、标签筛选
+- [x] 分页或无限滚动（先做分页，简单）
+- [x] `/articles/[slug]` 详情页
   - 顶部全宽封面图（16:9）
   - 标题区（标题、发布时间、分类、阅读量）
   - 居中正文（最大宽度 720px，行高 1.8）
   - 文末：标签云、分享按钮
-- [ ] SEO meta 标签（title、description、OG、Twitter Card）
-- [ ] 阅读量统计（同一会话只计一次）
-- [ ] 相关文章推荐（同分类 / 同标签，取 3 篇）
+- [x] SEO meta 标签（title、description、OG、Twitter Card）
+- [x] 阅读量统计（同一会话只计一次，POST /api/articles/[id]/view + 30 分钟 cookie dedupe）
+- [x] 相关文章推荐（同分类 / 同标签，取 3 篇）
 
 **Day 4 - 测试 & 完善**：
 

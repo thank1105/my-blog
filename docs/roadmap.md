@@ -467,3 +467,57 @@ src/app/(admin)/admin/articles/[id]/preview/page.tsx
 - SEO meta 标签（title、description、OG、Twitter Card）
 - 阅读量统计（同一会话只计一次）
 - 相关文章推荐（同分类 / 同标签，取 3 篇）
+﻿
+### Day 3 — 前台展示
+
+**状态**：✅ 已完成（2026-07-19）。
+
+**交付清单**（按 DEVELOPMENT.md Day 3 原始 7 条任务逐条勾选）
+
+- [x] **`/articles` 列表页（杂志卡片网格，3 → 2 → 1 列）**：`src/app/(frontend)/articles/page.tsx`；左 14rem CategorySidebar + 右 3 列 ArticleCard 网格（`sm:grid-cols-2 lg:grid-cols-3`）；共享 `ArticlesList` 组件被列表 / 分类 / 标签页复用
+- [x] **分类筛选、标签筛选**：URL `?category=xxx&tag=xxx&q=xxx&page=xxx`；CategorySidebar 高亮 + TagCloud 高亮 + 搜索框；所有筛选可组合；清除筛选入口
+- [x] **分页（先做分页，简单）**：`?page=N`；20 条/页（pageSize=12）；仅当 total > pageSize 时显示分页；上下页链接 + 当前页/总页提示
+- [x] **`/articles/[slug]` 详情页**：`src/app/(frontend)/articles/[slug]/page.tsx`；标题、分类 chip、发布时间、阅读时长、阅读数、标签 chips、封面图（lazy）、MDX 正文、相关文章、回到所有文章
+- [x] **SEO meta（title、description、OG、Twitter Card）**：`generateMetadata` 渲染 title/description/canonical/og:{title,description,type:article,url,publishedTime,modifiedTime,authors,images}/twitter:{card,title,description,images}
+- [x] **阅读量统计（同一会话只计一次）**：POST `/api/articles/[id]/view` Route Handler + `<ArticleViewIncrementer />` client island + 30 分钟 cookie dedupe；Next.js 15 限制 cookie 必须在 Route Handler / Server Action 写，所以分三层协作。dev 实测：3 次访问后 DB viewCount 只 +1
+- [x] **相关文章推荐（同分类 / 同标签，取 3 篇）**：`listRelatedArticles(articleId, 3)` —— 同分类优先 + 同标签次之，排除当前文章，只 PUBLISHED + 非软删
+
+**Phase 3 / Day 3 验收对齐**（DEVELOPMENT.md Phase 3 / Day 3 子项 —— 7/7 全勾）
+
+- [x] `/articles` 列表页 + 分类筛选 + 标签筛选 + 分页 —— 实测 22 项探针全过
+- [x] `/articles/[slug]` 详情页 —— h1 / 分类 chip / 阅读时长 / 阅读数 / 外链 target=_blank / 相关文章 / 13 项 SEO meta 全过
+- [x] SEO meta 完整 —— og:title / og:type=article / og:url / twitter:card / canonical 全在
+- [x] 阅读量统计 + 同会话防刷 —— DB 实测 3 次访问 viewCount 只 +1
+
+**演示能力**
+
+- 浏览器访问 `/articles`：左 CategorySidebar（随笔 / 技术）+ 右 3 列卡片网格（4 篇文章），DRAFT 不显示
+- 浏览器访问 `/articles?category=tech`：只显示 tech 分类的文章，h1 "分类 · tech"
+- 浏览器访问 `/articles?tag=css`：只显示 css 标签的文章，h1 "标签 · css"
+- 浏览器访问 `/articles/phase-3-day-3-public`：完整 MDX 渲染的文章页 + 阅读数 + 相关文章（3 篇）+ 完整 SEO meta
+- 浏览器访问 `/articles/phase-3-day-3-draft`：渲染 not-found 页（dev 下 HTTP 200，prod 404）—— DRAFT 内容绝不暴露
+- 浏览器访问 `/articles/no-such-thing`：404 提示 + 返回首页
+- 多次访问同一文章：DB viewCount 只 +1（cookie dedupe 生效）
+
+**关键文件清单**
+
+```
+src/server/articles-public.ts                  ← listPublishedArticles / getArticleBySlugForPublic / incrementArticleView / listRelatedArticles / listCategoriesWithCount / listTagsWithCount
+src/components/frontend/articles/ArticlesList.tsx  ← 共享列表组件（list / categories / tags 三页复用）
+src/components/frontend/articles/ArticleViewIncrementer.tsx  ← client island，调用 /api/articles/[id]/view
+src/app/(frontend)/articles/page.tsx           ← 列表页
+src/app/(frontend)/articles/[slug]/page.tsx    ← 详情页（SEO + 阅读量 + 相关文章）
+src/app/(frontend)/categories/[slug]/page.tsx  ← 分类筛选页
+src/app/(frontend)/tags/[slug]/page.tsx        ← 标签筛选页
+src/app/api/articles/[id]/view/route.ts        ← POST endpoint + cookie dedupe
+```
+
+**下一步：Day 4 — 私密权限 + 测试 + 性能优化**
+
+- 私密文章 `visibility=PRIVATE` —— 未登录时显示 `NoAccess`，已登录时可读
+- 密码文章 `visibility=PASSWORD` —— 输入密码校验，cookie 存已验证状态
+- 单元测试：`slug.ts`、`visibility.ts`
+- E2E：写文章 → 设为私密 → 游客看不到 / 登录后能看到；写文章 → 密码 → 输错密码有提示
+- 性能优化（图片懒加载、`next/image`）
+- 移动端排版微调
+- README 留给"未来的自己"
