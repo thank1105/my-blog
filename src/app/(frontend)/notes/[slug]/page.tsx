@@ -8,13 +8,14 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, CalendarDays, Eye } from "lucide-react";
 
-import { getNoteBySlugForPublic, listRelatedNotes, incrementNoteView } from "@/server/notes-public";
+import { getNoteBySlugForPublic, listRelatedNotes } from "@/server/notes-public";
 
 import { renderMarkdown, Prose } from "@/lib/mdx";
 import { formatDate } from "@/lib/format";
 import { estimateReadingMinutes } from "@/lib/markdown";
 import { TagCloud, type TagCloudItem } from "@/components/frontend/articles/TagCloud";
 import { listNoteTagsWithCount } from "@/server/notes-public";
+import { NoteViewIncrementer } from "@/components/frontend/notes/NoteViewIncrementer";
 
 export const dynamic = "force-dynamic";
 
@@ -59,9 +60,6 @@ export default async function NoteDetailPage({ params }: PageProps) {
     listNoteTagsWithCount(),
   ]);
 
-  // View count bump.
-  await incrementNoteView(note.id);
-
   const readingTime = estimateReadingMinutes(note.content);
   const noteTags = note.tags.map((t) => t.tag);
   const tagItems: TagCloudItem[] = tags.map((t) => ({
@@ -91,6 +89,7 @@ export default async function NoteDetailPage({ params }: PageProps) {
 
         {/* Main content */}
         <article className="min-w-0">
+          <NoteViewIncrementer noteId={note.id} />
           <header className="mb-8">
             <Link
               href="/notes"

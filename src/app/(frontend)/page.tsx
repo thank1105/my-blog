@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
@@ -9,28 +9,34 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { NotesDigest } from "@/components/frontend/notes/NotesDigest";
 
 /**
- * Home page (Phase 2 / Day 2 update).
+ * Home page (Phase 2 / Day 2 + Phase 4 / Day 2 notes digest).
  *
  * Phase 0 landed a one-line 「PHASE 0 · FOUNDATION」card here.
  * Day 1 wired the chrome manually (Header + Footer inline) to demo the
  * new components.
  * Day 2 moves the chrome into `app/(frontend)/layout.tsx`, so this page
- * returns just the body. The four stream cards below still carry
- * hard-coded placeholders -- real data lands in Phases 3-6.
+ * returns just the body.
+ *
+ * Phase 4 / Day 2 added the real "最新笔记 (latest 5)" digest at the
+ * bottom, fed by `notes-public.ts::listLatestNotes`. The four stream
+ * cards above still carry hard-coded placeholders for the streams that
+ * are not yet wired (articles, projects, albums) -- those land in their
+ * respective phases.
  */
 export default function HomePage() {
   return (
     <>
-      {/* Hero — full-bleed placeholder. Real 16:9 photo lands in Phase 3. */}
+      {/* Hero -- full-bleed placeholder. Real 16:9 photo lands in Phase 3. */}
       <section
         aria-label="首页 hero 占位"
         className="relative isolate flex h-[42vh] min-h-[320px] items-end overflow-hidden border-b border-hair bg-gradient-to-br from-hair/60 via-bg to-accent-soft/60"
       >
         <div className="mx-auto w-full max-w-container px-8 pb-10">
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted">
-            Phase 2 · Design System
+            Phase 4 · Notes + Phase 5 · Projects
           </p>
           <h1 className="mt-3 font-serif text-4xl font-bold text-ink sm:text-5xl">
             写作 / 观察 / 项目
@@ -61,7 +67,7 @@ export default function HomePage() {
         </aside>
       </section>
 
-      {/* 4 streams — placeholders */}
+      {/* 4 streams -- placeholders */}
       <section className="mx-auto max-w-container px-8 pb-16">
         <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {STREAMS.map((stream) => (
@@ -87,6 +93,11 @@ export default function HomePage() {
             </li>
           ))}
         </ul>
+      </section>
+
+      {/* Phase 4 / Day 2 -- latest notes digest */}
+      <section className="mx-auto max-w-container px-8 pb-20">
+        <NotesDigest limit={5} />
       </section>
     </>
   );

@@ -22,9 +22,15 @@ const titleSchema = z.string().trim().min(1, "标题不能为空").max(120, "标
 export const createNoteSchema = z
   .object({
     title: titleSchema,
-    slug: z.string().trim().max(80).optional(),
+    slug: z
+    .string()
+    .trim()
+    .max(80, "slug 不超过 80 字")
+    .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "slug 仅支持小写字母、数字、连字符")
+    .optional()
+    .or(z.literal("")),
     excerpt: z.string().trim().max(280, "摘要不超过 280 字").optional(),
-    content: z.string().min(1, "正文不能为空"),
+    content: z.string().trim().min(1, "正文不能为空"),
     visibility: z.enum(visibilityValues),
     password: z.string().trim().optional(),
     status: z.enum(statusValues),
