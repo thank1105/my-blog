@@ -399,15 +399,15 @@ src/app/loading.tsx
 
 **Day 2 - Markdown 渲染 & 公共组件**：
 
-- [ ] Markdown 渲染组件（含 GFM、代码高亮、表格、任务列表）
-- [ ] 代码块复制按钮
-- [ ] 图片懒加载
-- [ ] 私密文章密码输入组件 `PasswordPrompt`
-- [ ] 无权限时的占位组件 `NoAccess`
-- [ ] 文章卡片组件 `ArticleCard`（封面 + 标题 + 摘要 + 元信息）
-- [ ] 文章分类侧边栏组件 `CategorySidebar`
-- [ ] 文章标签云组件 `TagCloud`
-- [ ] 阅读时间计算工具
+- [x] Markdown 渲染组件（含 GFM、代码高亮、表格、任务列表）
+- [x] 代码块复制按钮
+- [x] 图片懒加载（MDX 渲染时给 <img> 注入 loading="lazy" + decoding="async"，上 next/image 留 Phase 9）
+- [x] 私密文章密码输入组件 `PasswordPrompt`
+- [x] 无权限时的占位组件 `NoAccess`
+- [x] 文章卡片组件 `ArticleCard`（封面 + 标题 + 摘要 + 元信息）
+- [x] 文章分类侧边栏组件 `CategorySidebar`
+- [x] 文章标签云组件 `TagCloud`
+- [x] 阅读时间计算工具（Day 1 已经在 lib/markdown.ts 实现 estimateReadingMinutes，Day 2 由 ArticleCard 与 admin preview 页消费）
 
 **Day 3 - 前台列表 + 详情**：
 
