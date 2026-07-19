@@ -554,22 +554,378 @@ src/app/(frontend)/notes/[slug]/page.tsx
 
 **Day 2 - 前台展示**：
 
-- [ ] `/projects` 列表页（大图卡片，杂志感更强）
-- [ ] `/projects/[slug]` 详情页
+- [x] `/projects` 列表页（大图卡片，杂志感更强）
+- [x] `/projects/[slug]` 详情页
   - 标题区（标题、描述、元信息）
   - 主体：图片按 order 顺序纵向排列，全宽沉浸
   - 自适应：横图 100%、竖图居中 70%、方图 80%
-- [ ] 图片懒加载（首屏外）
-- [ ] 上下作品推荐
+- [x] 图片懒加载（首屏外）
+- [x] 上下作品推荐
+
+**关键文件**：
+
+```text
+package.json
+pnpm-lock.yaml
+.nvmrc
+next.config.mjs
+postcss.config.mjs
+tailwind.config.ts
+eslint.config.mjs
+.prettierrc.json
+components.json
+tsconfig.json
+prisma/schema.prisma
+.env.example
+.gitignore
+src/app/layout.tsx
+src/app/page.tsx
+```
+
+**验收标准**：
+
+- [x] `node --version` 为 24.x LTS，`pnpm --version` 为 10.x
+- [x] `pnpm install --frozen-lockfile` 能成功复现依赖
+- [x] `pnpm dev` 能跑起来，访问 `http://localhost:3000` 看到占位页
+- [x] `pnpm prisma validate` 与 `pnpm prisma db push` 均成功
+- [x] React 与 React DOM、Prisma CLI 与 Client 均严格同版
+- [x] Next.js 与 `eslint-config-next` 保持 15.5.x 版本线
+- [x] 项目结构符合 REQUIREMENTS.md 第 9 章规划
+- [x] Git 工作区干净并创建 `v0.1.0-foundation` Tag
+
+**演示能力**：能跑起来的空网站
+
+**Git Tag**：`v0.1.0-foundation`
+
+---
+
+### Phase 1：数据库 & 认证
+
+**目标**：登录功能可用，后台能管理用户
+
+**预计耗时**：2 天
+
+**前置依赖**：Phase 0
+
+**任务清单**：
+
+**Day 1 - 认证核心**：
+
+- [x] 安装 NextAuth.js 4.24、bcryptjs 3、react-hook-form 7、Zod 3.25
+- [x] 配置 NextAuth.js v4（Credentials Provider）
+- [x] 实现登录页 UI
+- [x] 实现 JWT Session，由 HTTP-only Cookie 持有会话令牌
+- [x] 密码使用 bcryptjs 加密（cost 12）
+- [x] 登录限流（5 次/15 分钟）
+- [x] 创建 seed 脚本（生成 admin 账号 + 测试朋友账号）
+
+**Day 2 - 用户管理 + 权限中间件**：
+
+- [x] 实现可见性校验工具函数 `lib/visibility.ts`
+- [x] 实现 `middleware.ts`：保护 `/admin/*` 路由
+- [x] 实现 `middleware.ts`：过滤私密内容
+- [x] 后台用户管理（列表、新建、编辑、禁用）
+- [x] 重置密码功能
+- [x] 单元测试：可见性逻辑
+- [x] 单元测试：权限中间件
+
+**关键文件**：
+
+```
+prisma/seed.ts
+src/lib/auth.ts
+src/lib/visibility.ts
+src/lib/db.ts
+src/middleware.ts
+src/app/(frontend)/login/page.tsx
+src/app/api/auth/[...nextauth]/route.ts
+src/app/(admin)/admin/users/page.tsx
+src/app/(admin)/admin/users/new/page.tsx
+src/app/(admin)/admin/users/[id]/edit/page.tsx
+```
+
+**验收标准**：
+
+- [x] 访问 `/login` 输入 admin 账号能登录
+- [x] 未登录访问 `/admin/*` 跳转到 `/login`
+- [x] 登录后访问 `/admin` 能看到用户管理页
+- [x] 创建新用户，新用户能登录
+- [x] 密码在数据库中是 bcryptjs 哈希（明文看不到）
+- [x] 5 次错误密码后被限流 15 分钟
+- [x] 关闭浏览器再打开，session 保持（JWT cookie 默认 maxAge = 30 天，与是否勾"记住我"无关；"记住我"checkbox 当前为 dead UI，差异化 session 时长留待 Phase X）
+
+**演示能力**：
+
+- 登录/退出
+- 创建/管理用户
+- 朋友登录后能看到私密内容
+
+**Git Tag**：`v0.2.0-auth`
+
+---
+
+### Phase 2：设计系统 & 布局
+
+**目标**：全站统一视觉，前台和后台各有基本布局
+
+> 📐 **参考视觉稿**：[docs/visual-anchor.png](./docs/visual-anchor.png)（全站标尺） · [docs/design-explorations/p1-style/01.png](./docs/design-explorations/p1-style/01.png)（基线风格）
+
+**预计耗时**：2 天
+
+**前置依赖**：Phase 1
+
+**任务清单**：
+
+**Day 1 - 主题 & 字体 & 公共组件**：
+
+- [x] 使用 Tailwind CSS 3.4 配置主题色（**主色 `#E85A2C`**，详见 [docs/design-decisions.md](./docs/design-decisions.md) —— 2026-07-18 由 #FF6B35 微调）
+- [x] 引入字体（思源黑体、思源宋体、Inter、JetBrains Mono）
+- [x] 使用 `next/font` 子集化 + 预加载
+- [x] 安装 lucide-react 0.577，并创建 `Button`、`Card`、`Input`、`Badge` 等 shadcn 基础组件
+- [x] 创建 `Header` 组件（含导航、搜索占位、登录状态）
+- [x] 创建 `Footer` 组件
+
+**Day 2 - 布局 & 错误页**：
+
+- [x] 前台根布局（`Header + main + Footer`）
+- [x] 后台布局（`Sidebar + TopBar + Main`）
+- [x] `Sidebar` 组件（含所有后台导航项）
+- [x] 404 页面（友好提示 + 返回首页）
+- [x] 错误边界（Error Boundary）
+- [x] Loading 状态（Suspense + Skeleton）
+- [x] 移动端响应式（汉堡菜单、抽屉）
+
+**关键文件**：
+
+```
+src/app/globals.css
+tailwind.config.ts
+src/components/ui/                      ← shadcn 组件
+src/components/frontend/Header.tsx
+src/components/frontend/Footer.tsx
+src/components/admin/Sidebar.tsx
+src/components/admin/AdminHeader.tsx
+src/app/(frontend)/layout.tsx
+src/app/(admin)/admin/layout.tsx
+src/app/not-found.tsx
+src/app/error.tsx
+src/app/loading.tsx
+```
+
+**验收标准**：
+
+- [x] 全站文字、按钮、链接颜色符合设计系统
+- [x] 前台有 Header（含导航）和 Footer
+- [x] 后台有侧边栏和顶栏
+- [x] 移动端响应式正常
+- [x] 字体加载流畅，无 FOIT/FOUT
+- [x] Lighthouse 可访问性 > 90
+
+**演示能力**：整个网站的"骨架"展示（点击导航都能正常切换）
+
+**Git Tag**：✅ `[x] v0.3.0-design` 已打并推送（本地 + 远程）
+
+---
+
+### Phase 3：文章模块（重点 ⭐）
+
+**目标**：完整的文章写、读、看流程，包含可见性、代码高亮、Markdown 编辑
+
+> 📐 **参考视觉稿**：[docs/visual-anchor.png](./docs/visual-anchor.png)（阅读体验标尺） · [docs/design-explorations/p3-articles/01.png](./docs/design-explorations/p3-articles/01.png)（文章列表） · [docs/design-explorations/p4-article-detail/04.png](./docs/design-explorations/p4-article-detail/04.png)（文章详情）
+
+**预计耗时**：4 天（最重要的阶段）
+
+**前置依赖**：Phase 2
+
+**任务清单**：
+
+**Day 1 - 后台 CRUD**：
+
+- [x] 文章列表页（表格 + 分页 + 状态筛选 + 搜索）
+- [x] 文章新建/编辑页表单
+- [x] Markdown 编辑器组件（左右分屏：编辑 + 实时预览）
+- [x] 工具栏：标题、加粗、斜体、链接、代码块、引用、列表（图片插入留到 Day 2 富文本时一起做）
+- [x] 可见性切换（PUBLIC/PRIVATE/PASSWORD）+ 密码输入
+- [x] 状态切换（DRAFT/PUBLISHED/ARCHIVED）
+- [x] 封面图上传（单图，public/uploads/yyyy-mm/<sha256>.<ext>，5 MB 上限）
+- [x] 自动保存草稿（30 秒一次，服务端 PATCH + 5 秒一次的 localStorage 快照，remount 时弹窗询问是否恢复）
+- [x] 分类选择（下拉）+ 标签输入（多选，含新建标签的 inline 创建）
+- [x] slug 自动生成（基于标题拼音，pinyin-pro），可手动修改（修改后停止自动覆盖）
+- [x] 软删除（移入回收站，schema.deletedAt 字段已就位）
+
+**Day 2 - Markdown 渲染 & 公共组件**：
+
+- [x] Markdown 渲染组件（含 GFM、代码高亮、表格、任务列表）
+- [x] 代码块复制按钮
+- [x] 图片懒加载（MDX 渲染时给 <img> 注入 loading="lazy" + decoding="async"，上 next/image 留 Phase 9）
+- [x] 私密文章密码输入组件 `PasswordPrompt`
+- [x] 无权限时的占位组件 `NoAccess`
+- [x] 文章卡片组件 `ArticleCard`（封面 + 标题 + 摘要 + 元信息）
+- [x] 文章分类侧边栏组件 `CategorySidebar`
+- [x] 文章标签云组件 `TagCloud`
+- [x] 阅读时间计算工具（Day 1 已经在 lib/markdown.ts 实现 estimateReadingMinutes，Day 2 由 ArticleCard 与 admin preview 页消费）
+
+**Day 3 - 前台列表 + 详情**：
+
+- [x] `/articles` 列表页（杂志卡片网格，3 列 → 2 列 → 1 列）
+- [x] 分类筛选、标签筛选
+- [x] 分页或无限滚动（先做分页，简单）
+- [x] `/articles/[slug]` 详情页
+  - 顶部全宽封面图（16:9）
+  - 标题区（标题、发布时间、分类、阅读量）
+  - 居中正文（最大宽度 720px，行高 1.8）
+  - 文末：标签云、分享按钮
+- [x] SEO meta 标签（title、description、OG、Twitter Card）
+- [x] 阅读量统计（同一会话只计一次，POST /api/articles/[id]/view + 30 分钟 cookie dedupe）
+- [x] 相关文章推荐（同分类 / 同标签，取 3 篇）
+
+**Day 4 - 测试 & 完善**：
+
+- [x] Markdown XSS 防护测试
+- [x] 单元测试：`slug.ts`（14 tests）、`visibility.ts`（19 tests）
+- [x] E2E 测试（手动）：写一篇文章 → 发布 → 前台能看到
+- [x] 性能优化（图片懒加载、`next/image`）
+- [x] 移动端排版微调
+- [x] 写一份 README 给"未来的自己"用
+
+**关键文件**：
+
+```
+src/components/admin/Editor/MarkdownEditor.tsx
+src/components/admin/Editor/ImageUploader.tsx
+src/components/admin/Editor/EditorToolbar.tsx
+src/components/frontend/ArticleCard.tsx
+src/components/frontend/MarkdownRenderer.tsx
+src/components/frontend/PasswordPrompt.tsx
+src/components/frontend/NoAccess.tsx
+src/components/frontend/ShareButtons.tsx
+src/components/frontend/RelatedArticles.tsx
+src/lib/markdown.ts
+src/lib/slug.ts
+src/lib/reading-time.ts
+src/server/articles.ts
+src/app/(admin)/admin/articles/page.tsx
+src/app/(admin)/admin/articles/new/page.tsx
+src/app/(admin)/admin/articles/[id]/edit/page.tsx
+src/app/(frontend)/articles/page.tsx
+src/app/(frontend)/articles/[slug]/page.tsx
+```
+
+**验收标准**：
+
+- [x] 后台能创建、编辑、删除、置顶文章
+- [x] 代码块有语法高亮 + 一键复制按钮
+- [x] 公开文章前台能看到，私密文章游客看不到
+- [x] 密码文章输入正确密码后才能看（错误密码有提示）
+- [x] 草稿、已发布、已归档状态正确显示
+- [x] 移动端阅读体验良好（字号、行距、间距）
+- [x] 自动保存草稿有效（关闭再打开能恢复）
+- [x] slug 自动生成可手动覆盖
+- [x] OG 标签在 Facebook/Twitter 分享测试工具中正确显示
+
+**演示能力**：
+
+- 写一篇文章（带代码） → 发布 → 前台看到 → 朋友登录后看私密文章 → 输入密码看密码文章
+
+**Git Tag**：`v0.4.0-articles`
+
+---
+
+### Phase 4：笔记模块
+
+**目标**：数字花园上线，笔记可以发布
+
+> 📐 **参考视觉稿**：[docs/visual-anchor.png](./docs/visual-anchor.png)（阅读体验） · 笔记列表样式可参考 [docs/design-explorations/p2-homepage/homepage.png](./docs/design-explorations/p2-homepage/homepage.png) 中"最新笔记"段落；详情页样式与文章详情共享标尺
+
+**预计耗时**：2 天
+
+**前置依赖**：Phase 3（复用 Markdown 编辑器）
+
+**任务清单**：
+
+**Day 1 - 后台**：
+
+- [x] 笔记列表页（紧凑列表：标题 + 摘要 + 时间 + 可见性图标）
+- [x] 笔记新建/编辑页（复用 `MarkdownEditor`，去掉封面、分类字段）
+- [x] 可见性支持（与文章一致）
+- [x] 笔记批量删除
+- [x] 笔记导出（Markdown 文件下载）
+
+**Day 2 - 前台**：
+
+- [x] `/notes` 列表页（一行一条，密集布局）
+- [x] `/notes/[slug]` 详情页（极简单栏，无封面）
+- [x] 笔记相关推荐（同标签）
+- [x] 笔记首页摘要（最新 5 条）
+- [x] `/notes` 按月分组
+
+**关键文件**：
+
+```
+src/server/notes.ts
+src/components/admin/Editor/NoteEditor.tsx
+src/components/frontend/NoteListItem.tsx
+src/app/(admin)/admin/notes/page.tsx
+src/app/(admin)/admin/notes/new/page.tsx
+src/app/(admin)/admin/notes/[id]/edit/page.tsx
+src/app/(frontend)/notes/page.tsx
+src/app/(frontend)/notes/[slug]/page.tsx
+```
+
+**验收标准**：
+
+- [x] 后台能管理笔记（增删改查）
+- [x] 前台 `/notes` 显示紧凑列表（一行一条）
+- [x] 笔记详情页极简，无封面图
+- [x] 笔记和文章 URL 不冲突（`/notes/*` vs `/articles/*`）
+- [x] 笔记可导出为 `.md` 文件
+
+**Git Tag**：`v0.5.0-notes`
+
+---
+
+### Phase 5：作品集
+
+**目标**：Behance 风格的作品展示
+
+> 📐 **参考视觉稿**：[docs/visual-anchor.png](./docs/visual-anchor.png) · [docs/design-explorations/p5-project/04.png](./docs/design-explorations/p5-project/04.png)（作品详情 Behance 风）
+
+**预计耗时**：3 天
+
+**前置依赖**：Phase 3（复用上传、可见性逻辑）
+
+**任务清单**：
+
+**Day 1 - 后台 & 多图上传**：
+
+- [x] 作品列表页（大图卡片）
+- [x] 作品新建/编辑页
+- [x] 多图上传组件 `MultiImageUploader`（拖拽 + 排序 + 删除）
+- [x] 作品图片单独管理（不与封面图混在一起）
+- [x] 图片拖拽排序（dnd-kit）
+- [x] 图片说明文字（caption）
+- [x] 作品分类（复用 Category）
+- [x] 作品标签（复用 Tag）
+- [x] 作品排序（order 字段）
+
+**Day 2 - 前台展示**：
+
+- [x] `/projects` 列表页（大图卡片，杂志感更强）
+- [x] `/projects/[slug]` 详情页
+  - 标题区（标题、描述、元信息）
+  - 主体：图片按 order 顺序纵向排列，全宽沉浸
+  - 自适应：横图 100%、竖图居中 70%、方图 80%
+- [x] 图片懒加载（首屏外）
+- [x] 上下作品推荐
 
 **Day 3 - 灯箱 & 完善**：
 
-- [ ] 图片灯箱组件 `Lightbox`（点击放大）
-- [ ] 灯箱内：上一张/下一张导航
-- [ ] 灯箱内：图片说明文字
-- [ ] 灯箱内：ESC 关闭、点击背景关闭
-- [ ] 作品描述 Markdown 渲染
-- [ ] 移动端灯箱适配（左右滑动切换）
+- [x] 图片灯箱组件 `Lightbox`（点击放大）
+- [x] 灯箱内：上一张/下一张导航
+- [x] 灯箱内：图片说明文字
+- [x] 灯箱内：ESC 关闭、点击背景关闭
+- [x] 作品描述 Markdown 渲染
+- [x] 移动端灯箱适配（左右滑动切换）
 
 **关键文件**：
 
@@ -589,12 +945,12 @@ src/app/(frontend)/projects/[slug]/page.tsx
 
 **验收标准**：
 
-- [ ] 后台上传多图、拖拽排序正常
-- [ ] 前台作品详情页大图沉浸
-- [ ] 点击图片能放大查看（灯箱）
-- [ ] 灯箱内可左右切换
-- [ ] 作品顺序按 order 字段正确
-- [ ] 移动端灯箱可滑动
+- [x] 后台上传多图、拖拽排序正常
+- [x] 前台作品详情页大图沉浸
+- [x] 点击图片能放大查看（灯箱）
+- [x] 灯箱内可左右切换
+- [x] 作品顺序按 order 字段正确
+- [x] 移动端灯箱可滑动
 
 **Git Tag**：`v0.6.0-projects`
 
