@@ -17,7 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 
 /**
- * Admin sidebar (Phase 2 / Day 2).
+ * Admin sidebar (Phase 2 / Day 2; articles row promoted in Phase 3 / Day 1).
  *
  * Two visual modes:
  *   - desktop  (>= lg): fixed left column, 240px, always visible.
@@ -57,7 +57,8 @@ const NAV_GROUPS: readonly NavGroup[] = [
   {
     label: "内容",
     items: [
-      { href: "/admin/articles", label: "文章", icon: FileText, badge: "P3" },
+      // Phase 3 / Day 1: articles CRUD shipped -> P3 badge dropped.
+      { href: "/admin/articles", label: "文章", icon: FileText },
       { href: "/admin/notes", label: "笔记", icon: NotebookPen, badge: "P4" },
       { href: "/admin/projects", label: "项目", icon: FolderKanban, badge: "P5" },
       { href: "/admin/albums", label: "相册", icon: Images, badge: "P6" },
@@ -163,7 +164,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </nav>
 
         <div className="border-t border-hair px-5 py-3 text-xs text-muted">
-          <p>v0.3.0-design · Day 2</p>
+          <p>v0.4.0-articles · Day 1</p>
         </div>
       </aside>
     </>
