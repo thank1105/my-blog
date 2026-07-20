@@ -310,6 +310,16 @@ model ProjectTag {
 
 // ---------- Content: Page (About / Now single-page entries) ----------
 
+model PageRevision {
+  id        String   @id @default(cuid())
+  type      PageType
+  content   String
+  meta      String?
+  createdAt DateTime @default(now())
+
+  @@index([type, createdAt])
+}
+
 model Page {
   id        String   @id @default(cuid())
   type      PageType @unique

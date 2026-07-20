@@ -50,3 +50,16 @@
     font-family: theme("fontFamily.serif");
   }
 }
+
+/* Phase 7 / Day 2 — minimal page content styles (used by /about and /now) */
+.prose-page p { @apply mb-4 leading-relaxed text-ink; }
+.prose-page h1 { @apply mt-8 mb-4 font-serif text-2xl font-bold text-ink; }
+.prose-page h2 { @apply mt-8 mb-3 font-serif text-xl font-bold text-ink; }
+.prose-page h3 { @apply mt-6 mb-2 font-serif text-lg font-semibold text-ink; }
+.prose-page ul { @apply mb-4 ml-6 list-disc space-y-1 text-ink; }
+.prose-page ol { @apply mb-4 ml-6 list-decimal space-y-1 text-ink; }
+.prose-page li { @apply leading-relaxed; }
+.prose-page blockquote { @apply my-4 border-l-4 border-accent/50 bg-accent-soft/50 px-4 py-2 text-ink; }
+.prose-page code { @apply rounded bg-bg px-1.5 py-0.5 font-mono text-[0.9em] text-ink; }
+.prose-page strong { @apply font-semibold text-ink; }
+.prose-page em { @apply italic text-ink; }
