@@ -43,12 +43,9 @@ describe("photoInputSchema", () => {
     }
   });
 
-  it("rejects PASSWORD visibility (schema has no password column)", () => {
-    // The form is restricted to PUBLIC / PRIVATE because Photo has no
-    // password column on the schema. Legacy DB rows can still carry
-    // PASSWORD but the admin form does not allow it.
-    const r = photoInputSchema.safeParse({ ...baseInput, visibility: "PASSWORD" });
-    expect(r.success).toBe(false);
+  it("accepts PASSWORD visibility (password column present)", () => {
+    const r = photoInputSchema.safeParse({ ...baseInput, visibility: "PASSWORD", password: "secret123" });
+    expect(r.success).toBe(true);
   });
 
   it("rejects an unknown status", () => {

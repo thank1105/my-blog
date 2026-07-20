@@ -191,6 +191,7 @@ model Album {
   description String?
   coverImage  String?
   visibility  Visibility @default(PUBLIC)
+  password    String?
   status      Status     @default(DRAFT)
   publishedAt DateTime?
   createdAt   DateTime   @default(now())
@@ -218,6 +219,7 @@ model Photo {
   takenAt      DateTime?
   albumId      String?
   visibility   Visibility @default(PUBLIC)
+  password    String?
   status       Status     @default(DRAFT)
   width        Int?
   height       Int?

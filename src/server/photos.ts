@@ -27,7 +27,7 @@ import { fromDateTimeLocalString, toDateTimeLocalString } from "@/lib/exif";
 /* ------------------------------------------------------------------ */
 
 /** Form-visible visibility values. PASSWORD is excluded (no column). */
-export const visibilityValues = ["PUBLIC", "PRIVATE"] as const;
+export const visibilityValues = ["PUBLIC", "PRIVATE", "PASSWORD"] as const;
 export const statusValues = ["DRAFT", "PUBLISHED", "ARCHIVED"] as const;
 
 const urlSchema = z.string().trim().min(1, "图片地址不能为空");
@@ -47,6 +47,7 @@ export const photoInputSchema = z.object({
     .or(z.literal(""))
     .or(z.literal("none")),
   visibility: z.enum(visibilityValues),
+  password: z.string().trim().optional(),
   status: z.enum(statusValues),
   width: z.number().int().positive().optional(),
   height: z.number().int().positive().optional(),

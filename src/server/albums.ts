@@ -27,7 +27,7 @@ import { slugify, uniqueSlug } from "@/lib/slug";
  * PASSWORD for legacy rows, but the form is restricted to PUBLIC /
  * PRIVATE because there is no `password` column on Album.
  */
-export const visibilityValues = ["PUBLIC", "PRIVATE"] as const;
+export const visibilityValues = ["PUBLIC", "PRIVATE", "PASSWORD"] as const;
 export const statusValues = ["DRAFT", "PUBLISHED", "ARCHIVED"] as const;
 
 const titleSchema = z
@@ -55,6 +55,7 @@ export const createAlbumSchema = z.object({
     .or(z.literal("")),
   coverImage: z.string().trim().url("封面图需为 URL").optional().or(z.literal("")),
   visibility: z.enum(visibilityValues),
+  password: z.string().trim().optional(),
   status: z.enum(statusValues),
 });
 
@@ -199,6 +200,7 @@ export async function createAlbum(
       description: input.description || null,
       coverImage: input.coverImage || null,
       visibility: input.visibility,
+      password: input.visibility === "PASSWORD" && input.password ? input.password : null,
       status: input.status,
       publishedAt: input.status === "PUBLISHED" ? new Date() : null,
       authorId: ctx.authorId,
@@ -244,6 +246,7 @@ export async function updateAlbum(
     description: input.description || null,
     coverImage: input.coverImage || null,
     visibility: input.visibility,
+    password: input.visibility === "PASSWORD" && input.password ? input.password : null,
     status: input.status,
     publishedAt:
       input.status === "PUBLISHED" ? existing.publishedAt ?? new Date() : null,

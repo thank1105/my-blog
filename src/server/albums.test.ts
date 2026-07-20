@@ -53,11 +53,9 @@ describe("createAlbumSchema", () => {
     expect(r.success).toBe(false);
   });
 
-  it("rejects a visibility outside PUBLIC / PRIVATE", () => {
-    // Form is restricted; legacy DB rows can still carry PASSWORD but
-    // the admin form does not allow it.
-    const r = createAlbumSchema.safeParse({ ...base, visibility: "PASSWORD" });
-    expect(r.success).toBe(false);
+  it("accepts PASSWORD visibility (password column present)", () => {
+    const r = createAlbumSchema.safeParse({ ...base, visibility: "PASSWORD", password: "secret123" });
+    expect(r.success).toBe(true);
   });
 
   it("rejects an unknown status", () => {
