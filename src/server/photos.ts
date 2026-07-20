@@ -142,7 +142,7 @@ export function photoRowToForm(row: PhotoRow): PhotoFormValues {
  * variant keeps the call site flat (no nested `album: { connect }`
  * gymnastics) and matches the way the admin forms shape their values.
  */
-function buildPhotoCreatePayload(
+export function buildPhotoCreatePayload(
   input: PhotoInput,
   authorId: string,
 ): Prisma.PhotoUncheckedCreateInput {
@@ -165,7 +165,7 @@ function buildPhotoCreatePayload(
   };
 }
 
-function buildPhotoUpdatePayload(input: PhotoInput): Prisma.PhotoUncheckedUpdateInput {
+export function buildPhotoUpdatePayload(input: PhotoInput): Prisma.PhotoUncheckedUpdateInput {
   const takenAt = fromDateTimeLocalString(input.takenAt);
   const albumId = input.albumId && input.albumId !== "none" ? input.albumId : null;
   return {
