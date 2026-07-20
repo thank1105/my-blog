@@ -1,7 +1,7 @@
 "use client";
 
 // Phase 6 / Day 1: Batch-delete toolbar + "move to album" action
-// for the admin photos list.
+// for the admin photos list (Chinese version).
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";

@@ -1,9 +1,6 @@
 "use client";
 
-// AlbumForm (Phase 6 / Day 1) -- English stub.
-//
-// The full multi-section form is being delivered iteratively; this
-// stub keeps the admin route compilable while Phase 6 ships.
+// AlbumForm (Phase 6 / Day 1) -- Chinese version
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -23,15 +20,15 @@ import {
 } from "./actions";
 
 export const albumFormSchema = z.object({
-  title: z.string().trim().min(1, "Title is required").max(120, "Title <= 120 chars"),
+  title: z.string().trim().min(1, "相册标题不能为空").max(120, "标题不超过 120 字"),
   slug: z
     .string()
     .trim()
-    .max(80, "Slug <= 80 chars")
-    .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Slug must be lowercase letters, digits, hyphens")
+    .max(80, "slug 不超过 80 字")
+    .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "slug 仅支持小写字母、数字、连字符")
     .optional()
     .or(z.literal("")),
-  description: z.string().trim().max(2000, "Description <= 2000 chars").optional().or(z.literal("")),
+  description: z.string().trim().max(2000, "描述不超过 2000 字").optional().or(z.literal("")),
   coverImage: z.string().trim().optional().or(z.literal("")),
   visibility: z.enum(["PUBLIC", "PRIVATE"]),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
@@ -56,7 +53,7 @@ export function AlbumForm(props: AlbumFormProps) {
     handleSubmit,
     watch,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<AlbumFormValues>({
     resolver: zodResolver(albumFormSchema),
     defaultValues: initial,
@@ -81,7 +78,7 @@ export function AlbumForm(props: AlbumFormProps) {
 
   const handleDelete = useCallback(async () => {
     if (!albumId) return;
-    if (!window.confirm("Move this album to trash? Photos will not be deleted.")) return;
+    if (!window.confirm("确定要把这个相册移入回收站吗？照片不会被删除。")) return;
     const result = await softDeleteAlbumAction(albumId);
     if (result.ok && result.redirectTo) router.push(result.redirectTo);
   }, [albumId, router]);
@@ -90,22 +87,21 @@ export function AlbumForm(props: AlbumFormProps) {
   const status = watch("status");
 
   return (
-    <form onSubmit={onValid} className="space-y-6" aria-label={mode === "create" ? "New album" : "Edit album"}>
+    <form onSubmit={onValid} className="space-y-6" aria-label={mode === "create" ? "新建相册" : "编辑相册"}>
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <div className="rounded-md border border-hair bg-surface p-6 shadow-soft">
             <div>
               <label htmlFor="album-title" className="block text-sm font-medium text-ink">
-                Album title <span className="text-danger">*</span>
+                相册标题 <span className="text-danger">*</span>
               </label>
               <input
                 id="album-title"
                 type="text"
                 {...register("title")}
-                placeholder="e.g. Tokyo trip 2024"
+                placeholder="例如：2024 东京之旅"
                 className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-base text-ink outline-none focus-visible:border-accent"
               />
-              {errors.title ? <p className="mt-1 text-xs text-danger">{errors.title.message}</p> : null}
             </div>
             <div className="mt-4">
               <label htmlFor="album-slug" className="block text-sm font-medium text-ink">
@@ -115,42 +111,36 @@ export function AlbumForm(props: AlbumFormProps) {
                 id="album-slug"
                 type="text"
                 {...register("slug")}
-                placeholder="leave blank to auto-generate"
+                placeholder="留空则从标题自动生成"
                 className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 font-mono text-sm text-ink outline-none focus-visible:border-accent"
               />
               <p className="mt-1 text-xs text-muted">
-                Appears at <code>/photos/albums/&lt;slug&gt;</code>.
+                将出现在 <code>/photos/albums/&lt;slug&gt;</code>；留空将按标题自动生成。
               </p>
-              {errors.slug ? <p className="mt-1 text-xs text-danger">{errors.slug.message}</p> : null}
             </div>
             <div className="mt-4">
               <label htmlFor="album-description" className="block text-sm font-medium text-ink">
-                Description
+                描述
               </label>
               <textarea
                 id="album-description"
                 rows={4}
                 {...register("description")}
-                placeholder="A few sentences about the trip / shoot."
+                placeholder="几句关于这次拍摄背景的描述，公开相册会显示在前台。"
                 className="mt-1 block w-full resize-y rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
               />
-              {errors.description ? (
-                <p className="mt-1 text-xs text-danger">{errors.description.message}</p>
-              ) : null}
             </div>
           </div>
 
           <div className="rounded-md border border-hair bg-surface p-6 shadow-soft">
-            <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted">Cover image</h2>
+            <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted">封面图</h2>
             <p className="mt-1 text-xs text-muted">
-              When empty, the public album page falls back to the latest photo.
+              留空时，前台相册页会使用最新的一张照片作为封面。
             </p>
             <div className="mt-4">
               <CoverImageUploader
                 value={initial.coverImage ?? ""}
-                onChange={(v) =>
-                  setError("coverImage", { message: "" })
-                }
+                onChange={() => {}}
               />
               <input type="hidden" {...register("coverImage")} defaultValue={initial.coverImage ?? ""} />
             </div>
@@ -159,36 +149,36 @@ export function AlbumForm(props: AlbumFormProps) {
 
         <div className="space-y-6">
           <div className="rounded-md border border-hair bg-surface p-6 shadow-soft">
-            <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted">Visibility / status</h2>
+            <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted">可见性 / 状态</h2>
             <div className="mt-4 space-y-3">
               <div>
-                <span className="block text-sm font-medium text-ink">Visibility</span>
+                <span className="block text-sm font-medium text-ink">可见性</span>
                 <select
                   {...register("visibility")}
                   className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
                 >
-                  <option value="PUBLIC">Public</option>
-                  <option value="PRIVATE">Private</option>
+                  <option value="PUBLIC">公开</option>
+                  <option value="PRIVATE">私密</option>
                 </select>
               </div>
               <div>
-                <span className="block text-sm font-medium text-ink">Status</span>
+                <span className="block text-sm font-medium text-ink">状态</span>
                 <select
                   {...register("status")}
                   className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
                 >
-                  <option value="DRAFT">Draft</option>
-                  <option value="PUBLISHED">Published</option>
-                  <option value="ARCHIVED">Archived</option>
+                  <option value="DRAFT">草稿</option>
+                  <option value="PUBLISHED">已发布</option>
+                  <option value="ARCHIVED">已归档</option>
                 </select>
               </div>
             </div>
             <p className="mt-3 text-xs text-muted">
               {visibility === "PUBLIC"
                 ? status === "PUBLISHED"
-                  ? "Public: visible at /photos/albums/<slug>."
-                  : "Not visible on the public site (draft / archived)."
-                : "Private: hidden from the public site."}
+                  ? "前台 /photos/albums/<slug> 公开访问。"
+                  : "前台不可见（草稿 / 归档）。"
+                : "前台相册页不可见，但照片仍按相册归类。"}
             </p>
           </div>
         </div>
@@ -198,9 +188,9 @@ export function AlbumForm(props: AlbumFormProps) {
         <span className="text-xs text-muted">
           {visibility === "PUBLIC"
             ? status === "PUBLISHED"
-              ? "Visible on public site"
-              : "Not visible on public site (draft / archived)"
-            : "Login required"}
+              ? "前台可见"
+              : "前台不可见（草稿 / 归档）"
+            : "登录后可读"}
         </span>
         <div className="flex items-center gap-2">
           {mode === "edit" ? (
@@ -211,11 +201,11 @@ export function AlbumForm(props: AlbumFormProps) {
               className="inline-flex items-center gap-1.5 rounded border border-hair px-3 py-1.5 text-sm text-ink transition-colors hover:border-danger hover:text-danger disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Trash2 aria-hidden className="size-4" />
-              Move to trash
+              移入回收站
             </button>
           ) : null}
           <Link href="/admin/photos/albums" className={buttonVariants({ variant: "outline", size: "sm" })}>
-            Cancel
+            取消
           </Link>
           <button
             type="submit"
@@ -223,7 +213,7 @@ export function AlbumForm(props: AlbumFormProps) {
             className="inline-flex items-center gap-1.5 rounded bg-accent px-4 py-1.5 text-sm font-medium text-white shadow-soft transition-colors hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Save aria-hidden className="size-4" />
-            {isSubmitting ? "Saving..." : mode === "create" ? "Create" : "Save"}
+            {isSubmitting ? "保存中…" : mode === "create" ? "创建" : "保存"}
           </button>
         </div>
       </div>

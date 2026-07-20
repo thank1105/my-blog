@@ -1,9 +1,6 @@
 "use client";
 
-// PhotoUploadPage (Phase 6 / Day 1) -- English stub.
-//
-// The full multi-section form is being delivered iteratively; this
-// stub keeps the admin route compilable while Phase 6 ships.
+// PhotoUploadPage (Phase 6 / Day 1) -- Chinese version
 
 import { useState, useCallback, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -69,18 +66,19 @@ export function PhotoUploadPage({ albums, defaultAlbumId }: UploadPageProps) {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-serif text-2xl font-bold text-ink">Upload photos</h1>
+          <h1 className="font-serif text-2xl font-bold text-ink">上传照片</h1>
           <p className="mt-1 text-sm text-muted">
-            Drop multiple images. The browser reads EXIF (time / location / camera) before uploading.
+            拖入多张图片，系统会先在浏览器里读取 EXIF（拍摄时间 / 地点 / 相机），
+            然后批量入库。
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs text-muted">
           <Images aria-hidden className="size-4" />
-          {queue.length} pending
+          {queue.length} 张待保存
           {savedIds.length > 0 ? (
             <span className="ml-2 inline-flex items-center gap-1 text-success">
               <CheckCircle2 aria-hidden className="size-3.5" />
-              {savedIds.length} saved
+              {savedIds.length} 张已入库
             </span>
           ) : null}
         </div>
@@ -91,7 +89,7 @@ export function PhotoUploadPage({ albums, defaultAlbumId }: UploadPageProps) {
           albums={albums}
           defaultAlbumId={defaultAlbumId}
           onUploaded={onUploaded}
-          onError={(name, msg) => setError(`${name}: ${msg}`)}
+          onError={(name, msg) => setError(`${name}：${msg}`)}
           disabled={pending}
         />
       </section>
@@ -99,11 +97,9 @@ export function PhotoUploadPage({ albums, defaultAlbumId }: UploadPageProps) {
       {progress.total > 0 ? (
         <section className="rounded-md border border-hair bg-surface p-4 shadow-soft">
           <div className="flex items-center justify-between text-xs text-muted">
-            <span>
-              Saving... {progress.done} / {progress.total}
-            </span>
+            <span>正在保存… {progress.done} / {progress.total}</span>
             <span className={progress.failed > 0 ? "text-danger" : "text-success"}>
-              failed {progress.failed}
+              失败 {progress.failed}
             </span>
           </div>
           <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-hair">
@@ -129,7 +125,7 @@ export function PhotoUploadPage({ albums, defaultAlbumId }: UploadPageProps) {
           className="inline-flex items-center gap-1.5 rounded border border-hair px-3 py-1.5 text-sm text-ink transition-colors hover:border-accent hover:text-accent disabled:opacity-60"
         >
           <RefreshCw aria-hidden className="size-4" />
-          Clear queue
+          清空队列
         </button>
         <button
           type="button"
@@ -138,7 +134,7 @@ export function PhotoUploadPage({ albums, defaultAlbumId }: UploadPageProps) {
           className="inline-flex items-center gap-1.5 rounded bg-accent px-4 py-1.5 text-sm font-medium text-white shadow-soft transition-colors hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Save aria-hidden className="size-4" />
-          {pending ? "Saving..." : `Save ${queue.length} photos`}
+          {pending ? "保存中…" : `保存 ${queue.length} 张照片`}
         </button>
       </div>
     </div>

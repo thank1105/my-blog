@@ -1,10 +1,5 @@
 // /admin/photos -- list + filter + search + batch delete + batch move
-// (Phase 6 / Day 1).
-//
-// Pinterest-style thumbnails inside a responsive grid. Each card has
-// a checkbox that participates in the BatchDeleteForm toolbar; the
-// toolbar also exposes a "move to album" picker so an entire batch
-// can be reassigned without opening each photo.
+// (Phase 6 / Day 1, Chinese UI).
 
 import type { Metadata } from "next";
 import Link from "next/link";

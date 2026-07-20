@@ -1,20 +1,18 @@
 "use client";
 
-// PhotoForm (Phase 6 / Day 1) -- English stub.
-//
-// The full multi-section form is being delivered iteratively; this
-// stub keeps the admin route compilable while Phase 6 ships. It
-// exposes the same `PhotoFormProps` / form values so callers do not
-// have to change.
+// PhotoForm (Phase 6 / Day 1) -- Chinese version
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useForm } from "react-hook-form";
+import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Save, Trash2, MoveLeft } from "lucide-react";
+import { Save, Trash2, MoveLeft, Calendar, MapPin } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+
+import { VisibilitySelect, type VisibilityValue } from "@/components/admin/articles/VisibilitySelect";
+import { StatusSelect, type StatusValue } from "@/components/admin/articles/StatusSelect";
 
 import {
   photoFormSchema,
@@ -35,33 +33,50 @@ export function PhotoForm({ photoId, initial, albums }: PhotoFormProps) {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
 
+  const handleSubmit = useCallback(
+    async (values: PhotoFormValues) => updatePhotoAction(photoId, values),
+    [photoId],
+  );
+
+  const handleDelete = useCallback(async () => {
+    if (!window.confirm("确定要把这张照片移入回收站吗？")) return { ok: false };
+    const result = await softDeletePhotoAction(photoId);
+    if (result.ok && result.redirectTo) router.push(result.redirectTo);
+    return { ok: result.ok, error: result.ok ? undefined : result.error };
+  }, [photoId, router]);
+
   const {
-    handleSubmit,
-    register,
+    control,
+    handleSubmit: rhfSubmit,
+    watch,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<PhotoFormValues>({
     resolver: zodResolver(photoFormSchema as unknown as z.ZodType<PhotoFormValues>),
     defaultValues: initial,
+    mode: "onChange",
   });
 
-  const onSubmit = handleSubmit(async (values) => {
+  const visibility = watch("visibility");
+  const status = watch("status");
+
+  const onValid: SubmitHandler<PhotoFormValues> = async (values) => {
     setServerError(null);
-    const result = await updatePhotoAction(photoId, values);
+    const result = await handleSubmit(values);
     if (!result.ok) {
       setServerError(result.error);
+      if (result.fieldErrors) {
+        for (const [k, msg] of Object.entries(result.fieldErrors)) {
+          setError(k as keyof PhotoFormValues, { message: msg });
+        }
+      }
       return;
     }
     if (result.redirectTo) router.push(result.redirectTo);
-  });
-
-  const handleDelete = useCallback(async () => {
-    if (!window.confirm("Move this photo to trash?")) return;
-    const result = await softDeletePhotoAction(photoId);
-    if (result.ok && result.redirectTo) router.push(result.redirectTo);
-  }, [photoId, router]);
+  };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6" aria-label="Edit photo">
+    <form onSubmit={rhfSubmit(onValid)} className="space-y-6" aria-label="编辑照片">
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <div className="overflow-hidden rounded-md border border-hair bg-surface shadow-soft">
@@ -69,123 +84,230 @@ export function PhotoForm({ photoId, initial, albums }: PhotoFormProps) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={initial.imageUrl}
-                alt={initial.title || "Photo preview"}
+                alt={initial.title || "照片预览"}
                 className="absolute inset-0 size-full object-contain"
               />
             </div>
             <div className="border-t border-hair p-3 font-mono text-[11px] text-muted">
               {initial.imageUrl}
               {initial.width && initial.height ? (
-                <span className="ml-2">
-                  {" "}- {initial.width} x {initial.height}
-                </span>
+                <span className="ml-2">· {initial.width} × {initial.height}</span>
               ) : null}
             </div>
           </div>
 
           <div className="rounded-md border border-hair bg-surface p-6 shadow-soft">
-            <div>
-              <label htmlFor="photo-title" className="block text-sm font-medium text-ink">
-                Title
-              </label>
-              <input
-                id="photo-title"
-                type="text"
-                {...register("title")}
-                placeholder="Optional"
-                className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
-              />
-            </div>
-            <div className="mt-4">
-              <label htmlFor="photo-description" className="block text-sm font-medium text-ink">
-                Description
-              </label>
-              <textarea
-                id="photo-description"
-                rows={3}
-                {...register("description")}
-                placeholder="Background, mood, technical parameters..."
-                className="mt-1 block w-full resize-y rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
-              />
-            </div>
-            {errors.title ? <p className="mt-2 text-xs text-danger">{errors.title.message}</p> : null}
-            {errors.description ? <p className="mt-2 text-xs text-danger">{errors.description.message}</p> : null}
+            <Controller
+              control={control}
+              name="title"
+              render={({ field, fieldState }) => (
+                <div>
+                  <label htmlFor="photo-title" className="block text-sm font-medium text-ink">
+                    标题
+                  </label>
+                  <input
+                    id="photo-title"
+                    type="text"
+                    {...field}
+                    placeholder="可选"
+                    className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
+                  />
+                  {fieldState.error ? (
+                    <p className="mt-1 text-xs text-danger">{fieldState.error.message}</p>
+                  ) : null}
+                </div>
+              )}
+            />
+            <Controller
+              control={control}
+              name="description"
+              render={({ field, fieldState }) => (
+                <div className="mt-4">
+                  <label htmlFor="photo-description" className="block text-sm font-medium text-ink">
+                    描述
+                  </label>
+                  <textarea
+                    id="photo-description"
+                    rows={3}
+                    {...field}
+                    placeholder="关于这张照片的背景、心情、技术参数…"
+                    className="mt-1 block w-full resize-y rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
+                  />
+                  {fieldState.error ? (
+                    <p className="mt-1 text-xs text-danger">{fieldState.error.message}</p>
+                  ) : null}
+                </div>
+              )}
+            />
           </div>
 
           <div className="rounded-md border border-hair bg-surface p-6 shadow-soft">
-            <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted">Capture info</h2>
+            <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted">拍摄信息</h2>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <div>
-                <label htmlFor="photo-location" className="block text-sm font-medium text-ink">
-                  Location
-                </label>
-                <input
-                  id="photo-location"
-                  type="text"
-                  {...register("location")}
-                  placeholder="e.g. Hangzhou / West Lake"
-                  className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
-                />
-              </div>
-              <div>
-                <label htmlFor="photo-taken-at" className="block text-sm font-medium text-ink">
-                  Taken at
-                </label>
-                <input
-                  id="photo-taken-at"
-                  type="datetime-local"
-                  {...register("takenAt")}
-                  className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
-                />
-              </div>
+              <Controller
+                control={control}
+                name="location"
+                render={({ field, fieldState }) => (
+                  <div>
+                    <label htmlFor="photo-location" className="block text-sm font-medium text-ink">
+                      <MapPin aria-hidden className="mr-1 inline size-3" />
+                      地点
+                    </label>
+                    <input
+                      id="photo-location"
+                      type="text"
+                      {...field}
+                      placeholder="例如：杭州 / 西湖"
+                      className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
+                    />
+                    {fieldState.error ? (
+                      <p className="mt-1 text-xs text-danger">{fieldState.error.message}</p>
+                    ) : null}
+                  </div>
+                )}
+              />
+              <Controller
+                control={control}
+                name="takenAt"
+                render={({ field, fieldState }) => (
+                  <div>
+                    <label htmlFor="photo-taken-at" className="block text-sm font-medium text-ink">
+                      <Calendar aria-hidden className="mr-1 inline size-3" />
+                      拍摄时间
+                    </label>
+                    <input
+                      id="photo-taken-at"
+                      type="datetime-local"
+                      {...field}
+                      className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
+                    />
+                    {fieldState.error ? (
+                      <p className="mt-1 text-xs text-danger">{fieldState.error.message}</p>
+                    ) : null}
+                  </div>
+                )}
+              />
+              <Controller
+                control={control}
+                name="width"
+                render={({ field }) => (
+                  <div>
+                    <label htmlFor="photo-width" className="block text-sm font-medium text-ink">
+                      宽度 (px)
+                    </label>
+                    <input
+                      id="photo-width"
+                      type="number"
+                      min={0}
+                      step={1}
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))}
+                      className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
+                    />
+                  </div>
+                )}
+              />
+              <Controller
+                control={control}
+                name="height"
+                render={({ field }) => (
+                  <div>
+                    <label htmlFor="photo-height" className="block text-sm font-medium text-ink">
+                      高度 (px)
+                    </label>
+                    <input
+                      id="photo-height"
+                      type="number"
+                      min={0}
+                      step={1}
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))}
+                      className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
+                    />
+                  </div>
+                )}
+              />
+              <Controller
+                control={control}
+                name="order"
+                render={({ field }) => (
+                  <div>
+                    <label htmlFor="photo-order" className="block text-sm font-medium text-ink">
+                      相册内排序
+                    </label>
+                    <input
+                      id="photo-order"
+                      type="number"
+                      min={0}
+                      step={1}
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value) || 0)}
+                      className="mt-1 block w-32 rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
+                    />
+                  </div>
+                )}
+              />
             </div>
           </div>
         </div>
 
         <div className="space-y-6">
           <div className="rounded-md border border-hair bg-surface p-6 shadow-soft">
-            <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted">Album</h2>
-            <select
-              {...register("albumId")}
-              className="mt-4 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
-            >
-              <option value="none">Standalone (not in any album)</option>
-              {albums.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.title}
-                </option>
-              ))}
-            </select>
+            <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted">所属相册</h2>
+            <Controller
+              control={control}
+              name="albumId"
+              render={({ field }) => (
+                <select
+                  {...field}
+                  className="mt-4 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
+                >
+                  <option value="none">独立照片（不属于任何相册）</option>
+                  {albums.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.title}
+                    </option>
+                  ))}
+                </select>
+              )}
+            />
             <p className="mt-2 text-xs text-muted">
-              Move the photo to another album or make it standalone.
+              把照片搬到另一个相册，或独立成一张照片。照片本身不会被删除。
             </p>
           </div>
 
           <div className="rounded-md border border-hair bg-surface p-6 shadow-soft">
-            <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted">Visibility / status</h2>
-            <div className="mt-4 space-y-3">
-              <div>
-                <span className="block text-sm font-medium text-ink">Visibility</span>
-                <select
-                  {...register("visibility")}
-                  className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
-                >
-                  <option value="PUBLIC">Public</option>
-                  <option value="PRIVATE">Private</option>
-                </select>
-              </div>
-              <div>
-                <span className="block text-sm font-medium text-ink">Status</span>
-                <select
-                  {...register("status")}
-                  className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
-                >
-                  <option value="DRAFT">Draft</option>
-                  <option value="PUBLISHED">Published</option>
-                  <option value="ARCHIVED">Archived</option>
-                </select>
-              </div>
+            <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted">可见性 / 状态</h2>
+            <div className="mt-4 space-y-4">
+              <Controller
+                control={control}
+                name="visibility"
+                render={({ field }) => (
+                  <VisibilitySelect
+                    value={field.value}
+                    onChange={(v: VisibilityValue) => field.onChange(v)}
+                    hidePassword
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="status"
+                render={({ field }) => (
+                  <StatusSelect
+                    value={field.value}
+                    onChange={(v: StatusValue) => field.onChange(v)}
+                  />
+                )}
+              />
             </div>
+            <p className="mt-3 text-xs text-muted">
+              {visibility === "PUBLIC"
+                ? status === "PUBLISHED"
+                  ? "前台 /photos 公开访问。"
+                  : "前台不可见（草稿 / 归档）。"
+                : "登录用户可在前台查看。"}
+            </p>
           </div>
         </div>
       </div>
@@ -196,20 +318,20 @@ export function PhotoForm({ photoId, initial, albums }: PhotoFormProps) {
           className="inline-flex items-center gap-1 text-sm text-muted underline-offset-4 hover:text-accent hover:underline"
         >
           <MoveLeft aria-hidden className="size-3.5" />
-          Back to list
+          返回列表
         </Link>
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={handleDelete}
+            onClick={async () => { await handleDelete(); }}
             disabled={isSubmitting}
             className="inline-flex items-center gap-1.5 rounded border border-hair px-3 py-1.5 text-sm text-ink transition-colors hover:border-danger hover:text-danger disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Trash2 aria-hidden className="size-4" />
-            Move to trash
+            移入回收站
           </button>
           <Link href="/admin/photos" className={buttonVariants({ variant: "outline", size: "sm" })}>
-            Cancel
+            取消
           </Link>
           <button
             type="submit"
@@ -217,7 +339,7 @@ export function PhotoForm({ photoId, initial, albums }: PhotoFormProps) {
             className="inline-flex items-center gap-1.5 rounded bg-accent px-4 py-1.5 text-sm font-medium text-white shadow-soft transition-colors hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Save aria-hidden className="size-4" />
-            {isSubmitting ? "Saving..." : "Save"}
+            {isSubmitting ? "保存中…" : "保存"}
           </button>
         </div>
       </div>

@@ -1,6 +1,4 @@
-// /admin/photos/albums -- album list (Phase 6 / Day 1).
-//
-// Each card shows cover, title, photo count, status / visibility.
+// /admin/photos/albums -- album list (Phase 6 / Day 1, Chinese UI).
 
 import type { Metadata } from "next";
 import Link from "next/link";

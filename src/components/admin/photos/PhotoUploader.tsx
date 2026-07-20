@@ -1,15 +1,4 @@
-"use client";
-
-// PhotoUploader (Phase 6 / Day 1).
-//
-// Drag-and-drop multi-file uploader dedicated to the photos module:
-//   - Files are uploaded sequentially via /api/admin/upload.
-//   - EXIF (takenAt / location / camera) is read client-side BEFORE
-//     uploading so the resulting Photo row is already populated.
-//   - Each accepted file appears in the upload queue with its preview
-//     + extracted EXIF; the parent form receives the persisted
-//     `PhotoFormValues` records once the upload completes.
-//   - Files can be removed from the queue before the parent submits.
+// PhotoUploader (Phase 6 / Day 1) -- Chinese version
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import {
@@ -97,7 +86,7 @@ export function PhotoUploader({
     setGlobalError(null);
     const list = Array.from(files).filter((f) => f.type.startsWith(ACCEPTED_MIME_PREFIX));
     if (list.length === 0) {
-      setGlobalError("Please choose image files (jpg / png / webp / gif / avif).");
+      setGlobalError("请选择图片文件（jpg / png / webp / gif / avif）");
       return;
     }
     const drafts: QueueItem[] = list.map((f) => ({
@@ -127,7 +116,7 @@ export function PhotoUploader({
           const r = await fetch("/api/admin/upload", { method: "POST", body: fd });
           if (!r.ok) {
             const body = await r.json().catch(() => ({} as { error?: string }));
-            throw new Error(body.error ?? `Upload failed (${r.status})`);
+            throw new Error(body.error ?? `上传失败 (${r.status})`);
           }
           const data = (await r.json()) as {
             url: string;
@@ -159,7 +148,7 @@ export function PhotoUploader({
           });
           onUploaded(values);
         } catch (err) {
-          const message = err instanceof Error ? err.message : "Unknown error";
+          const message = err instanceof Error ? err.message : "未知错误";
           updateItem(draft.localId, { status: "error", errorMessage: message });
           if (onError) onError(file.name, message);
         }
@@ -200,7 +189,7 @@ export function PhotoUploader({
       {isUploading && pending > 0 ? (
         <p className="flex items-center gap-2 text-xs text-muted">
           <Loader2 aria-hidden className="size-3.5 animate-spin" />
-          Uploading... done {done} / {items.length}
+          正在上传…已完成 {done} / {items.length}
         </p>
       ) : null}
 
@@ -257,7 +246,7 @@ function DropZone({
           onClickPick();
         }
       }}
-      aria-label="Drop or click to upload photos"
+      aria-label="拖入或点击上传照片"
       className={cn(
         "flex flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed px-4 py-8 text-center transition-colors",
         over
@@ -268,8 +257,8 @@ function DropZone({
     >
       <ImagePlus aria-hidden className="size-7" />
       <div className="space-y-0.5">
-        <p className="text-sm font-medium">Drop or click to upload photos</p>
-        <p className="text-xs text-muted">Supports jpg / png / webp / gif / avif; EXIF is auto-extracted.</p>
+        <p className="text-sm font-medium">拖入或点击上传照片</p>
+        <p className="text-xs text-muted">支持 jpg / png / webp / gif / avif；会自动提取 EXIF。</p>
       </div>
     </div>
   );
@@ -301,13 +290,13 @@ function QueueCard({
         ) : null}
         {item.status === "error" ? (
           <div className="absolute inset-0 flex items-center justify-center bg-danger/70 px-2 text-center text-xs text-white">
-            {item.errorMessage ?? "Upload failed"}
+            {item.errorMessage ?? "上传失败"}
           </div>
         ) : null}
         <button
           type="button"
           onClick={onRemove}
-          aria-label="Remove from queue"
+          aria-label="从队列移除"
           className="absolute right-1 top-1 inline-flex size-7 items-center justify-center rounded-full bg-ink/70 text-white opacity-0 transition-opacity hover:bg-ink group-hover:opacity-100 focus-visible:opacity-100"
         >
           <X aria-hidden className="size-4" />
@@ -331,12 +320,12 @@ function QueueCard({
           <p className="inline-flex items-center gap-1 truncate">
             <Camera aria-hidden className="size-3" />
             {[item.exif.cameraMake, item.exif.cameraModel].filter(Boolean).join(" ")}
-            {item.exif.lens ? <span className="text-muted"> · {item.exif.lens}</span> : null}
+            {item.exif.lens ? <span className="text-muted">· {item.exif.lens}</span> : null}
           </p>
         ) : null}
         {item.status === "done" ? (
           <span className="rounded-full bg-success/10 px-1.5 py-0.5 text-[10px] font-medium text-success">
-            Uploaded
+            已上传
           </span>
         ) : null}
       </div>
@@ -346,7 +335,7 @@ function QueueCard({
         className="inline-flex items-center justify-center gap-1 border-t border-hair px-2 py-1 text-[11px] text-muted hover:bg-danger/10 hover:text-danger"
       >
         <Trash2 aria-hidden className="size-3" />
-        Remove
+        移除
       </button>
     </li>
   );
