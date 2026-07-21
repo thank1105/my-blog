@@ -7,6 +7,7 @@ import { Eye, EyeOff, FileEdit, Lock, Plus } from "lucide-react";
 import { listArticles, listArticlesQuerySchema, flattenTags, type ArticleRow } from "@/server/articles";
 import { statusValues, visibilityValues } from "@/server/articles";
 import { formatDate } from "@/lib/format";
+import { DeleteArticleButton } from "@/components/admin/articles/DeleteArticleButton";
 
 export const metadata: Metadata = {
   title: "文章管理",
@@ -193,13 +194,16 @@ function ArticleRowView({ row }: { row: ArticleRow }) {
         {formatDate(row.updatedAt)}
       </td>
       <td className="border-b border-hair px-3 py-2 align-top text-right">
-        <Link
-          href={`/admin/articles/${row.id}/edit`}
-          className="inline-flex items-center gap-1 text-accent underline-offset-4 hover:underline"
-        >
-          <FileEdit aria-hidden className="size-3.5" />
-          编辑
-        </Link>
+        <div className="flex flex-wrap justify-end gap-3">
+          <Link
+            href={`/admin/articles/${row.id}/edit`}
+            className="inline-flex items-center gap-1 text-accent underline-offset-4 hover:underline"
+          >
+            <FileEdit aria-hidden className="size-3.5" />
+            编辑
+          </Link>
+          <DeleteArticleButton id={row.id} title={row.title} />
+        </div>
       </td>
     </tr>
   );
