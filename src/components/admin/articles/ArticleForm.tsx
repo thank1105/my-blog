@@ -31,6 +31,7 @@ import { Save, Trash2 } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { coverImageSchema } from "@/lib/media";
 
 import {
   autosaveArticleAction,
@@ -58,7 +59,7 @@ export const articleFormSchema = z
       .or(z.literal("")),
     excerpt: z.string().trim().max(280, "摘要不超过 280 字").optional().or(z.literal("")),
     content: z.string().min(1, "正文不能为空"),
-    coverImage: z.string().trim().optional().or(z.literal("")),
+    coverImage: coverImageSchema,
     categoryId: z.string().optional(),
     visibility: z.enum(["PUBLIC", "PRIVATE", "PASSWORD"]),
     password: z.string().optional(),
@@ -168,6 +169,7 @@ export function ArticleForm(props: ArticleFormProps) {
     control,
     watch,
     setValue,
+    setError,
     formState: { errors, isDirty, isSubmitting },
   } = useForm<ArticleFormValues>({
     resolver: zodResolver(articleFormSchema),
@@ -277,6 +279,14 @@ export function ArticleForm(props: ArticleFormProps) {
     const res = await onSubmit(values);
     if (!res.ok) {
       setServerError(res.error ?? "保存失败");
+      for (const [field, message] of Object.entries(res.fieldErrors ?? {})) {
+        if (field !== "form") {
+          setError(field as keyof ArticleFormValues, {
+            type: "server",
+            message,
+          });
+        }
+      }
       return;
     }
     if (res.redirectTo) {

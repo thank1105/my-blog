@@ -13,6 +13,7 @@ import { z } from "zod";
 import { Prisma, type Project, type Status, type Visibility } from "@prisma/client";
 
 import { db } from "@/lib/db";
+import { coverImageSchema } from "@/lib/media";
 import { slugify, uniqueSlug } from "@/lib/slug";
 
 /* ------------------------------------------------------------------ */
@@ -43,7 +44,7 @@ export const createProjectSchema = z
     title: titleSchema,
     slug: slugSchema,
     description: z.string().trim().min(1, "描述不能为空").max(2000, "描述不超过 2000 字"),
-    coverImage: z.string().trim().url("封面图需为 URL").optional().or(z.literal("")),
+    coverImage: coverImageSchema,
     categoryId: z.string().trim().optional().or(z.literal("")),
     visibility: z.enum(visibilityValues),
     password: z.string().trim().optional(),

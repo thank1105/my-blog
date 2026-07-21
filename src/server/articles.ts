@@ -12,6 +12,7 @@ import { z } from "zod";
 import { Prisma, type Article, type Status, type Visibility } from "@prisma/client";
 
 import { db } from "@/lib/db";
+import { coverImageSchema } from "@/lib/media";
 import { slugify, uniqueSlug } from "@/lib/slug";
 
 /* ------------------------------------------------------------------ */
@@ -28,7 +29,7 @@ export const createArticleSchema = z
     slug: z.string().trim().max(80).optional(),
     excerpt: z.string().trim().max(280, "摘要不超过 280 字").optional(),
     content: z.string().min(1, "正文不能为空"),
-    coverImage: z.string().trim().url("封面图需为 URL").optional().or(z.literal("")),
+    coverImage: coverImageSchema,
     categoryId: z.string().trim().optional().or(z.literal("")),
     visibility: z.enum(visibilityValues),
     password: z.string().trim().optional(),
