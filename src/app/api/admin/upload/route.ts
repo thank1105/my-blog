@@ -22,6 +22,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
   }
 
+  const url = new URL(req.url);
+  const force = url.searchParams.get("force") === "1";
   const form = await req.formData();
   const file = form.get("file");
   if (!(file instanceof File)) {
@@ -29,7 +31,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const saved = await saveCoverImage(file);
+    const saved = await saveCoverImage(file, { force });
     return NextResponse.json(saved);
   } catch (err) {
     if (err instanceof UploadError) {

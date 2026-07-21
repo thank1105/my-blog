@@ -70,7 +70,10 @@ export interface SavedUpload {
   originalName?: string;
 }
 
-export async function saveCoverImage(file: File): Promise<SavedUpload> {
+export async function saveCoverImage(
+  file: File,
+  options: { force?: boolean } = {},
+): Promise<SavedUpload> {
   const { mime, ext } = await resolveImageType(file);
 
   if (!file || file.size === 0) throw new UploadError("文件为空");
@@ -78,11 +81,24 @@ export async function saveCoverImage(file: File): Promise<SavedUpload> {
     throw new UploadError(`文件超过 ${MAX_BYTES / 1024 / 1024} MB 限制`, 413);
   }
   const buf = Buffer.from(await file.arrayBuffer());
-  // Sanity check: the first bytes should match the resolved MIME.
+  const firstBytes = describeFirstBytes(buf);
   if (!looksLikeImage(buf, mime)) {
-    throw new UploadError(
-      `文件内容与上传类型不一致（预期 ${mime}，实际检测不匹配）`,
-    );
+    // The browser declared JPEG (or one of its aliases) and the filename
+    // extension also points at JPEG; trust that signal instead of the
+    // (often missing or unreliable) magic bytes. We still log the bytes
+    // so a corrupted upload can be diagnosed from the dev console.
+    const declaredLooksLikeJpeg = (file.type && JPEG_MIME_ALIASES.has(file.type.toLowerCase()))
+      || /\.(jpe?g|jpe|jfif)$/i.test(file.name);
+    if (declaredLooksLikeJpeg || options.force) {
+      console.warn(
+        `[upload] accepting ${file.name} (${file.size} bytes) as ${mime} despite magic-byte mismatch: ${firstBytes}` +
+          (options.force ? " (force=1)" : ""),
+      );
+    } else {
+      throw new UploadError(
+        `文件内容与上传类型不一致（预期 ${mime}，实际检测 ${firstBytes}）`,
+      );
+    }
   }
   const hash = createHash("sha256").update(buf).digest("hex").slice(0, 20);
   const now = new Date();
@@ -188,4 +204,9 @@ async function resolveImageType(file: File): Promise<{ mime: string; ext: string
   throw new UploadError(
     `不支持的文件类型：${file.type || "未知"}（仅支持 jpg / png / webp / gif / avif）`,
   );
+}
+
+function describeFirstBytes(buf: Buffer): string {
+  const head = Buffer.from(buf.subarray(0, 16));
+  return `0x${head.toString("hex")} (预期 0xffd8 JPEG / 8950 PNG / 4749 GIF / 5249 RIFF / 66747970 AVIF)`;
 }
