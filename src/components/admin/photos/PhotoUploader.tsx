@@ -48,7 +48,6 @@ interface QueueItem {
   values?: PhotoFormValues;
 }
 
-const ACCEPTED_MIME_PREFIX = "image/";
 
 export function PhotoUploader({
   defaultAlbumId,
@@ -84,7 +83,9 @@ export function PhotoUploader({
 
   async function handleFiles(files: FileList | File[]) {
     setGlobalError(null);
-    const list = Array.from(files).filter((f) => f.type.startsWith(ACCEPTED_MIME_PREFIX));
+    // `file.type` is empty for some drag-and-drop / Windows Explorer picks;
+    // fall back to the filename extension so we still recognize JPEG / PNG.
+    const list = Array.from(files).filter((f) => looksLikeImageFile(f));
     if (list.length === 0) {
       setGlobalError("请选择图片文件（jpg / png / webp / gif / avif）");
       return;
@@ -115,14 +116,23 @@ export function PhotoUploader({
           fd.append("file", file);
           const r = await fetch("/api/admin/upload", { method: "POST", body: fd });
           if (!r.ok) {
-            const body = await r.json().catch(() => ({} as { error?: string }));
-            throw new Error(body.error ?? `上传失败 (${r.status})`);
+            const body = await r.json().catch(() => ({} as { error?: string; declaredType?: string }));
+            const reason = body.error ?? `上传失败 (${r.status})`;
+            logError("upload", file, reason);
+            throw new Error(reason);
           }
           const data = (await r.json()) as {
             url: string;
             bytes: number;
             mime: string;
+            ext: string;
+            originalName?: string;
           };
+
+          // Fill in width/height when EXIF was missing.
+          const dimensions = exif?.width && exif?.height
+            ? { width: exif.width, height: exif.height }
+            : (await readImageDimensions(file)) ?? null;
 
           const values: PhotoFormValues = {
             title: "",
@@ -136,8 +146,8 @@ export function PhotoUploader({
             albumId: defaultAlbumId ?? "none",
             visibility: "PUBLIC",
             status: "DRAFT",
-            width: exif?.width ?? null,
-            height: exif?.height ?? null,
+            width: dimensions?.width ?? null,
+            height: dimensions?.height ?? null,
             order: 0,
           };
 
@@ -149,6 +159,7 @@ export function PhotoUploader({
           onUploaded(values);
         } catch (err) {
           const message = err instanceof Error ? err.message : "未知错误";
+          logError("uploader", file, message);
           updateItem(draft.localId, { status: "error", errorMessage: message });
           if (onError) onError(file.name, message);
         }
@@ -352,4 +363,33 @@ function toDateTimeLocal(d: Date): string {
 function formatDate(d: Date): string {
   const pad = (n: number) => n.toString().padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function looksLikeImageFile(file: File): boolean {
+  if (file.type && file.type.startsWith("image/")) return true;
+  const lower = file.name.toLowerCase();
+  return /\.(jpe?g|png|webp|gif|avif|jfif)$/.test(lower);
+}
+
+function readImageDimensions(file: File): Promise<{ width: number; height: number } | null> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const dims = { width: img.naturalWidth || img.width, height: img.naturalHeight || img.height };
+      URL.revokeObjectURL(url);
+      resolve(dims);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(null);
+    };
+    img.src = url;
+  });
+}
+
+function logError(scope: string, file: File, message: string) {
+  if (typeof console !== "undefined") {
+    console.warn(`[${scope}] ${file.name} (${file.size} bytes, ${file.type || "无 MIME"}): ${message}`);
+  }
 }

@@ -26,6 +26,33 @@ const MIME_TO_EXT: Record<string, string> = {
   "image/avif": ".avif",
 };
 
+const JPEG_MIME_ALIASES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/jpe",
+  "image/jfif",
+  "image/pjpeg",
+  "image/x-jpeg",
+  "application/jpeg",
+  "application/x-jpeg",
+]);
+
+const EXT_TO_MIME: Record<string, string> = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".jpe": "image/jpeg",
+  ".jfif": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
+  ".gif": "image/gif",
+  ".avif": "image/avif",
+};
+
+function extOf(name: string): string {
+  const idx = name.lastIndexOf(".");
+  return idx >= 0 ? name.slice(idx).toLowerCase() : "";
+}
+
 export class UploadError extends Error {
   constructor(message: string, public readonly status = 400) {
     super(message);
@@ -37,23 +64,25 @@ export interface SavedUpload {
   url: string;
   bytes: number;
   mime: string;
+  /** Normalized lowercase file extension (including the dot). */
+  ext: string;
+  /** Optional original name (kept for debugging). */
+  originalName?: string;
 }
 
 export async function saveCoverImage(file: File): Promise<SavedUpload> {
+  const { mime, ext } = await resolveImageType(file);
+
   if (!file || file.size === 0) throw new UploadError("文件为空");
   if (file.size > MAX_BYTES) {
     throw new UploadError(`文件超过 ${MAX_BYTES / 1024 / 1024} MB 限制`, 413);
   }
-  const ext = MIME_TO_EXT[file.type];
-  if (!ext) {
-    throw new UploadError(
-      `不支持的文件类型：${file.type || "未知"}（仅支持 jpg / png / webp / gif / avif）`,
-    );
-  }
   const buf = Buffer.from(await file.arrayBuffer());
-  // sanity check: the first bytes should match the declared MIME.
-  if (!looksLikeImage(buf, file.type)) {
-    throw new UploadError("文件内容与声明的类型不一致");
+  // Sanity check: the first bytes should match the resolved MIME.
+  if (!looksLikeImage(buf, mime)) {
+    throw new UploadError(
+      `文件内容与上传类型不一致（预期 ${mime}，实际检测不匹配）`,
+    );
   }
   const hash = createHash("sha256").update(buf).digest("hex").slice(0, 20);
   const now = new Date();
@@ -66,7 +95,9 @@ export async function saveCoverImage(file: File): Promise<SavedUpload> {
   return {
     url: `${PUBLIC_PREFIX}/${yyyy}-${mm}/${filename}`,
     bytes: buf.length,
-    mime: file.type,
+    mime,
+    ext,
+    originalName: file.name,
   };
 }
 
@@ -99,4 +130,62 @@ function looksLikeImage(buf: Buffer, mime: string): boolean {
     default:
       return false;
   }
+}
+function detectImageType(buf: Buffer): { mime: string; ext: string } | null {
+  if (buf.length < 12) return null;
+  // JPEG: starts with 0xff 0xd8
+  if (buf[0] === 0xff && buf[1] === 0xd8) {
+    return { mime: "image/jpeg", ext: ".jpg" };
+  }
+  // PNG
+  if (
+    buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47
+  ) {
+    return { mime: "image/png", ext: ".png" };
+  }
+  // GIF87a / GIF89a
+  if (
+    buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x38 &&
+    (buf[4] === 0x37 || buf[4] === 0x39) && buf[5] === 0x61
+  ) {
+    return { mime: "image/gif", ext: ".gif" };
+  }
+  // WEBP: "RIFF....WEBP"
+  if (
+    buf[0] === 0x52 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x46 &&
+    buf[8] === 0x57 && buf[9] === 0x45 && buf[10] === 0x42 && buf[11] === 0x50
+  ) {
+    return { mime: "image/webp", ext: ".webp" };
+  }
+  // AVIF: bytes 4..11 are "ftypavif" / "ftypavis"
+  if (buf.length >= 12 && buf.slice(4, 8).toString("ascii") === "ftyp") {
+    const brand = buf.slice(8, 12).toString("ascii").toLowerCase();
+    if (brand === "avif" || brand === "avis") {
+      return { mime: "image/avif", ext: ".avif" };
+    }
+  }
+  return null;
+}
+
+async function resolveImageType(file: File): Promise<{ mime: string; ext: string }> {
+  const declared = (file.type || "").toLowerCase();
+  if (declared && MIME_TO_EXT[declared]) {
+    return { mime: declared, ext: MIME_TO_EXT[declared] };
+  }
+  if (declared && JPEG_MIME_ALIASES.has(declared)) {
+    return { mime: "image/jpeg", ext: ".jpg" };
+  }
+  // Fallback to magic-byte detection (requires reading the file).
+  const head = Buffer.from(await file.slice(0, 16).arrayBuffer());
+  const detected = detectImageType(head);
+  if (detected) return detected;
+  // Last resort: trust the filename extension so empty file.type from
+  // drag-and-drop pickers (e.g. image/jpg) does not break uploads.
+  const nameExt = extOf(file.name);
+  if (nameExt && EXT_TO_MIME[nameExt]) {
+    return { mime: EXT_TO_MIME[nameExt], ext: nameExt };
+  }
+  throw new UploadError(
+    `不支持的文件类型：${file.type || "未知"}（仅支持 jpg / png / webp / gif / avif）`,
+  );
 }

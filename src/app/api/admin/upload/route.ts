@@ -33,9 +33,10 @@ export async function POST(req: Request) {
     return NextResponse.json(saved);
   } catch (err) {
     if (err instanceof UploadError) {
-      return NextResponse.json({ error: err.message }, { status: err.status });
+      console.warn(`[upload] rejected ${file.name} (${file.size} bytes, ${file.type || "无 MIME"}): ${err.message}`);
+      return NextResponse.json({ error: err.message, declaredType: file.type }, { status: err.status });
     }
-    console.error("[upload] unexpected", err);
+    console.error(`[upload] unexpected ${file.name} (${file.size} bytes, ${file.type || "无 MIME"})`, err);
     return NextResponse.json({ error: "上传失败" }, { status: 500 });
   }
 }

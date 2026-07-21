@@ -51,7 +51,17 @@ export function PhotoUploadPage({ albums, defaultAlbumId }: UploadPageProps) {
         const lastId = ids[ids.length - 1];
         if (lastId) router.push(`/admin/photos/${lastId}/edit`);
         else router.push("/admin/photos");
+        return;
       }
+      // Surface the concrete failure from the server action so the user can fix it.
+      const firstError = await (async () => {
+        for (const v of queue) {
+          const res = await createPhotoAction(v);
+          if (!res.ok) return res;
+        }
+        return null;
+      })();
+      setError(firstError ? firstError.error : "部分照片保存失败，请检查上面的提示后重试。");
     });
   }, [queue, router]);
 
