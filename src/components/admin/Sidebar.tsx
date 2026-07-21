@@ -10,7 +10,9 @@ import {
   FolderKanban,
   Images,
   FileCode,
+  FolderTree,
   Settings,
+  Tags,
   X,
 } from "lucide-react";
 
@@ -65,6 +67,8 @@ const NAV_GROUPS: readonly NavGroup[] = [
       // Phase 6 / Day 1: albums + photos CRUD shipped -> P6 badge dropped.
       { href: "/admin/photos", label: "相册", icon: Images },
       { href: "/admin/pages", label: "页面", icon: FileCode, badge: "P7" },
+      { href: "/admin/categories", label: "分类", icon: FolderTree },
+      { href: "/admin/tags", label: "标签", icon: Tags },
     ],
   },
   {
