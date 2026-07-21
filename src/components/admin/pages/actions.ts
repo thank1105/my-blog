@@ -7,6 +7,7 @@ import { z } from "zod";
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
+import { validateAboutMetaJson } from "@/lib/about-meta";
 import {
   upsertPage,
   upsertPageSchema,
@@ -39,6 +40,16 @@ export async function upsertPageAction(input: unknown): Promise<ActionResult> {
   const parsed = upsertPageSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: "表单校验失败", fieldErrors: flattenZodError(parsed.error) };
+  }
+  if (parsed.data.type === "ABOUT") {
+    const metaValidation = validateAboutMetaJson(parsed.data.meta);
+    if (!metaValidation.ok) {
+      return {
+        ok: false,
+        error: "关于我资料校验失败",
+        fieldErrors: { meta: metaValidation.error },
+      };
+    }
   }
   await upsertPage(parsed.data);
   revalidatePath("/admin/pages");

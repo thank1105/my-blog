@@ -9,16 +9,18 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Save, ChevronLeft, History, RotateCcw } from "lucide-react";
+import { parseAboutMeta, serializeAboutMeta, type AboutMeta } from "@/lib/about-meta";
 import { buttonVariants } from "@/components/ui/button";
 
 import {
   upsertPageAction,
   restoreRevisionAction,
 } from "./actions";
+import { AboutMetaEditor } from "./AboutMetaEditor";
 
 const pageFormSchema = z.object({
   content: z.string().trim().min(1, "内容不能为空"),
-  meta: z.string().trim().max(2000, "meta 不超过 2000 字").optional().or(z.literal("")),
+  meta: z.string().trim().max(20000, "元数据不超过 20000 字").optional().or(z.literal("")),
   saveRevision: z.boolean().default(true),
 });
 
@@ -46,6 +48,7 @@ export function PageEditor({
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const isAbout = type === "ABOUT";
+  const [aboutMeta, setAboutMeta] = useState<AboutMeta>(() => parseAboutMeta(initialMeta));
   const backHref = isAbout ? "/admin/pages" : "/admin/pages";
   const previewHref = isAbout ? "/about" : "/now";
 
@@ -67,7 +70,16 @@ export function PageEditor({
 
   const onValid = handleSubmit(async (values) => {
     setServerError(null);
-    const result = await upsertPageAction({ type, ...values });
+    let meta = values.meta;
+    if (isAbout) {
+      try {
+        meta = serializeAboutMeta(aboutMeta);
+      } catch (cause) {
+        setServerError(cause instanceof z.ZodError ? cause.issues[0]?.message ?? "请检查关于我资料" : "请检查关于我资料");
+        return;
+      }
+    }
+    const result = await upsertPageAction({ type, ...values, meta });
     if (!result.ok) {
       setServerError(result.error);
       if (result.fieldErrors) {
@@ -111,7 +123,7 @@ export function PageEditor({
             最后更新：{updatedAt}
             {!isAbout
               ? " · Now 页面每次保存都会留一份历史版本，可在右侧恢复。"
-              : " · 关于我页使用 Markdown / 自由文本（前台渲染层按 markdown 解析）。"}
+              : " ? 关于我页使用 Markdown 正文和结构化资料表单。"}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -144,6 +156,9 @@ export function PageEditor({
           <p className="mt-2 text-[11px] text-muted">当前 {content?.length ?? 0} 字</p>
         </div>
 
+        {isAbout ? (
+          <AboutMetaEditor value={aboutMeta} onChange={setAboutMeta} />
+        ) : (
         <div className="rounded-md border border-hair bg-surface p-6 shadow-soft">
           <label htmlFor="page-meta" className="block text-sm font-medium text-ink">
             元数据（JSON / 自由文本）
@@ -159,6 +174,8 @@ export function PageEditor({
             留空则使用默认。结构由前台渲染器决定（Phase 7 / Day 2 默认渲染纯文本）。
           </p>
         </div>
+
+        )}
 
         <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-muted">
           <input

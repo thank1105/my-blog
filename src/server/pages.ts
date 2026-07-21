@@ -23,7 +23,7 @@ export const pageTypeValues = ["ABOUT", "NOW"] as const;
 export const upsertPageSchema = z.object({
   type: z.enum(pageTypeValues),
   content: z.string().trim().min(1, "内容不能为空"),
-  meta: z.string().trim().max(2000).optional().or(z.literal("")),
+  meta: z.string().trim().max(20000).optional().or(z.literal("")),
   /** Snapshot the previous content into history before overwriting. */
   saveRevision: z.boolean().default(true),
 });
