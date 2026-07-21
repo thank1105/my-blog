@@ -62,11 +62,11 @@ const NAV_GROUPS: readonly NavGroup[] = [
     items: [
       // Phase 3 / Day 1: articles CRUD shipped -> P3 badge dropped.
       { href: "/admin/articles", label: "文章", icon: FileText },
-      { href: "/admin/notes", label: "笔记", icon: NotebookPen, badge: "P4" },
+      { href: "/admin/notes", label: "笔记", icon: NotebookPen },
       { href: "/admin/projects", label: "项目", icon: FolderKanban },
       // Phase 6 / Day 1: albums + photos CRUD shipped -> P6 badge dropped.
       { href: "/admin/photos", label: "相册", icon: Images },
-      { href: "/admin/pages", label: "页面", icon: FileCode, badge: "P7" },
+      { href: "/admin/pages", label: "页面", icon: FileCode },
       { href: "/admin/categories", label: "分类", icon: FolderTree },
       { href: "/admin/tags", label: "标签", icon: Tags },
     ],
@@ -75,7 +75,7 @@ const NAV_GROUPS: readonly NavGroup[] = [
     label: "系统",
     items: [
       { href: "/admin/users", label: "用户", icon: Users },
-      { href: "/admin/settings", label: "设置", icon: Settings, badge: "P10" },
+      { href: "/admin/settings", label: "设置", icon: Settings },
     ],
   },
 ];
