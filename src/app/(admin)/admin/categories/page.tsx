@@ -8,6 +8,7 @@ import {
   listCategoriesAdmin,
   type CategoryRow,
 } from "@/server/categories";
+import { DeleteCategoryButton } from "@/components/admin/categories/DeleteCategoryButton";
 
 export const metadata: Metadata = {
   title: "分类管理",
@@ -149,12 +150,15 @@ function CategoryRow({ row }: { row: CategoryRow }) {
       <td className="px-4 py-3 font-mono text-xs text-muted">{row.order}</td>
       <td className="px-4 py-3 text-xs text-muted">{total}</td>
       <td className="px-4 py-3 text-right">
-        <Link
-          href={`/admin/categories/${row.id}/edit`}
-          className="text-xs text-accent underline-offset-4 hover:underline"
-        >
-          编辑
-        </Link>
+        <div className="flex flex-wrap justify-end gap-3">
+          <Link
+            href={`/admin/categories/${row.id}/edit`}
+            className="text-xs text-accent underline-offset-4 hover:underline"
+          >
+            编辑
+          </Link>
+          <DeleteCategoryButton id={row.id} name={row.name} />
+        </div>
       </td>
     </tr>
   );

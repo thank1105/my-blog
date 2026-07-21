@@ -8,6 +8,7 @@ import {
   listTagsAdmin,
   type TagRow,
 } from "@/server/tags";
+import { DeleteTagButton } from "@/components/admin/tags/DeleteTagButton";
 
 export const metadata: Metadata = {
   title: "标签管理",
@@ -142,12 +143,15 @@ function TagRowEl({ row }: { row: TagRow }) {
         {row.color ?? <span className="text-muted/50">—</span>}
       </td>
       <td className="px-4 py-3 text-right">
-        <Link
-          href={`/admin/tags/${row.id}/edit`}
-          className="text-xs text-accent underline-offset-4 hover:underline"
-        >
-          编辑
-        </Link>
+        <div className="flex flex-wrap justify-end gap-3">
+          <Link
+            href={`/admin/tags/${row.id}/edit`}
+            className="text-xs text-accent underline-offset-4 hover:underline"
+          >
+            编辑
+          </Link>
+          <DeleteTagButton id={row.id} name={row.name} />
+        </div>
       </td>
     </tr>
   );
