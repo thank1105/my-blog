@@ -77,6 +77,7 @@ export const articleSelect = {
   visibility: true,
   password: true,
   status: true,
+  featured: true,
   publishedAt: true,
   createdAt: true,
   updatedAt: true,

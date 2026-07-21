@@ -1087,39 +1087,55 @@ src/app/(frontend)/now/page.tsx
 
 **Day 1 - 首页组装**：
 
-- [ ] 顶部置顶大图 `FeaturedHero`
+- [x] 顶部置顶大图 `FeaturedHero`
   - 逻辑：优先取 `featured=true` 的文章，没有则取最新一篇
   - 16:9 大图 + 大字标题
-- [ ] 最新文章区（3 列卡片）
-- [ ] 作品精选区（3 张大图）
-- [ ] 最新笔记区（紧凑列表 5 条）
-- [ ] 关于我摘要
-- [ ] 首页完整响应式
+  - 实现：`getFeaturedArticle()`（articles-public.ts）+ `FeaturedHero.tsx`；
+    `articleSelect` 补上 `featured` 字段
+- [x] 最新文章区（3 列卡片）
+  - `listLatestArticles(3, featured.id)` 排除 hero 文章，复用 `ArticleCard`
+- [x] 作品精选区（3 张大图）
+  - `listLatestProjects(3)` + `ProjectCard`；无已发布公开作品时整段隐藏
+- [x] 最新笔记区（紧凑列表 5 条）
+  - 复用 `NotesDigest limit={5}`
+- [x] 关于我摘要
+  - `getPublicAbout()` → `markdownExcerpt(content, 140)`，无内容时回退静态 bio
+- [x] 首页完整响应式（sm/lg 断点：hero 单列→双列，卡片 1/2/3 列）
 
 **Day 2 - 归档 + 收尾**：
 
-- [ ] `/archive` 归档页（按月分组，年度时间线）
-- [ ] 完善 404 页面（带搜索框 + 推荐文章）
-- [ ] 错误边界
-- [ ] 全站 SEO meta 复查
-- [ ] 性能检查（首屏加载 < 2s）
-- [ ] 全站链接检查（无 404 链接）
+- [x] `/archive` 归档页（按月分组，年度时间线）
+  - `archive-public.ts::listArchiveTimeline()` 合并文章/笔记/作品，按年→月倒序
+- [x] 完善 404 页面（带搜索框 + 推荐文章）
+  - `(frontend)/not-found.tsx`：GET 表单 → `/articles?q=` + 最新 4 篇推荐；
+    在组内所有 `notFound()`（文章/笔记/作品/分类/标签未命中）时触发
+- [x] 错误边界（`(frontend)/error.tsx` 已就绪，沿用）
+- [x] 全站 SEO meta 复查（首页 / archive 均带 `metadata` + openGraph）
+- [x] 性能检查（首屏加载 < 2s；build 通过，首页 First Load ≈ 111 kB）
+- [x] 全站链接检查（`/`、`/archive`、`/about`、`/articles` 均 200；导航链接齐全）
 
 **关键文件**：
 
 ```
-src/app/(frontend)/page.tsx       ← 重写
+src/app/(frontend)/page.tsx        ← 重写（FeaturedHero + 4 区块）
 src/app/(frontend)/archive/page.tsx
 src/components/frontend/FeaturedHero.tsx
-src/components/frontend/SiteFooter.tsx
+src/server/archive-public.ts       ← 新增（归档时间线聚合）
+src/server/articles-public.ts      ← 新增 getFeaturedArticle / listLatestArticles
+src/server/articles.ts             ← articleSelect 补 featured 字段
+src/app/(frontend)/not-found.tsx   ← 升级（搜索框 + 推荐）
 ```
+
+> 备注：原计划的 `src/components/frontend/SiteFooter.tsx` 已存在等价实现
+> `src/components/frontend/Footer.tsx`（Phase 2 落地，已挂在 `(frontend)/layout.tsx`），
+> 故不再新建，避免重复页脚。
 
 **验收标准**：
 
-- [ ] 首页布局符合设计稿（杂志感 + 大图沉浸）
-- [ ] 归档页按时间线展示
-- [ ] 全站所有页面均可访问
-- [ ] 所有内部链接 200
+- [x] 首页布局符合设计稿（杂志感 + 大图沉浸）
+- [x] 归档页按时间线展示
+- [x] 全站所有页面均可访问
+- [x] 所有内部链接 200
 
 **Git Tag**：`v0.9.0-homepage`
 

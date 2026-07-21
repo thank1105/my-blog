@@ -153,6 +153,46 @@ export async function listRelatedArticles(
   return [...sameCategory, ...fillers].slice(0, limit);
 }
 
+/**
+ * Latest N published articles (homepage grid). Optionally exclude one id
+ * so the featured hero article is not repeated in the "最新文章" row.
+ */
+export async function listLatestArticles(
+  limit = 3,
+  excludeId?: string,
+): Promise<ArticleRow[]> {
+  return db.article.findMany({
+    where: {
+      status: "PUBLISHED",
+      deletedAt: null,
+      ...(excludeId ? { id: { not: excludeId } } : {}),
+    },
+    orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
+    take: limit,
+    select: articleSelect,
+  }) as unknown as ArticleRow[];
+}
+
+/**
+ * Pick the homepage hero article: the most recent `featured` article if
+ * any exist, otherwise the most recently published one. Returns null when
+ * there are no published articles at all.
+ */
+export async function getFeaturedArticle(): Promise<ArticleRow | null> {
+  const featured = (await db.article.findFirst({
+    where: { status: "PUBLISHED", deletedAt: null, featured: true },
+    orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
+    select: articleSelect,
+  })) as unknown as ArticleRow | null;
+  if (featured) return featured;
+
+  return db.article.findFirst({
+    where: { status: "PUBLISHED", deletedAt: null },
+    orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
+    select: articleSelect,
+  }) as unknown as ArticleRow | null;
+}
+
 /** Categories + published article counts, used by the public sidebar. */
 export async function listCategoriesWithCount(): Promise<
   { id: string; name: string; slug: string; count: number }[]
