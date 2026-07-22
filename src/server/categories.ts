@@ -1,7 +1,7 @@
 // Phase 7 / Day 1 -- admin-side Category CRUD + reorder.
 
 import { z } from "zod";
-import { Prisma, type CategoryType } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 import { db } from "@/lib/db";
 import { slugify, uniqueSlug } from "@/lib/slug";
@@ -18,7 +18,6 @@ export const createCategorySchema = z.object({
   name: z.string().trim().min(1, "分类名称不能为空").max(80, "名称不超过 80 字"),
   slug: slugSchema,
   description: z.string().trim().max(500, "描述不超过 500 字").optional().or(z.literal("")),
-  type: z.enum(["ARTICLE", "PROJECT"]),
   order: z.number().int().min(0).default(0),
 });
 
@@ -26,7 +25,6 @@ export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
 export type UpdateCategoryInput = CreateCategoryInput;
 
 export const listCategoriesQuerySchema = z.object({
-  type: z.enum(["ARTICLE", "PROJECT"]).optional(),
   q: z.string().trim().optional(),
 });
 
@@ -38,10 +36,9 @@ const categorySelect = {
   slug: true,
   description: true,
   order: true,
-  type: true,
   createdAt: true,
   updatedAt: true,
-  _count: { select: { articles: true, projects: true } },
+  _count: { select: { projects: true } },
 } satisfies Prisma.CategorySelect;
 
 export type CategoryRow = Prisma.CategoryGetPayload<{ select: typeof categorySelect }>;
@@ -82,9 +79,9 @@ async function resolveSlug(
 }
 
 /** Backward-compatible read used by the article form select. */
-export async function listCategories(type?: CategoryType): Promise<CategoryRow[]> {
+export async function listCategories(_type?: "PROJECT"): Promise<CategoryRow[]> {
+  void _type;
   return (await db.category.findMany({
-    where: type ? { type } : undefined,
     orderBy: [{ order: "asc" }, { name: "asc" }],
     select: categorySelect,
   })) as unknown as CategoryRow[];
@@ -101,7 +98,6 @@ export async function listCategoriesAdmin(
   query: ListCategoriesQuery = {},
 ): Promise<CategoryRow[]> {
   const where: Prisma.CategoryWhereInput = {
-    ...(query.type ? { type: query.type } : {}),
     ...(query.q
       ? {
           OR: [
@@ -113,7 +109,7 @@ export async function listCategoriesAdmin(
   };
   return (await db.category.findMany({
     where,
-    orderBy: [{ type: "asc" }, { order: "asc" }, { name: "asc" }],
+    orderBy: [{ order: "asc" }, { name: "asc" }],
     select: categorySelect,
   })) as unknown as CategoryRow[];
 }
@@ -126,7 +122,6 @@ export async function createCategory(input: CreateCategoryInput): Promise<Catego
         slug,
         name: input.name,
         description: input.description || null,
-        type: input.type,
         order: input.order,
       },
       select: categorySelect,
@@ -153,7 +148,6 @@ export async function updateCategory(
         slug,
         name: input.name,
         description: input.description || null,
-        type: input.type,
         order: input.order,
       },
       select: categorySelect,
@@ -170,13 +164,9 @@ export async function deleteCategory(id: string): Promise<void> {
   await db.category.delete({ where: { id } });
 }
 
-export async function reorderCategories(
-  type: CategoryType,
-  categoryIds: string[],
-): Promise<{ count: number }> {
+export async function reorderCategories(categoryIds: string[]): Promise<{ count: number }> {
   return db.$transaction(async (tx) => {
     const current = await tx.category.findMany({
-      where: { type },
       select: { id: true },
     });
     const currentSet = new Set(current.map((c) => c.id));
@@ -185,7 +175,7 @@ export async function reorderCategories(
     }
     for (const id of categoryIds) {
       if (!currentSet.has(id)) {
-        throw new Error(`分类不属于 type=${type}：${id}`);
+        throw new Error(`项目分类不存在：${id}`);
       }
     }
     for (let idx = 0; idx < categoryIds.length; idx++) {

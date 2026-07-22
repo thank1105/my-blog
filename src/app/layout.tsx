@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     default: "小川记事",
     template: "%s | 小川记事",
   },
-  description: "一个独立创作者的日常与记录。",
+  description: "记录技术实现、问题排查和工程实践的个人技术博客。",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
 };
 

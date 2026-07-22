@@ -11,7 +11,7 @@ import { type ArticleRow, articleSelect } from "./articles";
 
 export interface PublicArticleListQuery {
   q?: string;
-  categorySlug?: string;
+  columnSlug?: string;
   tagSlug?: string;
   page?: number;
   pageSize?: number;
@@ -24,6 +24,16 @@ export interface PublicArticleListResult {
   pageSize: number;
 }
 
+export function resolveColumnScopeIds(column: {
+  id: string;
+  parentId: string | null;
+  children: Array<{ id: string }>;
+}): string[] {
+  return column.parentId
+    ? [column.id]
+    : [column.id, ...column.children.map((child) => child.id)];
+}
+
 /**
  * Listing query for the public /articles page + tag/category filters.
  * Only PUBLISHED articles are returned; everything else is hidden by
@@ -34,11 +44,23 @@ export async function listPublishedArticles(
 ): Promise<PublicArticleListResult> {
   const page = query.page ?? 1;
   const pageSize = Math.min(48, query.pageSize ?? 12);
+  const selectedColumn = query.columnSlug
+    ? await db.column.findUnique({
+        where: { slug: query.columnSlug },
+        select: { id: true, parentId: true, children: { select: { id: true } } },
+      })
+    : null;
+
+  if (query.columnSlug && !selectedColumn) {
+    return { rows: [], total: 0, page, pageSize };
+  }
+
+  const columnIds = selectedColumn ? resolveColumnScopeIds(selectedColumn) : undefined;
 
   const where: Prisma.ArticleWhereInput = {
     status: "PUBLISHED",
     deletedAt: null,
-    ...(query.categorySlug ? { category: { slug: query.categorySlug } } : {}),
+    ...(columnIds ? { columnId: { in: columnIds } } : {}),
     ...(query.tagSlug ? { tags: { some: { tag: { slug: query.tagSlug } } } } : {}),
     ...(query.q
       ? {
@@ -93,7 +115,7 @@ export async function incrementArticleView(id: string): Promise<void> {
 
 /**
  * Pick up to `limit` related articles for the given article: same
- * category first, then shared tags. Excludes the source article. Only
+ * column first, then shared tags. Excludes the source article. Only
  * PUBLISHED + non-deleted rows.
  */
 export async function listRelatedArticles(
@@ -102,19 +124,19 @@ export async function listRelatedArticles(
 ): Promise<ArticleRow[]> {
   const source = await db.article.findUnique({
     where: { id: articleId },
-    select: { id: true, categoryId: true, tags: { select: { tagId: true } } },
+    select: { id: true, columnId: true, tags: { select: { tagId: true } } },
   });
   if (!source) return [];
 
   const tagIds = source.tags.map((t) => t.tagId);
 
-  const sameCategory = source.categoryId
+  const sameColumn = source.columnId
     ? ((await db.article.findMany({
         where: {
           status: "PUBLISHED",
           deletedAt: null,
           id: { not: source.id },
-          categoryId: source.categoryId,
+          columnId: source.columnId,
         },
         orderBy: [{ publishedAt: "desc" }],
         take: limit,
@@ -122,10 +144,10 @@ export async function listRelatedArticles(
       })) as unknown as ArticleRow[])
     : [];
 
-  if (sameCategory.length >= limit) return sameCategory;
+  if (sameColumn.length >= limit) return sameColumn;
 
-  const need = limit - sameCategory.length;
-  const takenIds = new Set([source.id, ...sameCategory.map((a) => a.id)]);
+  const need = limit - sameColumn.length;
+  const takenIds = new Set([source.id, ...sameColumn.map((a) => a.id)]);
   const byTag =
     tagIds.length === 0
       ? []
@@ -133,7 +155,7 @@ export async function listRelatedArticles(
           where: {
             status: "PUBLISHED",
             deletedAt: null,
-            id: { notIn: [source.id, ...sameCategory.map((a) => a.id)] },
+            id: { notIn: [source.id, ...sameColumn.map((a) => a.id)] },
             tags: { some: { tagId: { in: tagIds } } },
           },
           orderBy: [{ publishedAt: "desc" }],
@@ -150,7 +172,7 @@ export async function listRelatedArticles(
     if (fillers.length >= need) break;
   }
 
-  return [...sameCategory, ...fillers].slice(0, limit);
+  return [...sameColumn, ...fillers].slice(0, limit);
 }
 
 /**
@@ -193,22 +215,72 @@ export async function getFeaturedArticle(): Promise<ArticleRow | null> {
   }) as unknown as ArticleRow | null;
 }
 
-/** Categories + published article counts, used by the public sidebar. */
-export async function listCategoriesWithCount(): Promise<
-  { id: string; name: string; slug: string; count: number }[]
-> {
-  const cats = await db.category.findMany({
-    where: { type: "ARTICLE" },
+export interface PublicColumnNode {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  directCount: number;
+  totalCount: number;
+  children: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    count: number;
+  }>;
+}
+
+/** Two-level column tree with direct and aggregate published article counts. */
+export async function listColumnTree(): Promise<PublicColumnNode[]> {
+  const roots = await db.column.findMany({
+    where: { parentId: null },
     orderBy: [{ order: "asc" }, { name: "asc" }],
-    select: { id: true, name: true, slug: true },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      children: {
+        orderBy: [{ order: "asc" }, { name: "asc" }],
+        select: { id: true, name: true, slug: true, description: true },
+      },
+    },
   });
   const counts = await db.article.groupBy({
-    by: ["categoryId"],
-    where: { status: "PUBLISHED", deletedAt: null, categoryId: { not: null } },
+    by: ["columnId"],
+    where: { status: "PUBLISHED", deletedAt: null, columnId: { not: null } },
     _count: { _all: true },
   });
-  const byId = new Map(counts.map((c) => [c.categoryId as string, c._count._all]));
-  return cats.map((c) => ({ ...c, count: byId.get(c.id) ?? 0 }));
+  const byId = new Map(counts.map((item) => [item.columnId as string, item._count._all]));
+  return roots.map((root) => {
+    const children = root.children.map((child) => ({ ...child, count: byId.get(child.id) ?? 0 }));
+    const directCount = byId.get(root.id) ?? 0;
+    return {
+      ...root,
+      directCount,
+      totalCount: directCount + children.reduce((sum, child) => sum + child.count, 0),
+      children,
+    };
+  });
+}
+
+export async function getPublicColumnBySlug(slug: string) {
+  return db.column.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      parentId: true,
+      parent: { select: { id: true, name: true, slug: true } },
+      children: {
+        orderBy: [{ order: "asc" }, { name: "asc" }],
+        select: { id: true, name: true, slug: true, description: true },
+      },
+    },
+  });
 }
 
 /** Tags + published article counts. Tags with 0 published articles are hidden. */

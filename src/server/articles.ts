@@ -12,7 +12,7 @@ import { z } from "zod";
 import { Prisma, type Article, type Status, type Visibility } from "@prisma/client";
 
 import { db } from "@/lib/db";
-import { coverImageSchema } from "@/lib/media";
+import { requiredCoverImageSchema } from "@/lib/media";
 import { slugify, uniqueSlug } from "@/lib/slug";
 
 /* ------------------------------------------------------------------ */
@@ -29,8 +29,8 @@ export const createArticleSchema = z
     slug: z.string().trim().max(80).optional(),
     excerpt: z.string().trim().max(280, "摘要不超过 280 字").optional(),
     content: z.string().min(1, "正文不能为空"),
-    coverImage: coverImageSchema,
-    categoryId: z.string().trim().optional().or(z.literal("")),
+    coverImage: requiredCoverImageSchema,
+    columnId: z.string().trim().optional().or(z.literal("")),
     visibility: z.enum(visibilityValues),
     password: z.string().trim().optional(),
     status: z.enum(statusValues),
@@ -57,7 +57,7 @@ export const listArticlesQuerySchema = z.object({
   q: z.string().trim().optional(),
   status: z.enum(statusValues).optional(),
   visibility: z.enum(visibilityValues).optional(),
-  categoryId: z.string().trim().optional(),
+  columnId: z.string().trim().optional(),
   page: z.coerce.number().int().positive().optional(),
   pageSize: z.coerce.number().int().positive().max(100).optional(),
 });
@@ -85,9 +85,16 @@ export const articleSelect = {
   deletedAt: true,
   viewCount: true,
   authorId: true,
-  categoryId: true,
+  columnId: true,
   author: { select: { id: true, username: true, displayName: true, email: true } },
-  category: { select: { id: true, name: true, slug: true } },
+  column: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      parent: { select: { id: true, name: true, slug: true } },
+    },
+  },
   tags: {
     select: {
       tag: { select: { id: true, name: true, slug: true, color: true } },
@@ -123,7 +130,7 @@ export async function listArticles(
     deletedAt: null,
     ...(query.status ? { status: query.status } : {}),
     ...(query.visibility ? { visibility: query.visibility } : {}),
-    ...(query.categoryId ? { categoryId: query.categoryId } : {}),
+    ...(query.columnId ? { columnId: query.columnId } : {}),
     ...(query.q
       ? {
           OR: [
@@ -203,13 +210,13 @@ export async function createArticle(
     title: input.title,
     excerpt: input.excerpt || null,
     content: input.content,
-    coverImage: input.coverImage || null,
+    coverImage: input.coverImage,
     visibility: input.visibility,
     status: input.status,
     publishedAt: input.status === "PUBLISHED" ? new Date() : null,
     author: { connect: { id: opts.authorId } },
-    ...(input.categoryId
-      ? { category: { connect: { id: input.categoryId } } }
+    ...(input.columnId
+      ? { column: { connect: { id: input.columnId } } }
       : {}),
     ...(input.visibility === "PASSWORD" && input.password
       ? { password: input.password }
@@ -263,16 +270,16 @@ export async function updateArticle(
     title: input.title,
     excerpt: input.excerpt || null,
     content: input.content,
-    coverImage: input.coverImage || null,
+    coverImage: input.coverImage,
     visibility: input.visibility,
     status: input.status,
     publishedAt:
       input.status === "PUBLISHED"
         ? existing.publishedAt ?? new Date()
         : null,
-    ...(input.categoryId
-      ? { category: { connect: { id: input.categoryId } } }
-      : { category: { disconnect: true } }),
+    ...(input.columnId
+      ? { column: { connect: { id: input.columnId } } }
+      : { column: { disconnect: true } }),
     ...(input.visibility === "PASSWORD" && input.password
       ? { password: input.password }
       : { password: null }),

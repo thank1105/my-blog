@@ -47,7 +47,7 @@ export default async function AboutPage() {
           <p>“关于我”页面还在打磨中。</p>
           <p className="mt-2 text-xs">
             想了解这个站点？直接看
-            <Link href="/articles" className="mx-1 text-accent underline-offset-4 hover:underline">
+            <Link href="/" className="mx-1 text-accent underline-offset-4 hover:underline">
               文章
             </Link>
             或

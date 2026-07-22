@@ -27,7 +27,6 @@ export const categoryFormSchema = z.object({
     .optional()
     .or(z.literal("")),
   description: z.string().trim().max(500, "描述不超过 500 字").optional().or(z.literal("")),
-  type: z.enum(["ARTICLE", "PROJECT"]),
   order: z.number().int().min(0).default(0),
 });
 
@@ -104,18 +103,6 @@ export function CategoryForm(props: CategoryFormProps) {
               className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 font-mono text-sm text-ink outline-none focus-visible:border-accent"
             />
             <p className="mt-1 text-xs text-muted">留空将按名称自动生成。</p>
-          </div>
-          <div>
-            <label htmlFor="cat-type" className="block text-sm font-medium text-ink">类型</label>
-            <select
-              id="cat-type"
-              {...register("type")}
-              className="mt-1 block w-full rounded border border-hair bg-bg px-3 py-1.5 text-sm text-ink outline-none focus-visible:border-accent"
-            >
-              <option value="ARTICLE">文章分类</option>
-              <option value="PROJECT">作品分类</option>
-            </select>
-            <p className="mt-1 text-xs text-muted">文章与作品的分类分开管理。</p>
           </div>
           <div>
             <label htmlFor="cat-order" className="block text-sm font-medium text-ink">排序</label>

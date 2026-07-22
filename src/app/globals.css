@@ -5,13 +5,17 @@
 @layer base {
   :root {
     /* Design tokens (RGB triplets for usage in tailwind.config.ts cssVariables mode). */
-    --color-bg: 250 250 250;
+    --color-bg: 246 245 242;
     --color-surface: 255 255 255;
-    --color-ink: 26 26 26;
-    --color-muted: 107 114 128;
-    --color-hair: 229 231 235;
+    --color-ink: 23 32 51;
+    --color-muted: 102 112 133;
+    --color-hair: 226 228 233;
     --color-accent: 232 90 44;
     --color-accent-soft: 251 230 220;
+    --color-indigo: 79 70 229;
+    --color-indigo-soft: 236 235 255;
+    --color-teal: 15 136 127;
+    --color-teal-soft: 225 243 240;
     --color-success: 16 185 129;
     --color-danger: 239 68 68;
 
@@ -43,11 +47,27 @@
     color: rgb(var(--color-ink));
   }
 
-  /* Chinese-flavored headings default to the serif stack (思源宋体). */
-  h1,
-  h2,
-  h3 {
-    font-family: theme("fontFamily.serif");
+  :focus-visible {
+    outline: 2px solid rgb(var(--color-accent));
+    outline-offset: 3px;
+  }
+
+}
+
+@layer components {
+  .form-control {
+    @apply block w-full rounded border border-hair bg-bg px-3 py-2 text-sm font-normal text-ink outline-none transition-colors focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/20;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
 

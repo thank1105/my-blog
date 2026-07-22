@@ -62,12 +62,13 @@ const NAV_GROUPS: readonly NavGroup[] = [
     items: [
       // Phase 3 / Day 1: articles CRUD shipped -> P3 badge dropped.
       { href: "/admin/articles", label: "文章", icon: FileText },
+      { href: "/admin/columns", label: "专栏", icon: FolderTree },
       { href: "/admin/notes", label: "笔记", icon: NotebookPen },
       { href: "/admin/projects", label: "项目", icon: FolderKanban },
       // Phase 6 / Day 1: albums + photos CRUD shipped -> P6 badge dropped.
       { href: "/admin/photos", label: "相册", icon: Images },
       { href: "/admin/pages", label: "页面", icon: FileCode },
-      { href: "/admin/categories", label: "分类", icon: FolderTree },
+      { href: "/admin/categories", label: "项目分类", icon: FolderTree },
       { href: "/admin/tags", label: "标签", icon: Tags },
     ],
   },

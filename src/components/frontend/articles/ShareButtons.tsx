@@ -44,7 +44,7 @@ export function ShareButtons({ url, title, className }: ShareButtonsProps) {
 
   return (
     <section className={cn("space-y-3", className)} aria-label="分享文章">
-      <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted">
+      <p className="text-xs font-semibold text-ink">
         分享
       </p>
       <div className="flex flex-wrap items-center gap-2">

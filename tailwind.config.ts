@@ -21,13 +21,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: "#FAFAFA",
+        bg: "#F6F5F2",
         surface: "#FFFFFF",
-        ink: "#1A1A1A",
-        muted: "#6B7280",
-        hair: "#E5E7EB",
+        ink: "#172033",
+        muted: "#667085",
+        hair: "#E2E4E9",
         accent: "#E85A2C",
         "accent-soft": "#FBE6DC",
+        indigo: "#4F46E5",
+        "indigo-soft": "#ECEBFF",
+        teal: "#0F887F",
+        "teal-soft": "#E1F3F0",
         success: "#10B981",
         danger: "#EF4444",
       },
@@ -84,8 +88,8 @@ const config: Config = {
         lg: "12px",
       },
       boxShadow: {
-        soft: "0 1px 3px rgba(0, 0, 0, 0.05)",
-        float: "0 4px 12px rgba(0, 0, 0, 0.08)",
+        soft: "0 1px 3px rgba(23, 32, 51, 0.06)",
+        float: "0 10px 30px rgba(23, 32, 51, 0.10)",
       },
     },
   },

@@ -1,6 +1,6 @@
 // Front-end 404 (Phase 8 / Day 2) -- lives inside `(frontend)` so it
 // inherits the public chrome (Header + Footer). Now offers a search box
-// (GET form -> /articles?q=) and a few recommended latest articles so a
+// (GET form -> /?q=) and a few recommended latest articles so a
 // dead-end still points somewhere useful.
 
 import Link from "next/link";
@@ -24,8 +24,8 @@ export default async function FrontendNotFound() {
         </p>
       </div>
 
-      {/* Search box -> reuses the /articles list search */}
-      <form action="/articles" method="get" className="flex w-full max-w-md gap-2">
+      {/* Search box -> reuses the home article search */}
+      <form action="/" method="get" className="flex w-full max-w-md gap-2">
         <label htmlFor="q" className="sr-only">
           搜索文章
         </label>

@@ -35,8 +35,8 @@ export default async function AdminTagsPage({ searchParams }: PageProps) {
           <h1 className="font-serif text-2xl font-bold text-ink">标签管理</h1>
           <p className="mt-1 text-sm text-muted">
             共 <span className="font-medium text-ink">{rows.length}</span> 个 ·{" "}
-            <Link href="/admin/categories" className="text-accent underline-offset-4 hover:underline">
-              分类管理
+            <Link href="/admin/columns" className="text-accent underline-offset-4 hover:underline">
+              专栏管理
             </Link>
           </p>
         </div>

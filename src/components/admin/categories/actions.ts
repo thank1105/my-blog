@@ -85,12 +85,11 @@ export async function deleteCategoryAction(id: string): Promise<ActionResult> {
 }
 
 export async function reorderCategoriesAction(
-  type: "ARTICLE" | "PROJECT",
   ids: string[],
 ): Promise<{ ok: boolean; error?: string }> {
   await requireAdmin();
   try {
-    await reorderCategories(type, ids);
+    await reorderCategories(ids);
     revalidatePath("/admin/categories");
     return { ok: true };
   } catch (err) {

@@ -73,7 +73,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
         <div className="flex items-center gap-2 text-xs text-muted">
           {project.category ? (
             <Link
-              href={`/categories/${project.category.slug}`}
+              href={`/projects?category=${project.category.slug}`}
               className="rounded bg-accent-soft px-1.5 py-0.5 text-accent hover:bg-accent hover:text-white"
             >
               {project.category.name}

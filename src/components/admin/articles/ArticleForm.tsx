@@ -31,7 +31,7 @@ import { Save, Trash2 } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { coverImageSchema } from "@/lib/media";
+import { requiredCoverImageSchema } from "@/lib/media";
 
 import {
   autosaveArticleAction,
@@ -43,7 +43,7 @@ import {
 import { MarkdownEditor } from "./MarkdownEditor";
 import { VisibilitySelect, type VisibilityValue } from "./VisibilitySelect";
 import { StatusSelect, type StatusValue } from "./StatusSelect";
-import { CategorySelect, type CategoryOption } from "./CategorySelect";
+import { ColumnSelect, type ColumnOption } from "./ColumnSelect";
 import { TagSelector, type TagOption } from "./TagSelector";
 import { CoverImageUploader } from "./CoverImageUploader";
 
@@ -59,8 +59,8 @@ export const articleFormSchema = z
       .or(z.literal("")),
     excerpt: z.string().trim().max(280, "摘要不超过 280 字").optional().or(z.literal("")),
     content: z.string().min(1, "正文不能为空"),
-    coverImage: coverImageSchema,
-    categoryId: z.string().optional(),
+    coverImage: requiredCoverImageSchema,
+    columnId: z.string().optional(),
     visibility: z.enum(["PUBLIC", "PRIVATE", "PASSWORD"]),
     password: z.string().optional(),
     status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
@@ -83,7 +83,7 @@ export interface ArticleFormProps {
   /** Existing article id when mode === "edit"; required for autosave to work. */
   articleId?: string;
   initial: ArticleFormValues;
-  categories: readonly CategoryOption[];
+  columns: readonly ColumnOption[];
   tags: readonly TagOption[];
   /**
    * Optional override hooks. The form defaults to calling its built-in
@@ -114,7 +114,7 @@ type SaveState =
   | { kind: "error"; message: string };
 
 export function ArticleForm(props: ArticleFormProps) {
-  const { mode, articleId, initial, categories, tags } = props;
+  const { mode, articleId, initial, columns, tags } = props;
   const router = useRouter();
 
   // Default bindings pull from the imported server actions. mode +
@@ -154,7 +154,7 @@ export function ArticleForm(props: ArticleFormProps) {
       excerpt: initial.excerpt ?? "",
       content: initial.content ?? "",
       coverImage: initial.coverImage ?? "",
-      categoryId: initial.categoryId ?? "",
+      columnId: initial.columnId ?? "",
       visibility: initial.visibility ?? "PUBLIC",
       password: initial.password ?? "",
       status: initial.status ?? "DRAFT",
@@ -409,17 +409,17 @@ export function ArticleForm(props: ArticleFormProps) {
         />
       </div>
 
-      {/* Category + tags */}
+      {/* Column + tags */}
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-md border border-hair bg-surface p-6 shadow-soft">
           <Controller
             control={control}
-            name="categoryId"
+            name="columnId"
             render={({ field, fieldState }) => (
-              <CategorySelect
+              <ColumnSelect
                 value={field.value ?? ""}
                 onChange={(v) => field.onChange(v)}
-                options={categories}
+                options={columns}
                 error={fieldState.error?.message}
               />
             )}

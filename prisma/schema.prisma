@@ -37,11 +37,6 @@ enum Status {
   ARCHIVED
 }
 
-enum CategoryType {
-  ARTICLE
-  PROJECT
-}
-
 enum PageType {
   ABOUT
   NOW
@@ -80,8 +75,8 @@ model Article {
   title       String
   excerpt     String?
   content     String
-  coverImage  String?
-  categoryId  String?
+  coverImage  String
+  columnId    String?
   visibility  Visibility @default(PUBLIC)
   password    String?
   status      Status     @default(DRAFT)
@@ -94,13 +89,13 @@ model Article {
 
   authorId  String
   author    User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  category  Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  column    Column?      @relation(fields: [columnId], references: [id], onDelete: SetNull)
   tags      ArticleTag[]
 
   @@index([slug])
   @@index([status, publishedAt])
   @@index([visibility])
-  @@index([categoryId])
+  @@index([columnId])
   @@index([authorId])
   @@index([deletedAt])
 }
@@ -242,20 +237,35 @@ model Photo {
 
 // ---------- Organization: Category + Tag + joins ----------
 
+model Column {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  order       Int      @default(0)
+  parentId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  parent   Column?  @relation("ColumnTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children Column[] @relation("ColumnTree")
+  articles Article[]
+
+  @@index([parentId, order])
+}
+
 model Category {
   id          String       @id @default(cuid())
   name        String
   slug        String       @unique
   description String?
-  type        CategoryType
   order       Int          @default(0)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  articles Article[]
   projects Project[]
 
-  @@index([type, order])
+  @@index([order])
 }
 
 model Tag {

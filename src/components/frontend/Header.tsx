@@ -38,19 +38,19 @@ export async function Header({ compact = false, className }: HeaderProps) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-30 border-b border-hair bg-surface/80 backdrop-blur supports-[backdrop-filter]:bg-surface/60",
+        "sticky top-0 z-30 border-b border-hair bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/85",
         className,
       )}
     >
-      <div className="mx-auto flex max-w-container items-center justify-between gap-6 px-4 py-4 sm:px-8 sm:py-5">
+      <div className="mx-auto flex max-w-container items-center justify-between gap-6 px-4 py-4 sm:px-8">
         {/* Brand */}
-        <Link href="/" className="group flex min-w-0 items-baseline gap-3">
-          <span className="font-serif text-lg font-bold tracking-tight text-ink transition-colors group-hover:text-accent sm:text-xl">
+        <Link href="/" className="group flex min-w-0 items-baseline gap-3 border-l-[3px] border-accent pl-3">
+          <span className="text-lg font-bold tracking-tight text-ink transition-colors group-hover:text-accent sm:text-xl">
             小川记事
           </span>
           {!compact ? (
             <span className="hidden truncate text-xs text-muted sm:inline">
-              一个独立创作者的日常与记录
+              技术文章与工程实践
             </span>
           ) : null}
         </Link>

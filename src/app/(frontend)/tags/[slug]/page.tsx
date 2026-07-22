@@ -1,62 +1,24 @@
-// /tags -- 标签云 (Phase 7 / Day 2)
-
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Tag as TagIcon } from "lucide-react";
+import { notFound } from "next/navigation";
 
-import { listPublicTagsWithCount } from "@/server/tags-public";
-import { formatDate } from "@/lib/format";
-
-export const metadata: Metadata = {
-  title: "标签云",
-  description: "按标签浏览所有公开内容。",
-};
+import { ArticlesList } from "@/components/frontend/articles/ArticlesList";
+import { getPublicTagBySlug } from "@/server/tags-public";
 
 export const dynamic = "force-dynamic";
+type Props = { params: Promise<{ slug: string }>; searchParams?: Promise<{ q?: string; page?: string }> };
+const safePage = (value?: string) => { const page = Number.parseInt(value ?? "1", 10); return Number.isFinite(page) && page > 0 ? page : 1; };
 
-export default async function TagsPage() {
-  const tags = await listPublicTagsWithCount();
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const detail = await getPublicTagBySlug((await params).slug);
+  return detail ? { title: `#${detail.tag.name}`, description: detail.tag.description ?? `带有「${detail.tag.name}」标签的技术文章。` } : { title: "标签不存在" };
+}
 
-  return (
-    <section className="mx-auto max-w-container px-4 py-6 sm:py-10 sm:px-8">
-      <header className="mb-6 sm:mb-8">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted">Tags</p>
-        <h1 className="mt-1 font-serif text-3xl font-bold text-ink sm:text-4xl">标签云</h1>
-        <p className="mt-2 max-w-prose text-sm text-muted">
-          共 <span className="font-medium text-ink">{tags.length}</span> 个标签 · 点击进入查看相关文章 / 笔记 / 作品
-        </p>
-      </header>
-
-      {tags.length === 0 ? (
-        <div className="rounded-md border border-dashed border-hair bg-surface px-6 py-16 text-center text-muted shadow-soft">
-          还没有任何标签。
-        </div>
-      ) : (
-        <div className="flex flex-wrap gap-2">
-          {tags.map((t) => (
-            <Link
-              key={t.id}
-              href={`/tags/${t.slug}`}
-              className="group inline-flex items-center gap-1.5 rounded-full border border-hair bg-surface px-3 py-1.5 text-sm transition-colors hover:border-accent hover:bg-accent-soft hover:text-accent"
-              style={t.color ? ({ ["--tag-color" as string]: t.color } as React.CSSProperties) : undefined}
-            >
-              <span
-                className="inline-block size-2 shrink-0 rounded-full"
-                style={{ background: t.color ?? "var(--color-accent)" }}
-                aria-hidden
-              />
-              <span className="font-medium">{t.name}</span>
-              <span className="rounded-full bg-hair px-1.5 py-0.5 font-mono text-[10px] text-muted group-hover:bg-accent-soft">
-                {t.count}
-              </span>
-            </Link>
-          ))}
-        </div>
-      )}
-
-      <p className="mt-10 text-center text-xs text-muted">
-        最近更新 {formatDate(new Date())}
-      </p>
-    </section>
-  );
+export default async function TagPage({ params, searchParams }: Props) {
+  const { slug } = await params;
+  const [detail, query] = await Promise.all([
+    getPublicTagBySlug(slug),
+    searchParams ?? Promise.resolve<{ q?: string; page?: string }>({}),
+  ]);
+  if (!detail) notFound();
+  return <ArticlesList q={query.q?.trim() || undefined} tagSlug={slug} page={safePage(query.page)} heading={`#${detail.tag.name}`} subline={detail.tag.description ?? undefined} basePath={`/tags/${slug}`} />;
 }

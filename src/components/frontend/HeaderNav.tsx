@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, Search, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -37,16 +38,21 @@ interface NavItem {
 }
 
 const PRIMARY_NAV: readonly NavItem[] = [
-  { label: "写作", href: "/articles" },
-  { label: "观察", href: "/notes" },
+  { label: "首页", href: "/" },
+  { label: "专栏", href: "/columns" },
+  { label: "归档", href: "/archive" },
+  { label: "关于", href: "/about" },
+];
+
+const SECONDARY_NAV: readonly NavItem[] = [
+  { label: "笔记", href: "/notes" },
   { label: "项目", href: "/projects" },
   { label: "相册", href: "/photos" },
-  { label: "关于", href: "/about" },
-  { label: "归档", href: "/archive" },
 ];
 
 export function HeaderNav({ user }: HeaderNavProps) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
   const isAdmin = user?.role === "ADMIN";
 
   // Close drawer on Escape; lock body scroll while open.
@@ -76,7 +82,13 @@ export function HeaderNav({ user }: HeaderNavProps) {
             <li key={item.href}>
               <Link
                 href={item.href}
-                className="rounded px-3 py-1.5 text-sm text-ink transition-colors hover:bg-bg hover:text-accent"
+                aria-current={pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`)) ? "page" : undefined}
+                className={cn(
+                  "rounded-md px-3 py-2 text-sm transition-colors",
+                  pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`))
+                    ? "bg-accent-soft font-medium text-accent"
+                    : "text-ink hover:bg-bg hover:text-accent",
+                )}
               >
                 {item.label}
               </Link>
@@ -84,14 +96,25 @@ export function HeaderNav({ user }: HeaderNavProps) {
           ))}
         </ul>
 
-        <button
-          type="button"
-          aria-label="搜索（占位，Phase 5 接入）"
-          title="搜索（占位）"
+        <details className="group relative">
+          <summary className="cursor-pointer list-none rounded-md px-3 py-2 text-sm text-ink transition-colors marker:content-none hover:bg-bg hover:text-accent">
+            更多
+          </summary>
+          <div className="absolute right-0 top-full z-20 mt-2 w-32 rounded-md border border-hair bg-surface p-1 shadow-float">
+            {SECONDARY_NAV.map((item) => (
+              <Link key={item.href} href={item.href} className="block rounded px-3 py-2 text-sm text-ink hover:bg-bg hover:text-accent">{item.label}</Link>
+            ))}
+          </div>
+        </details>
+
+        <Link
+          href="/#article-search"
+          aria-label="搜索文章"
+          title="搜索文章"
           className="ml-1 flex size-9 items-center justify-center rounded text-muted transition-colors hover:bg-bg hover:text-accent"
         >
           <Search aria-hidden className="size-4" />
-        </button>
+        </Link>
 
         {user ? (
           <div className="ml-1 flex items-center gap-2 border-l border-hair pl-3">
@@ -159,7 +182,7 @@ export function HeaderNav({ user }: HeaderNavProps) {
           <Link
             href="/"
             onClick={() => setOpen(false)}
-            className="font-serif text-base font-bold text-ink"
+            className="text-base font-bold text-ink"
           >
             小川记事
           </Link>
@@ -183,6 +206,11 @@ export function HeaderNav({ user }: HeaderNavProps) {
               {item.label}
             </Link>
           ))}
+          <p className="px-4 pt-3 text-xs font-medium text-muted">更多内容</p>
+          {SECONDARY_NAV.map((item) => (
+            <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className="rounded px-4 py-3 text-base text-ink transition-colors hover:bg-bg hover:text-accent">{item.label}</Link>
+          ))}
+          <Link href="/#article-search" onClick={() => setOpen(false)} className="rounded px-4 py-3 text-base text-ink transition-colors hover:bg-bg hover:text-accent">搜索文章</Link>
           <div className="my-2 h-px bg-hair" />
           {user ? (
             <>

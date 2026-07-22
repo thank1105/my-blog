@@ -2,7 +2,7 @@
 
 import type { Metadata } from "next";
 
-import { listCategories } from "@/server/categories";
+import { listColumns } from "@/server/columns";
 import { listTags } from "@/server/tags";
 import { ArticleForm } from "@/components/admin/articles/ArticleForm";
 
@@ -14,9 +14,14 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function AdminArticleNewPage() {
-  const [categories, tags] = await Promise.all([listCategories("ARTICLE"), listTags()]);
+  const [columns, tags] = await Promise.all([listColumns(), listTags()]);
   const tagOptions = tags.map((t) => ({ id: t.id, name: t.name, slug: t.slug, color: t.color }));
-  const categoryOptions = categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug }));
+  const columnOptions = columns.map((column) => ({
+    id: column.id,
+    name: column.name,
+    slug: column.slug,
+    parentId: column.parentId,
+  }));
 
   return (
     <section className="space-y-6">
@@ -35,13 +40,13 @@ export default async function AdminArticleNewPage() {
           excerpt: "",
           content: "",
           coverImage: "",
-          categoryId: "",
+          columnId: "",
           visibility: "PUBLIC",
           password: "",
           status: "DRAFT",
           tagIds: [],
         }}
-        categories={categoryOptions}
+        columns={columnOptions}
         tags={tagOptions}
       />
     </section>

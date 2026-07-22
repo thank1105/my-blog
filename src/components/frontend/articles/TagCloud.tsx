@@ -1,8 +1,6 @@
 ﻿// TagCloud (Phase 3 / Day 2).
 //
-// Cloud of tag chips. Tag font size scales logarithmically with the
-// article count so the most-used tags read loudest without dwarfing
-// the long tail.
+// Compact tag chips with stable category tints and explicit counts.
 
 import Link from "next/link";
 
@@ -27,41 +25,33 @@ export function TagCloud({ tags, activeSlug, title = "标签", className }: TagC
   if (tags.length === 0) {
     return (
       <aside className={cn("space-y-3", className)} aria-label="标签">
-        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted">{title}</p>
+        <p className="text-xs font-semibold text-ink">{title}</p>
         <p className="text-sm text-muted">还没有标签。</p>
       </aside>
     );
   }
 
-  const counts = tags.map((t) => t.count);
-  const max = Math.max(...counts);
-  const min = Math.min(...counts);
-  // Map count -> 12px..18px (logarithmic so we do not get giant outliers).
-  function sizeFor(count: number): string {
-    if (max === min) return "text-sm";
-    const ratio = Math.log(count - min + 1) / Math.log(max - min + 1);
-    if (ratio > 0.66) return "text-lg font-medium";
-    if (ratio > 0.33) return "text-base";
-    return "text-sm";
-  }
-
   return (
     <aside className={cn("space-y-3", className)} aria-label="标签">
-      <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted">{title}</p>
+      <p className="text-xs font-semibold text-ink">{title}</p>
       <ul className="flex flex-wrap gap-2">
-        {tags.map((t) => {
+        {tags.map((t, index) => {
           const active = activeSlug === t.slug;
+          const tone = index % 3 === 0
+            ? "border-accent/15 bg-accent-soft text-accent"
+            : index % 3 === 1
+              ? "border-indigo/15 bg-indigo-soft text-indigo"
+              : "border-teal/15 bg-teal-soft text-teal";
           return (
             <li key={t.id}>
               <Link
                 href={`/tags/${t.slug}`}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 transition-colors",
-                  sizeFor(t.count),
+                  "inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors",
                   active
                     ? "border-accent bg-accent text-white"
-                    : "border-hair text-ink hover:border-accent hover:text-accent",
+                    : cn(tone, "hover:border-accent hover:text-accent"),
                 )}
               >
                 <span>{t.name}</span>

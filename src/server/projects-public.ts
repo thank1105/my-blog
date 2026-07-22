@@ -218,7 +218,6 @@ export async function listProjectCategoriesWithCount(): Promise<
   { id: string; name: string; slug: string; count: number }[]
 > {
   const cats = await db.category.findMany({
-    where: { type: "PROJECT" },
     orderBy: [{ order: "asc" }, { name: "asc" }],
     select: { id: true, name: true, slug: true },
   });

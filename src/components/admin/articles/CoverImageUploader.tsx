@@ -7,7 +7,7 @@
 // owns the persisted URL via `value` / `onChange`.
 
 import { useState } from "react";
-import { ImagePlus, Trash2 } from "lucide-react";
+import { ImagePlus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -50,11 +50,17 @@ export function CoverImageUploader({
 
   return (
     <div>
-      <label className="text-sm font-medium text-ink">封面图</label>
+      <div className="flex items-baseline justify-between gap-4">
+        <label className="text-sm font-medium text-ink">
+          封面图 <span className="text-danger">*</span>
+        </label>
+        <span className="font-mono text-[11px] text-muted">推荐 1200 × 750</span>
+      </div>
       <div
         className={cn(
-          "mt-1 rounded-md border border-dashed border-hair bg-bg/40 p-4",
-          "flex items-start gap-4",
+          "mt-2 rounded-md border border-dashed bg-bg/50 p-4",
+          "grid items-start gap-5 lg:grid-cols-[20rem_minmax(0,1fr)]",
+          error || localError ? "border-danger/60" : "border-hair",
           disabled && "opacity-60",
         )}
       >
@@ -63,14 +69,17 @@ export function CoverImageUploader({
           <img
             src={value}
             alt="封面预览"
-            className="h-24 w-32 flex-shrink-0 rounded object-cover ring-1 ring-hair"
+            className="aspect-[16/10] w-full rounded-md object-cover ring-1 ring-hair"
           />
         ) : (
-          <div className="flex h-24 w-32 flex-shrink-0 items-center justify-center rounded bg-surface text-muted ring-1 ring-hair">
-            <ImagePlus aria-hidden className="size-6" />
+          <div className="flex aspect-[16/10] w-full items-center justify-center rounded-md bg-surface text-muted ring-1 ring-hair">
+            <div className="text-center">
+              <ImagePlus aria-hidden className="mx-auto size-7" />
+              <p className="mt-2 text-xs">文章必须有封面</p>
+            </div>
           </div>
         )}
-        <div className="flex flex-1 flex-col gap-2">
+        <div className="flex min-w-0 flex-col gap-3 pt-1">
           <input
             type="file"
             accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
@@ -87,17 +96,7 @@ export function CoverImageUploader({
             支持 jpg / png / webp / gif / avif，单张不超过 5 MB。
             上传后存到 <code className="font-mono">/uploads/yyyy-mm/&lt;hash&gt;.&lt;ext&gt;</code>。
           </p>
-          {value ? (
-            <button
-              type="button"
-              disabled={disabled || uploading}
-              onClick={() => onChange("")}
-              className="inline-flex w-fit items-center gap-1 rounded border border-hair px-2 py-1 text-xs text-ink hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <Trash2 aria-hidden className="size-3" />
-              移除封面
-            </button>
-          ) : null}
+          {value ? <p className="text-xs font-medium text-success">封面已就绪，可重新选择图片替换。</p> : null}
           {uploading ? (
             <p className="text-xs text-muted">上传中...</p>
           ) : null}

@@ -9,7 +9,7 @@ import { getCategory } from "@/server/categories";
 import { CategoryForm } from "@/components/admin/categories/CategoryForm";
 
 export const metadata: Metadata = {
-  title: "编辑分类",
+  title: "编辑项目分类",
   robots: { index: false, follow: false },
 };
 
@@ -34,10 +34,9 @@ export default async function AdminCategoryEditPage({ params }: PageProps) {
           <ChevronLeft aria-hidden className="size-3.5" />
           返回分类列表
         </Link>
-        <h1 className="mt-2 font-serif text-2xl font-bold text-ink">{cat.name}</h1>
+        <h1 className="mt-2 text-2xl font-bold text-ink">{cat.name}</h1>
         <p className="mt-1 text-sm text-muted">
-          类型：{cat.type === "ARTICLE" ? "文章分类" : "作品分类"} · slug
-          <code className="ml-1 font-mono text-ink">/{cat.slug}</code>
+          项目分类 <code className="ml-1 font-mono text-ink">/{cat.slug}</code>
         </p>
       </header>
 
@@ -48,7 +47,6 @@ export default async function AdminCategoryEditPage({ params }: PageProps) {
           name: cat.name,
           slug: cat.slug,
           description: cat.description ?? "",
-          type: cat.type,
           order: cat.order,
         }}
       />
